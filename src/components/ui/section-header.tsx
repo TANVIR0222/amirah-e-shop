@@ -1,13 +1,15 @@
-import { View } from "react-native"
+import { TouchableOpacity, View } from "react-native"
 
 import { AppText } from "@/components/ui/app-text"
 
 export function SectionHeader({
   title,
   action,
+  onActionPress,
 }: {
   title: string
   action?: string
+  onActionPress?: () => void
 }) {
   return (
     <View
@@ -18,10 +20,17 @@ export function SectionHeader({
       }}
     >
       <AppText variant="subtitle">{title}</AppText>
+
       {action ? (
-        <AppText variant="caption" tone="muted">
-          {action}
-        </AppText>
+        <TouchableOpacity
+          onPress={onActionPress}
+          activeOpacity={0.6}
+          hitSlop={8}
+        >
+          <AppText variant="caption" tone="muted">
+            {action}
+          </AppText>
+        </TouchableOpacity>
       ) : null}
     </View>
   )
