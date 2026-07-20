@@ -43,7 +43,7 @@ export default function WelcomeScreen() {
           <Button
             label="Continue"
             variant="outline"
-            onPress={() => router.push("/(main)/(tabs)")}
+            onPress={() => router.push("/(drawer)/(tabs)")}
           />
         </View>
       </View>
