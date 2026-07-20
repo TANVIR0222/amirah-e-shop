@@ -35,7 +35,8 @@
     "react-native-svg": "15.15.4",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.8.3",
-    "sonner-native": "^0.26.4"
+    "sonner-native": "^0.26.4",
+    "twrnc": "^4.16.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.0",
