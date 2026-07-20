@@ -2,9 +2,9 @@ import { ActivityIndicator, Pressable, type PressableProps } from "react-native"
 
 import { AppText } from "@/components/ui/app-text"
 import { Icon, type IconName } from "@/components/ui/icon"
-import { useAppTheme } from "@/theme/theme-provider"
 import type { colors as colorTokens } from "@/theme/colors"
 import type { spacing as spacingTokens } from "@/theme/spacing"
+import { useAppTheme } from "@/theme/theme-provider"
 
 type ButtonProps = PressableProps & {
   label: string
