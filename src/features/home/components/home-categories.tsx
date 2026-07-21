@@ -1,7 +1,8 @@
-import React, { useState } from "react"
 import tw from "@/lib/tailwind"
-import { homeCategory } from "@/utils/ui-data"
 import { useAppTheme } from "@/theme/theme-provider"
+import { homeCategory } from "@/utils/ui-data"
+import { router } from "expo-router"
+import { useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
 
 type Category = (typeof homeCategory)[number]
@@ -29,10 +30,10 @@ export default function HomeCategories() {
         {/* Image card */}
         <View
           style={[
-            tw`w-16 h-16 rounded-2xl overflow-hidden`,
+            tw`w-20 h-20 rounded-2xl overflow-hidden`,
             {
               borderWidth: 2,
-              borderColor: isActive ? colors.primary : "transparent",
+              borderColor: isActive ? "#C52405" : "transparent",
               backgroundColor: colors.surface,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 2 },
@@ -54,10 +55,10 @@ export default function HomeCategories() {
           numberOfLines={1}
           style={{
             marginTop: 6,
-            fontSize: 11,
-            fontWeight: "500",
-            color: isActive ? colors.primary : colors.mutedForeground,
-            maxWidth: 64,
+            fontSize: 12,
+            fontWeight: "600",
+            color: isActive ? "#C52405" : colors.text,
+            maxWidth: 72,
             textAlign: "center",
           }}
         >
@@ -65,6 +66,14 @@ export default function HomeCategories() {
         </Text>
       </TouchableOpacity>
     )
+  }
+
+  const handleCategoryPress = (category: Category) => {
+    setActiveId(category.id)
+    router.push({
+      pathname: "/category",
+      params: { id: String(category.id), name: category.titile },
+    })
   }
 
   return (
@@ -78,7 +87,7 @@ export default function HomeCategories() {
         <CategoryCard
           item={item}
           isActive={activeId === item.id}
-          onPress={() => setActiveId(item.id)}
+          onPress={() => handleCategoryPress(item)}
         />
       )}
     />

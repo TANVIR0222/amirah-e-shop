@@ -15,17 +15,15 @@ import {
 
 type Product = (typeof PRODUCTS)[number]
 
-const GAP = 5
-const HORIZONTAL_PADDING = 16
-
+// Screen component uses padding: spacing.xl = 24 on each side
+const OUTER_PADDING = 24
+const GAP = 12
 const SCREEN_WIDTH = Dimensions.get("window").width
-
 const NUM_COLUMNS = SCREEN_WIDTH < 380 ? 1 : 2
-
 const CARD_WIDTH =
   NUM_COLUMNS === 1
-    ? SCREEN_WIDTH - HORIZONTAL_PADDING * 2
-    : (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - GAP) / 2
+    ? SCREEN_WIDTH - OUTER_PADDING * 2
+    : (SCREEN_WIDTH - OUTER_PADDING * 2 - GAP) / 2
 
 export default function HomeItemsCard() {
   const { colors } = useAppTheme()
@@ -49,7 +47,7 @@ export default function HomeItemsCard() {
         >
           <Image
             source={{ uri: item.image }}
-            resizeMode="contain"
+            resizeMode="cover"
             style={tw`w-full h-40`}
           />
 
@@ -115,7 +113,7 @@ export default function HomeItemsCard() {
               style={tw.style(
                 `w-9 h-9 rounded-xl items-center justify-center`,
                 {
-                  backgroundColor: colors.primary,
+                  backgroundColor: colors.danger,
                 }
               )}
             >
@@ -128,22 +126,18 @@ export default function HomeItemsCard() {
   }
 
   return (
-    <View style={tw`flex-shrink`}>
-      <FlatList
-        data={PRODUCTS}
-        numColumns={NUM_COLUMNS}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        columnWrapperStyle={
-          NUM_COLUMNS > 1
-            ? {
-                gap: GAP,
-              }
-            : undefined
-        }
-        renderItem={({ item }) => <ProductCard item={item} />}
-        contentContainerStyle={tw`gap-3  pb-5`}
-      />
-    </View>
+    <FlatList
+      data={PRODUCTS}
+      numColumns={NUM_COLUMNS}
+      keyExtractor={(item) => item.id}
+      scrollEnabled={false}
+      columnWrapperStyle={
+        NUM_COLUMNS > 1
+          ? { gap: GAP, justifyContent: "space-between" }
+          : undefined
+      }
+      renderItem={({ item }) => <ProductCard item={item} />}
+      contentContainerStyle={tw`gap-3   pb-5`}
+    />
   )
 }
