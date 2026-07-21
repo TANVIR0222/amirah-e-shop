@@ -16,15 +16,15 @@ const IS_PROD = APP_ENV === "production"
 // ---------------------------------------------------------------------------
 
 const APP_NAMES: Record<AppEnv, string> = {
-  development: "Expo Starter (Dev)",
-  staging: "Expo Starter (Staging)",
-  production: "Expo Router Starter Kit",
+  development: "amiraheshop (Dev)",
+  staging: "amiraheshop (Staging)",
+  production: "amiraheshop",
 }
 
 const BUNDLE_IDS: Record<AppEnv, string> = {
-  development: "com.tanvir.exporouterstarterkit.dev",
-  staging: "com.tanvir.exporouterstarterkit.staging",
-  production: "com.tanvir.exporouterstarterkit",
+  development: "com.amiraheshop.shop.dev",
+  staging: "com.amiraheshop.shop.staging",
+  production: "com.amiraheshop.shop",
 }
 
 // ---------------------------------------------------------------------------
@@ -38,21 +38,21 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   // ── Identity ──────────────────────────────────────────────────────────────
   name: APP_NAMES[APP_ENV],
-  slug: "expo-router-starter-kit",
+  slug: "amirah-e-shop",
   version: "1.0.0",
   owner: "yaxovex780",
 
   // ── Appearance ────────────────────────────────────────────────────────────
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
-  scheme: "exporouterstarterkit",
+  icon: "./assets/app-icon/app-logo.png",
+  scheme: "amiraheshop",
   userInterfaceStyle: "automatic",
 
   // ── iOS ───────────────────────────────────────────────────────────────────
   ios: {
     ...config.ios,
     bundleIdentifier: BUNDLE_IDS[APP_ENV],
-    icon: "./assets/expo.icon",
+    icon: "./assets/app-icon/app-logo.png",
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -65,9 +65,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: BUNDLE_IDS[APP_ENV],
     adaptiveIcon: {
       backgroundColor: "#F3F4F6",
-      foregroundImage: "./assets/images/android-icon-foreground.png",
-      backgroundImage: "./assets/images/android-icon-background.png",
-      monochromeImage: "./assets/images/android-icon-monochrome.png",
+      foregroundImage: "./assets/images/splash-icon.png",
+      backgroundImage: "./assets/images/splash-icon.png",
+      monochromeImage: "./assets/images/splash-icon.png",
     },
     predictiveBackGestureEnabled: false,
   },
@@ -94,9 +94,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-splash-screen",
       {
-        backgroundColor: "#111827",
+        backgroundColor: "#ffffff",
         image: "./assets/images/splash-icon.png",
-        imageWidth: 76,
+        imageWidth: 120,
       },
     ],
     [

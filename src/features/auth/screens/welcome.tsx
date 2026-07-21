@@ -1,42 +1,52 @@
-import { Link } from "expo-router"
-
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { AppText } from "@/components/ui/app-text"
-import { HeroPanel } from "@/components/ui/hero-panel"
+import { Button } from "@/components/ui/button"
 import { Screen } from "@/components/ui/screen"
 import { useI18n } from "@/i18n"
+import { router } from "expo-router"
+import { Image, View } from "react-native"
+import tw from "../../../lib/tailwind"
 
 export default function WelcomeScreen() {
   const { t } = useI18n()
 
   return (
-    <Screen scroll={false} contentStyle={{ justifyContent: "center" }}>
-      <HeroPanel
-        eyebrow={t("welcome.eyebrow")}
-        title={t("welcome.title")}
-        body={t("welcome.body")}
-        meta={t("welcome.meta")}
+    <Screen
+      scroll={false}
+      contentStyle={tw`flex-1 bg-primaryBg items-center justify-center px-6`}
+    >
+      <Image
+        source={require("@/assets/images/wel-come-image.jpg")}
+        style={tw`w-72 h-72`}
+        resizeMode="cover"
       />
 
-      <Card>
-        <AppText variant="subtitle">What is included?</AppText>
-        <AppText tone="muted">
-          Auth routes, tabs, dynamic routes, modals, feature folders, i18n,
-          config, lib, theme, and tests.
+      <View style={tw`mt-12 w-full items-center`}>
+        <AppText variant="title" style={tw`text-center text-primaryText`}>
+          Find Everything You Love
         </AppText>
-      </Card>
 
-      <Link href="/login" asChild>
-        <Button label={t("common.login")} icon="arrowRight" />
-      </Link>
-      <Link href="/signup" asChild>
-        <Button
-          label={t("common.createAccount")}
-          variant="secondary"
-          icon="userPlus"
-        />
-      </Link>
+        <AppText
+          tone="muted"
+          style={tw`mt-3 text-center text-base leading-6 px-4`}
+        >
+          Discover trendy fashion, premium accessories, and beauty essentials—
+          all in one place.
+        </AppText>
+
+        <View style={tw`w-full mt-10 gap-4`}>
+          <Button
+            label="Log In"
+            variant="primary"
+            onPress={() => router.push("/(auth)/login")}
+          />
+
+          <Button
+            label="Continue"
+            variant="outline"
+            onPress={() => router.push("/(drawer)/(tabs)")}
+          />
+        </View>
+      </View>
     </Screen>
   )
 }

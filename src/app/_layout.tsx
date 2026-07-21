@@ -19,13 +19,33 @@ function RootNavigator() {
     <>
       <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={!isSignedIn}>
-          <Stack.Screen name="(auth)" />
-        </Stack.Protected>
-
-        <Stack.Protected guard={isSignedIn}>
-          <Stack.Screen name="(main)" />
-        </Stack.Protected>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(drawer)" />
+        <Stack.Screen name="product" />
+        <Stack.Screen name="(all-order-info)" />
+        <Stack.Screen name="category" />
+        <Stack.Screen
+          name="(modal)/product-modal"
+          options={{
+            presentation: "formSheet",
+            sheetAllowedDetents: [0.5, 1],
+            sheetInitialDetentIndex: 0,
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 24,
+            sheetLargestUndimmedDetentIndex: -1,
+          }}
+        />
+        <Stack.Screen
+          name="(modal)/order-filter-modal"
+          options={{
+            presentation: "formSheet",
+            sheetAllowedDetents: [0.6, 1],
+            sheetInitialDetentIndex: 0,
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 24,
+            sheetLargestUndimmedDetentIndex: -1,
+          }}
+        />
       </Stack>
     </>
   )

@@ -1,84 +1,142 @@
-import { Link } from "expo-router"
-
-import { AppText } from "@/components/ui/app-text"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { HeroPanel } from "@/components/ui/hero-panel"
-import { ListRow } from "@/components/ui/list-row"
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
 import { useSession } from "@/features/auth/auth-session"
 import { useWorkspaceStore } from "@/features/workspace/workspace-store"
-import { useHomeSummary } from "@/hooks/use-home-summary"
 import { useI18n } from "@/i18n"
+import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
+import Ionicons from "@expo/vector-icons/Ionicons"
+import { router } from "expo-router"
+import { StatusBar } from "expo-status-bar"
+import React from "react"
+import { Text, TextInput, TouchableOpacity, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import HomeCarousel from "../components/home-carousel"
+import HomeCategories from "../components/home-categories"
+import HomeItemsCard from "../components/home-items-card"
+
+const BRAND_RED = "#C52405"
 
 export default function HomeScreen() {
   const { user } = useSession()
   const { modules } = useWorkspaceStore()
-  const { readyModules, plannedModules } = useHomeSummary(modules)
   const { locale, t } = useI18n()
-  const { resolvedTheme } = useAppTheme()
+  const { colors } = useAppTheme()
+  const { top } = useSafeAreaInsets()
 
-  // console.log(user)
+  const [search, setSearch] = React.useState<string>("")
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "U"
 
   return (
-    <Screen>
-      <HeroPanel
-        eyebrow="Home"
-        title={t("home.title")}
-        body={t("home.body")}
-        meta={user?.email ?? "Signed in"}
-      />
+    <View style={tw`flex-col flex-1 gap-0 `}>
+      {/* <StatusBar style={"light"} /> */}
 
-      <Card style={{ flexDirection: "row", flexWrap: "wrap" }}>
-        <Metric label="Modules" value={modules.length} />
-        <Metric label="Ready" value={readyModules} />
-        <Metric label="Planned" value={plannedModules} />
-      </Card>
-
-      <Link href="/components" asChild>
-        <Button label="Open components" icon="components" />
-      </Link>
-
-      <SectionHeader
-        title="Included systems"
-        action={`${resolvedTheme} / ${locale.toUpperCase()}`}
-      />
-      <Card>
-        {modules.map((module) => (
-          <ListRow
-            key={module.id}
-            title={module.name}
-            body={
-              module.status === "ready"
-                ? "Configured and ready to extend."
-                : "Included as a placeholder for real setup."
+      {/* ── Top Header Bar ── */}
+      <View
+        style={tw.style(`flex-row items-center px-3 pt-2 pb-2.5`, {
+          backgroundColor: BRAND_RED,
+          paddingTop: top + 15,
+          columnGap: 10,
+        })}
+      >
+        {/* Avatar / Logo */}
+        <View
+          style={tw.style(
+            `w-10 h-10 rounded-full items-center justify-center border-2`,
+            {
+              backgroundColor: "rgba(255,255,255,0.25)",
+              borderColor: "rgba(255,255,255,0.6)",
             }
-            icon={module.status === "ready" ? "checkCircle" : "clock"}
-            trailing={
-              <Badge
-                label={module.status}
-                tone={module.status === "ready" ? "success" : "neutral"}
-              />
+          )}
+        >
+          <Text style={tw`text-white font-bold text-[15px]`}>{initials}</Text>
+        </View>
+
+        {/* Search Bar */}
+        <View
+          style={tw.style(
+            `flex-1 flex-row items-center bg-white rounded-[10px] px-2.5 h-10`,
+            {
+              columnGap: 6,
             }
+          )}
+        >
+          <Ionicons name="search-outline" size={18} color="#999" />
+
+          <TextInput
+            style={tw`flex-1 text-[14px] text-black h-10`}
+            placeholder="Search products..."
+            value={search}
+            onChangeText={setSearch}
+            placeholderTextColor="#999"
+            returnKeyType="search"
+            autoCapitalize="none"
           />
-        ))}
-      </Card>
-    </Screen>
-  )
-}
 
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <Card style={{ flexGrow: 1, minWidth: 96, boxShadow: "none" }}>
-      <AppText variant="caption" tone="muted">
-        {label}
-      </AppText>
-      <AppText variant="title" style={{ fontVariant: ["tabular-nums"] }}>
-        {value}
-      </AppText>
-    </Card>
+          {search.length > 0 && (
+            <TouchableOpacity onPress={() => setSearch("")} hitSlop={6}>
+              <Ionicons name="close-circle" size={16} color="#999" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Filter */}
+        <TouchableOpacity
+          style={tw.style(
+            `w-10 h-10 rounded-[10px] items-center justify-center`,
+            {
+              backgroundColor: "rgba(255,255,255,0.2)",
+            }
+          )}
+        >
+          <Ionicons name="options-outline" size={20} color="#fff" />
+        </TouchableOpacity>
+
+        {/* Cart */}
+        <TouchableOpacity
+          style={tw.style(
+            `w-10 h-10 rounded-[10px] items-center justify-center`,
+            {
+              backgroundColor: "rgba(255,255,255,0.2)",
+            }
+          )}
+        >
+          <Ionicons name="bag-handle-outline" size={20} color="#fff" />
+
+          <View
+            style={tw.style(`absolute w-2 h-2 rounded-full`, {
+              top: 6,
+              right: 6,
+              backgroundColor: "#FFD700",
+            })}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* ── Page Content ── */}
+      <Screen>
+        <HomeCarousel />
+        <SectionHeader
+          title="Categories"
+          action="View All"
+          onActionPress={() => router.push("/(drawer)/(tabs)/search")}
+        />
+        <HomeCategories />
+        <SectionHeader
+          title="Featured Products"
+          action="View All"
+          onActionPress={() => router.push("/(drawer)/(tabs)/search")}
+        />
+        <HomeItemsCard />
+      </Screen>
+    </View>
   )
 }
