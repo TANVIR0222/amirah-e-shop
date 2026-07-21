@@ -8,10 +8,10 @@ export default function TabsLayout() {
   return (
     <NativeTabs
       backgroundColor={colors.surface}
-      indicatorColor={colors.primarySoft}
+      indicatorColor={"#FDECEA"}
       labelStyle={{ color: colors.text }}
       rippleColor={colors.primarySoft}
-      tintColor={colors.primary}
+      tintColor={colors.danger}
     >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Icon
