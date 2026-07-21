@@ -1,3 +1,6 @@
+import { AppText } from "@/components/ui/app-text"
+import { Divider } from "@/components/ui/divider"
+import { Screen } from "@/components/ui/screen"
 import tw from "@/lib/tailwind"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { useState } from "react"
@@ -60,7 +63,7 @@ const STATUS_CONFIG: Record<
   { color: string; bg: string; icon: keyof typeof Ionicons.glyphMap }
 > = {
   Delivered: { color: "#22C55E", bg: "#F0FDF4", icon: "checkmark-circle" },
-  Shipped: { color: "#2C86D1", bg: "#EAF4FB", icon: "bicycle" },
+  Shipped: { color: "#C52405", bg: "#FDECEA", icon: "bicycle" },
   Processing: { color: "#F59E0B", bg: "#FFFBEB", icon: "time" },
   Cancelled: { color: "#EF4444", bg: "#FEF2F2", icon: "close-circle" },
 }
@@ -115,7 +118,7 @@ function OrderCard({ order }: { order: Order }) {
             <Text style={tw`text-xs text-[#757575]`}>
               {order.items} item{order.items > 1 ? "s" : ""} · {order.date}
             </Text>
-            <Text style={tw`text-sm font-geist-bold text-[#1C79BE]`}>
+            <Text style={tw`text-sm font-geist-bold text-[#C52405]`}>
               ৳ {order.total}
             </Text>
           </View>
@@ -126,9 +129,9 @@ function OrderCard({ order }: { order: Order }) {
       <View style={tw`flex-row gap-2 mt-3 border-t border-gray-100 pt-3`}>
         {order.status === "Delivered" && (
           <TouchableOpacity
-            style={tw`flex-1 h-9 rounded-full bg-[#EAF4FB] items-center justify-center`}
+            style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
           >
-            <Text style={tw`text-xs font-semibold text-[#2C86D1]`}>
+            <Text style={tw`text-xs font-semibold text-[#C52405]`}>
               Buy Again
             </Text>
           </TouchableOpacity>
@@ -143,7 +146,7 @@ function OrderCard({ order }: { order: Order }) {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={tw`flex-1 h-9 rounded-full bg-[#2C86D1] items-center justify-center`}
+          style={tw`flex-1 h-9 rounded-full bg-[#C52405] items-center justify-center`}
         >
           <Text style={tw`text-xs font-semibold text-white`}>View Details</Text>
         </TouchableOpacity>
@@ -159,19 +162,13 @@ export default function OrderScreen() {
   const filtered = MOCK_ORDERS.filter((o) => o.status === activeTab)
 
   return (
-    <View style={[tw`flex-1 bg-[#F8F8F8]`, { paddingTop: top }]}>
+    <Screen>
       {/* Header */}
-      <View style={tw`px-5 pt-2 pb-4 bg-white border-b border-[#E8E8E8]`}>
-        <Text style={tw`text-2xl font-geist-bold text-heading_black`}>
-          My Orders
-        </Text>
-        <Text style={tw`text-sm text-[#757575] mt-1`}>
-          {MOCK_ORDERS.length} total orders
-        </Text>
-      </View>
+
+      <AppText variant="title"> My Orders</AppText>
 
       {/* Tabs */}
-      <View style={tw`bg-white px-4 pb-3`}>
+      <View style={tw`bg-white  pb-3`}>
         <View style={tw`flex-row gap-2 mt-3`}>
           {TABS.map((tab) => {
             const isActive = tab === activeTab
@@ -204,7 +201,7 @@ export default function OrderScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={tw`px-4 pt-4 pb-8`}
+        contentContainerStyle={tw``}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <OrderCard order={item} />}
         ListEmptyComponent={
@@ -219,6 +216,6 @@ export default function OrderScreen() {
           </View>
         }
       />
-    </View>
+    </Screen>
   )
 }
