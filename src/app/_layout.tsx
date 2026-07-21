@@ -22,6 +22,8 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(drawer)" />
         <Stack.Screen name="product" />
+        <Stack.Screen name="(all-order-info)" />
+        <Stack.Screen name="category" />
         <Stack.Screen
           name="(modal)/product-modal"
           options={{
@@ -30,7 +32,18 @@ function RootNavigator() {
             sheetInitialDetentIndex: 0,
             sheetGrabberVisible: true,
             sheetCornerRadius: 24,
-            sheetLargestUndimmedDetentIndex: 1,
+            sheetLargestUndimmedDetentIndex: -1,
+          }}
+        />
+        <Stack.Screen
+          name="(modal)/order-filter-modal"
+          options={{
+            presentation: "formSheet",
+            sheetAllowedDetents: [0.6, 1],
+            sheetInitialDetentIndex: 0,
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 24,
+            sheetLargestUndimmedDetentIndex: -1,
           }}
         />
       </Stack>
