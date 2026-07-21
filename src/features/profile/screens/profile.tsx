@@ -1,6 +1,6 @@
-import tw from "@/lib/tailwind"
 import { Screen } from "@/components/ui/screen"
 import { useSession } from "@/features/auth/auth-session"
+import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
@@ -15,38 +15,6 @@ type MenuRow = {
   onPress?: () => void
   danger?: boolean
 }
-
-const SECTIONS: { title: string; rows: MenuRow[] }[] = [
-  {
-    title: "My Account",
-    rows: [
-      { icon: "person-outline", label: "Edit Profile" },
-      { icon: "location-outline", label: "Saved Addresses" },
-      { icon: "card-outline", label: "Payment Methods" },
-    ],
-  },
-  {
-    title: "Orders",
-    rows: [
-      {
-        icon: "bag-handle-outline",
-        label: "My Orders",
-        sublabel: "View all orders",
-      },
-      { icon: "refresh-outline", label: "Returns & Refunds" },
-      { icon: "star-outline", label: "My Reviews" },
-    ],
-  },
-  {
-    title: "Preferences",
-    rows: [
-      { icon: "notifications-outline", label: "Notifications" },
-      { icon: "lock-closed-outline", label: "Privacy & Security" },
-      { icon: "help-circle-outline", label: "Help & Support" },
-      { icon: "information-circle-outline", label: "About" },
-    ],
-  },
-]
 
 const STATS = [
   { icon: "bag-handle" as IoniconName, label: "Orders", value: "12" },
@@ -213,6 +181,47 @@ export default function ProfileScreen() {
     router.replace("/(auth)/welcome")
   }
 
+  const sections: { title: string; rows: MenuRow[] }[] = [
+    {
+      title: "My Account",
+      rows: [
+        { icon: "person-outline", label: "Edit Profile" },
+        { icon: "location-outline", label: "Saved Addresses" },
+        { icon: "card-outline", label: "Payment Methods" },
+      ],
+    },
+    {
+      title: "Orders",
+      rows: [
+        {
+          icon: "bag-handle-outline",
+          label: "My Orders",
+          sublabel: "View all orders",
+          onPress: () => router.push("/(all-order-info)/my-orders"),
+        },
+        {
+          icon: "refresh-outline",
+          label: "Returns & Refunds",
+          onPress: () => router.push("/(all-order-info)/returns-and-refunds"),
+        },
+        {
+          icon: "heart-outline",
+          label: "My Favourite Product",
+          onPress: () => router.push("/(all-order-info)/my-favourite-product"),
+        },
+      ],
+    },
+    {
+      title: "Preferences",
+      rows: [
+        { icon: "notifications-outline", label: "Notifications" },
+        { icon: "lock-closed-outline", label: "Privacy & Security" },
+        { icon: "help-circle-outline", label: "Help & Support" },
+        { icon: "information-circle-outline", label: "About" },
+      ],
+    },
+  ]
+
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -277,7 +286,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── Menu Sections ── */}
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <MenuSection key={section.title} {...section} />
         ))}
 
