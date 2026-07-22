@@ -38,9 +38,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   // ── Identity ──────────────────────────────────────────────────────────────
   name: APP_NAMES[APP_ENV],
-  slug: "amirah-e-shop",
+  slug: "amiraheshop",
   version: "1.0.0",
-  owner: "yaxovex780",
+  owner: "amiraheshops-team",
 
   // ── Appearance ────────────────────────────────────────────────────────────
   orientation: "portrait",
@@ -76,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   updates: {
     enabled: !IS_DEV,
     fallbackToCacheTimeout: 0,
-    url: "https://u.expo.dev/4bb7ba82-3770-48b4-a4a3-f469258cae90",
+    url: "https://u.expo.dev/2c465609-cc31-483a-9d84-0d7cc9972149",
     checkAutomatically: IS_PROD ? "ON_LOAD" : "ON_ERROR_RECOVERY",
     requestHeaders: {
       "expo-channel-name": APP_ENV,
@@ -137,7 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // All other runtime defaults live in src/config/app-env.ts
     // and are read by src/config/env.ts via Constants.expoConfig.extra
     eas: {
-      projectId: "4bb7ba82-3770-48b4-a4a3-f469258cae90",
+      projectId: "2c465609-cc31-483a-9d84-0d7cc9972149",
     },
   },
 })
