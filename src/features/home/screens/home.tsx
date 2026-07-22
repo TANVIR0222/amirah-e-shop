@@ -1,10 +1,7 @@
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
 import { useSession } from "@/features/auth/auth-session"
-import { useWorkspaceStore } from "@/features/workspace/workspace-store"
-import { useI18n } from "@/i18n"
 import tw from "@/lib/tailwind"
-import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import React from "react"
@@ -18,9 +15,6 @@ const BRAND_RED = "#C52405"
 
 export default function HomeScreen() {
   const { user } = useSession()
-  const { modules } = useWorkspaceStore()
-  const { locale, t } = useI18n()
-  const { colors } = useAppTheme()
   const { top } = useSafeAreaInsets()
 
   const [search, setSearch] = React.useState<string>("")
@@ -47,7 +41,8 @@ export default function HomeScreen() {
         })}
       >
         {/* Avatar / Logo */}
-        <View
+        <TouchableOpacity
+          onPress={() => router.push("/(drawer)/(tabs)/profile")}
           style={tw.style(
             `w-10 h-10 rounded-full items-center justify-center border-2`,
             {
@@ -57,7 +52,7 @@ export default function HomeScreen() {
           )}
         >
           <Text style={tw`text-white font-bold text-[15px]`}>{initials}</Text>
-        </View>
+        </TouchableOpacity>
 
         {/* Search Bar */}
         <View
@@ -87,8 +82,9 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Filter */}
+        {/* Notification */}
         <TouchableOpacity
+          onPress={() => router.push("/notifications")}
           style={tw.style(
             `w-10 h-10 rounded-[10px] items-center justify-center`,
             {
@@ -96,11 +92,19 @@ export default function HomeScreen() {
             }
           )}
         >
-          <Ionicons name="options-outline" size={20} color="#fff" />
+          <Ionicons name="notifications-outline" size={20} color="#fff" />
+          <View
+            style={tw.style(`absolute w-2 h-2 rounded-full`, {
+              top: 6,
+              right: 6,
+              backgroundColor: "#FF4D4D",
+            })}
+          />
         </TouchableOpacity>
 
         {/* Cart */}
         <TouchableOpacity
+          onPress={() => router.push("/cart")}
           style={tw.style(
             `w-10 h-10 rounded-[10px] items-center justify-center`,
             {
