@@ -10,8 +10,8 @@ import ProductImageSlider from "../components/product-image-slider"
 // import ImageSlider from "@/components/common/image-slider";
 
 // --- Mocked SVG Icons for Favorite, Plus, Minus ---
-const HeartIconOutline = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C52405" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
-const HeartIconFilled = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#C52405" stroke="#C52405" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
+const HeartIconOutline = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2C86D1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
+const HeartIconFilled = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#2C86D1" stroke="#2C86D1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
 
 // --- Static Product Data ---
 const staticProduct = {
@@ -110,7 +110,7 @@ export default function ProductDetailsScreen() {
             <View style={tw`flex-row gap-2 items-center`}>
               <Text style={tw`text-sm font-inter-regular text-[#757575]`}>
                 Category:{" "}
-                <Text style={tw`text-[#C52405]`}>{staticProduct.category}</Text>
+                <Text style={tw`text-[#2C86D1]`}>{staticProduct.category}</Text>
               </Text>
               <Text style={tw`text-sm text-[#E0E0E0]`}>|</Text>
               <Text style={tw`text-sm font-inter-regular text-[#757575]`}>
@@ -127,7 +127,7 @@ export default function ProductDetailsScreen() {
             style={tw`flex-row justify-between items-center py-2 border-y border-gray-100`}
           >
             <View>
-              <Text style={tw`text-2xl font-geist-bold text-[#C52405]`}>
+              <Text style={tw`text-2xl font-geist-bold text-[#1C79BE]`}>
                 {staticProduct.currency}
                 {staticProduct.price}
               </Text>
@@ -161,7 +161,7 @@ export default function ProductDetailsScreen() {
                 activeOpacity={0.7}
                 style={tw`w-10 h-10 items-center justify-center`}
               >
-                <Text style={tw`text-lg font-bold text-[#C52405]`}>+</Text>
+                <Text style={tw`text-lg font-bold text-[#2C86D1]`}>+</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -186,14 +186,14 @@ export default function ProductDetailsScreen() {
                     style={[
                       tw`px-5 py-2 rounded-full border`,
                       isActive
-                        ? tw`bg-[#FDECEA] border-[#C52405]`
+                        ? tw`bg-[#EAF4FB] border-[#2C86D1]`
                         : tw`bg-white border-[#E0E0E0]`,
                     ]}
                   >
                     <Text
                       style={[
                         tw`text-sm font-inter-medium`,
-                        isActive ? tw`text-[#C52405]` : tw`text-[#606060]`,
+                        isActive ? tw`text-[#1C79BE]` : tw`text-[#606060]`,
                       ]}
                     >
                       {item}
@@ -219,15 +219,15 @@ export default function ProductDetailsScreen() {
 
         {/* Bottom Action Buttons */}
         <View
-          style={tw`absolute bottom-4 left-5 right-5 flex-row justify-between gap-3 bg-white pt-2`}
+          style={tw`absolute bottom-4 left-5 right-5 flex-row justify-between gap-3 pt-2`}
         >
           {!isAddedToCart ? (
             <TouchableOpacity
               onPress={handleAddToCart}
               activeOpacity={0.8}
-              style={tw`flex-1 h-14 rounded-full bg-[#FDECEA] items-center justify-center`}
+              style={tw`flex-1 h-14 rounded-full bg-[#c52405]/20 items-center justify-center`}
             >
-              <Text style={tw`text-[#C52405] text-base font-semibold`}>
+              <Text style={tw`text-black text-base font-semibold`}>
                 Add to Cart
               </Text>
             </TouchableOpacity>
@@ -235,9 +235,9 @@ export default function ProductDetailsScreen() {
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => router.push("/(modal)/product-modal")}
+            onPress={() => router.push("/(modal)/order-summery-modal")}
             style={[
-              tw`h-14 rounded-full bg-[#C52405] items-center justify-center`,
+              tw`h-14 rounded-full bg-[#c52405] items-center justify-center`,
               isAddedToCart ? tw`flex-1` : tw`flex-1`,
             ]}
           >

@@ -1,6 +1,5 @@
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 
@@ -100,8 +99,8 @@ export default function CheckOutModal() {
       >
         <TouchableOpacity
           activeOpacity={0.85}
-          onPress={() => router.back()}
-          style={tw`h-14 rounded-2xl items-center justify-center`}
+          onPress={() => router.push("/checkout/order-details")}
+          style={tw`h-14 bg-[#c52405]  rounded-2xl items-center justify-center`}
         >
           <Text style={tw`text-white text-base font-bold`}>Go to Checkout</Text>
         </TouchableOpacity>

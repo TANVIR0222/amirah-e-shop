@@ -17,14 +17,14 @@ export default function HomeHeader() {
       </View>
 
       <View style={tw`flex-row gap-2 items-center`}>
-        <TouchableOpacity
-          onPress={() => router.push("/(drawer)/(tabs)/order")}
-          style={tw``}
-        >
+        <TouchableOpacity onPress={() => router.push("/cart")} style={tw``}>
           <Ionicons name="cart-outline" size={28} color="#666" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={tw``}>
+        <TouchableOpacity
+          onPress={() => router.push("/notifications")}
+          style={tw``}
+        >
           <View
             style={tw`absolute right-0 top-0 w-2 h-2 rounded-full bg-red-500 z-10`}
           />

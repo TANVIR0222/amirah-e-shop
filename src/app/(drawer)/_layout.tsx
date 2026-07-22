@@ -11,7 +11,7 @@ type NavItem = {
   label: string
   route:
     | "/(drawer)/(tabs)"
-    | "/(drawer)/(tabs)/search"
+    | "/(drawer)/(tabs)/shop"
     | "/(drawer)/(tabs)/order"
     | "/(drawer)/(tabs)/profile"
   icon: keyof typeof Ionicons.glyphMap
@@ -28,11 +28,11 @@ const NAV_ITEMS: NavItem[] = [
     matchSegment: "index",
   },
   {
-    label: "Search",
-    route: "/(drawer)/(tabs)/search",
-    icon: "search-outline",
-    activeIcon: "search",
-    matchSegment: "search",
+    label: "Shop",
+    route: "/(drawer)/(tabs)/shop",
+    icon: "storefront-outline",
+    activeIcon: "storefront",
+    matchSegment: "shop",
   },
   {
     label: "Order",
