@@ -7,7 +7,6 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
-import { StatusBar } from "expo-status-bar"
 import React from "react"
 import { Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -127,13 +126,13 @@ export default function HomeScreen() {
         <SectionHeader
           title="Categories"
           action="View All"
-          onActionPress={() => router.push("/(drawer)/(tabs)/search")}
+          onActionPress={() => router.push("/category")}
         />
         <HomeCategories />
         <SectionHeader
           title="Featured Products"
           action="View All"
-          onActionPress={() => router.push("/(drawer)/(tabs)/search")}
+          onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
         />
         <HomeItemsCard />
       </Screen>
