@@ -209,15 +209,36 @@ export default function ProfileScreen() {
           label: "My Favourite Product",
           onPress: () => router.push("/(all-order-info)/my-favourite-product"),
         },
+        {
+          icon: "time-outline",
+          label: "Delivery History",
+          onPress: () => router.push("/(all-order-info)/delivery-history"),
+        },
       ],
     },
     {
       title: "Preferences",
       rows: [
-        { icon: "notifications-outline", label: "Notifications" },
-        { icon: "lock-closed-outline", label: "Privacy & Security" },
-        { icon: "help-circle-outline", label: "Help & Support" },
-        { icon: "information-circle-outline", label: "About" },
+        {
+          icon: "document-text-outline",
+          label: "Terms & Conditions",
+          onPress: () => router.push("/(all-order-info)/terms-and-conditions"),
+        },
+        {
+          icon: "lock-closed-outline",
+          label: "Privacy & Security",
+          onPress: () => router.push("/(all-order-info)/privacy-and-security"),
+        },
+        {
+          icon: "help-circle-outline",
+          label: "Help & Support (FAQ)",
+          onPress: () => router.push("/(all-order-info)/help-and-support"),
+        },
+        {
+          icon: "information-circle-outline",
+          label: "About",
+          onPress: () => router.push("/(all-order-info)/about"),
+        },
       ],
     },
   ]
