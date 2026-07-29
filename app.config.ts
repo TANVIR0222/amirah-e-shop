@@ -6,7 +6,9 @@ import type { ConfigContext, ExpoConfig } from "expo/config"
 
 type AppEnv = "development" | "staging" | "production"
 
-const APP_ENV = (process.env.APP_ENV ?? "development") as AppEnv
+const APP_ENV = (process.env.APP_ENV ??
+  process.env.APP_VARIANT ??
+  "development") as AppEnv
 
 const IS_DEV = APP_ENV === "development"
 const IS_PROD = APP_ENV === "production"
