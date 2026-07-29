@@ -214,7 +214,7 @@ export default function ProductDetailsScreen() {
           {/* Price & Quantity Controls */}
           <View
             style={tw.style(
-              "flex-row justify-between items-center py-3 border-y",
+              "flex-row justify-between items-center py-3 border",
               { borderColor: colors.border }
             )}
           >
