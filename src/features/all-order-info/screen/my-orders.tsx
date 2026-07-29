@@ -2,6 +2,7 @@ import { AppText } from "@/components/ui/app-text"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { router } from "expo-router"
 import { useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -146,11 +147,32 @@ function OrderCard({ order }: { order: Order }) {
         })}
       >
         {order.status === "Delivered" && (
+          <>
+            <TouchableOpacity
+              onPress={() => router.push("/cart")}
+              style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
+            >
+              <Text style={tw`text-xs font-semibold text-[#C52405]`}>
+                Buy Again
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/(modal)/add-review-modal")}
+              style={tw`flex-1 h-9 rounded-full bg-amber-50 border border-amber-200 items-center justify-center`}
+            >
+              <Text style={tw`text-xs font-semibold text-amber-800`}>
+                Write Review
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {order.status === "Shipped" && (
           <TouchableOpacity
-            style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
+            onPress={() => router.push("/checkout/order-tracking")}
+            style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] border border-red-200 items-center justify-center`}
           >
             <Text style={tw`text-xs font-semibold text-[#C52405]`}>
-              Buy Again
+              Track Live
             </Text>
           </TouchableOpacity>
         )}
@@ -164,9 +186,10 @@ function OrderCard({ order }: { order: Order }) {
           </TouchableOpacity>
         )}
         <TouchableOpacity
+          onPress={() => router.push("/checkout/order-tracking")}
           style={tw`flex-1 h-9 rounded-full bg-[#C52405] items-center justify-center`}
         >
-          <Text style={tw`text-xs font-semibold text-white`}>View Details</Text>
+          <Text style={tw`text-xs font-semibold text-white`}>Track Order</Text>
         </TouchableOpacity>
       </View>
     </View>
