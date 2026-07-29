@@ -36,7 +36,7 @@ export default function WelcomeScreen() {
         <View style={tw`w-full mt-10 gap-4`}>
           <Button
             label="Log In"
-            variant="primary"
+            variant="danger"
             onPress={() => router.push("/(auth)/login")}
           />
 
