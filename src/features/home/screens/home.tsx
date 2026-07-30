@@ -3,7 +3,8 @@ import { SectionHeader } from "@/components/ui/section-header"
 import { useSession } from "@/features/auth/auth-session"
 import tw from "@/lib/tailwind"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
+import { DrawerActions } from "expo-router/react-navigation"
+import { router, useNavigation } from "expo-router"
 import React from "react"
 import { Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -14,6 +15,7 @@ import HomeItemsCard from "../components/home-items-card"
 const BRAND_RED = "#C52405"
 
 export default function HomeScreen() {
+  const navigation = useNavigation()
   const { user } = useSession()
   const { top } = useSafeAreaInsets()
 
@@ -40,18 +42,18 @@ export default function HomeScreen() {
           columnGap: 10,
         })}
       >
-        {/* Avatar / Logo */}
+        {/* Drawer Toggle Button */}
         <TouchableOpacity
-          onPress={() => router.push("/(drawer)/(tabs)/profile")}
+          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
           style={tw.style(
-            `w-10 h-10 rounded-full items-center justify-center border-2`,
+            `w-10 h-10 rounded-[10px] items-center justify-center`,
             {
-              backgroundColor: "rgba(255,255,255,0.25)",
-              borderColor: "rgba(255,255,255,0.6)",
+              backgroundColor: "rgba(255,255,255,0.2)",
             }
           )}
+          activeOpacity={0.7}
         >
-          <Text style={tw`text-white font-bold text-[15px]`}>{initials}</Text>
+          <Ionicons name="menu-outline" size={22} color="#fff" />
         </TouchableOpacity>
 
         {/* Search Bar */}
