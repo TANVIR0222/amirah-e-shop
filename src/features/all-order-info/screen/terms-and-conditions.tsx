@@ -93,16 +93,16 @@ export default function TermsAndConditionsScreen() {
           style={tw.style(`p-4 rounded-2xl flex-row items-center gap-3`, {
             backgroundColor: "#FDECEA",
             borderWidth: 1,
-            borderColor: "#C52405" + "30",
+            borderColor: "#F0653A" + "30",
           })}
         >
           <View
-            style={tw`w-10 h-10 rounded-full bg-[#C52405] items-center justify-center`}
+            style={tw`w-10 h-10 rounded-full bg-[#F0653A] items-center justify-center`}
           >
             <Ionicons name="document-text" size={20} color="#fff" />
           </View>
           <View style={tw`flex-1`}>
-            <Text style={tw`text-sm font-bold text-[#C52405]`}>
+            <Text style={tw`text-sm font-bold text-[#F0653A]`}>
               Amirah E-Shop User Agreement
             </Text>
             <Text style={tw`text-xs text-[#A81E04] mt-0.5`}>

@@ -135,7 +135,7 @@ function ReturnCard({ item }: { item: ReturnItem }) {
         </View>
 
         <View style={tw`items-end`}>
-          <Text style={tw`text-sm font-bold text-[#C52405]`}>
+          <Text style={tw`text-sm font-bold text-[#F0653A]`}>
             ৳{item.amount}
           </Text>
           <Text
@@ -203,16 +203,16 @@ export default function ReturnsAndRefundsScreen() {
           style={tw.style(`rounded-2xl p-4 mb-4 flex-row items-center gap-3`, {
             backgroundColor: "#FDECEA",
             borderWidth: 1,
-            borderColor: "#C52405" + "30",
+            borderColor: "#F0653A" + "30",
           })}
         >
           <View
-            style={tw`w-10 h-10 rounded-full bg-[#C52405] items-center justify-center`}
+            style={tw`w-10 h-10 rounded-full bg-[#F0653A] items-center justify-center`}
           >
             <Ionicons name="shield-checkmark" size={20} color="#fff" />
           </View>
           <View style={tw`flex-1`}>
-            <Text style={tw`text-sm font-bold text-[#C52405]`}>
+            <Text style={tw`text-sm font-bold text-[#F0653A]`}>
               7-Day Hassle-Free Returns
             </Text>
             <Text style={tw`text-xs text-[#A81E04] mt-0.5`}>
@@ -233,8 +233,8 @@ export default function ReturnsAndRefundsScreen() {
                 style={[
                   tw`flex-1 py-2 rounded-full items-center border`,
                   {
-                    backgroundColor: isActive ? "#C52405" : colors.surface,
-                    borderColor: isActive ? "#C52405" : colors.border,
+                    backgroundColor: isActive ? "#F0653A" : colors.surface,
+                    borderColor: isActive ? "#F0653A" : colors.border,
                   },
                 ]}
               >
@@ -293,7 +293,7 @@ export default function ReturnsAndRefundsScreen() {
       >
         <TouchableOpacity
           activeOpacity={0.85}
-          style={tw`h-13 rounded-xl bg-[#C52405] flex-row items-center justify-center gap-2`}
+          style={tw`h-13 rounded-xl bg-[#F0653A] flex-row items-center justify-center gap-2`}
         >
           <Ionicons name="add-circle-outline" size={20} color="#fff" />
           <Text style={tw`text-white font-bold text-sm`}>

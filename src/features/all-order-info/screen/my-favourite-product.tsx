@@ -59,7 +59,7 @@ function FavouriteCard({
             backgroundColor: colors.surface + "CC",
           })}
         >
-          <Ionicons name="heart" size={18} color="#C52405" />
+          <Ionicons name="heart" size={18} color="#F0653A" />
         </TouchableOpacity>
       </View>
 
@@ -75,7 +75,7 @@ function FavouriteCard({
         </Text>
 
         <View style={tw`flex-row items-center justify-between mt-1.5`}>
-          <Text style={tw`text-base font-extrabold text-[#C52405]`}>
+          <Text style={tw`text-base font-extrabold text-[#F0653A]`}>
             ৳{item.price}
           </Text>
           <View
@@ -112,7 +112,7 @@ function FavouriteCard({
 
           <TouchableOpacity
             style={tw.style(`w-9 h-9 rounded-xl items-center justify-center`, {
-              backgroundColor: "#C52405",
+              backgroundColor: "#F0653A",
             })}
           >
             <Ionicons name="bag-handle-outline" size={18} color="#fff" />
@@ -217,7 +217,7 @@ export default function MyFavouriteProductScreen() {
               <Ionicons
                 name="heart-dislike-outline"
                 size={38}
-                color="#C52405"
+                color="#F0653A"
               />
             </View>
             <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
@@ -234,7 +234,7 @@ export default function MyFavouriteProductScreen() {
 
             <TouchableOpacity
               onPress={() => router.push("/(drawer)/(tabs)/shop")}
-              style={tw`mt-6 px-6 py-3 rounded-full bg-[#C52405]`}
+              style={tw`mt-6 px-6 py-3 rounded-full bg-[#F0653A]`}
             >
               <Text style={tw`text-white font-bold text-sm`}>Explore Shop</Text>
             </TouchableOpacity>

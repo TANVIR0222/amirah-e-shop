@@ -57,7 +57,7 @@ export default function Shop() {
         <TouchableOpacity
           onPress={() => router.push("/(modal)/order-filter-modal")}
           style={tw.style(`w-11 h-11 rounded-xl items-center justify-center`, {
-            backgroundColor: "#C52405",
+            backgroundColor: "#F0653A",
           })}
         >
           <Ionicons name="options-outline" size={20} color="#fff" />

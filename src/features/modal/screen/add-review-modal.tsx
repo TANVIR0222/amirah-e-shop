@@ -212,7 +212,7 @@ export default function AddReviewModal() {
           disabled={isSubmitted}
           style={tw.style(
             "mt-4 h-12 rounded-2xl flex-row items-center justify-center gap-2 shadow-sm",
-            isSubmitted ? "bg-green-600" : "bg-[#C52405]"
+            isSubmitted ? "bg-green-600" : "bg-[#000]"
           )}
         >
           <Ionicons

@@ -74,7 +74,7 @@ export default function AboutScreen() {
           })}
         >
           <View
-            style={tw`w-20 h-20 rounded-2xl bg-[#C52405] items-center justify-center mb-3 shadow-md`}
+            style={tw`w-20 h-20 rounded-2xl bg-[#F0653A] items-center justify-center mb-3 shadow-md`}
           >
             <Image
               source={require("@/assets/app-icon/app-logo.png")}
@@ -86,7 +86,7 @@ export default function AboutScreen() {
           <Text style={tw.style(`text-xl font-bold`, { color: colors.text })}>
             Amirah E-Shop
           </Text>
-          <Text style={tw`text-xs font-semibold text-[#C52405] mt-0.5`}>
+          <Text style={tw`text-xs font-semibold text-[#F0653A] mt-0.5`}>
             Your Trusted Everyday Shopping Companion
           </Text>
 
@@ -127,7 +127,7 @@ export default function AboutScreen() {
                 <View
                   style={tw`w-10 h-10 rounded-xl bg-[#FDECEA] items-center justify-center`}
                 >
-                  <Ionicons name={item.icon} size={20} color="#C52405" />
+                  <Ionicons name={item.icon} size={20} color="#F0653A" />
                 </View>
                 <View style={tw`flex-1`}>
                   <Text
@@ -167,7 +167,7 @@ export default function AboutScreen() {
             })}
           >
             <TouchableOpacity style={tw`items-center gap-1`}>
-              <Ionicons name="globe-outline" size={22} color="#C52405" />
+              <Ionicons name="globe-outline" size={22} color="#F0653A" />
               <Text
                 style={tw.style(`text-[11px] font-semibold`, {
                   color: colors.text,
@@ -200,7 +200,7 @@ export default function AboutScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={tw`items-center gap-1`}>
-              <Ionicons name="mail-outline" size={22} color="#C52405" />
+              <Ionicons name="mail-outline" size={22} color="#F0653A" />
               <Text
                 style={tw.style(`text-[11px] font-semibold`, {
                   color: colors.text,

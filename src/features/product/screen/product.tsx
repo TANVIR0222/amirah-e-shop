@@ -153,7 +153,7 @@ export default function ProductDetailsScreen() {
             <Ionicons
               name={isFavorite ? "heart" : "heart-outline"}
               size={20}
-              color={isFavorite ? "#C52405" : colors.text}
+              color={isFavorite ? "#F0653A" : colors.text}
             />
           </TouchableOpacity>
         </View>
@@ -193,7 +193,7 @@ export default function ProductDetailsScreen() {
                 style={tw.style("text-xs", { color: colors.mutedForeground })}
               >
                 Category:{" "}
-                <Text style={tw`font-semibold text-[#C52405]`}>
+                <Text style={tw`font-semibold text-[#F0653A]`}>
                   {staticProduct.category}
                 </Text>
               </Text>
@@ -220,7 +220,7 @@ export default function ProductDetailsScreen() {
           >
             <View style={tw`gap-0.5`}>
               <View style={tw`flex-row items-baseline gap-2`}>
-                <Text style={tw`text-2xl font-bold text-[#C52405]`}>
+                <Text style={tw`text-2xl font-bold text-[#F0653A]`}>
                   {staticProduct.currency} {staticProduct.price}
                 </Text>
                 {staticProduct.originalPrice && (
@@ -266,7 +266,7 @@ export default function ProductDetailsScreen() {
                 activeOpacity={0.7}
                 style={tw`w-9 h-9 items-center justify-center bg-white`}
               >
-                <Ionicons name="add" size={16} color="#C52405" />
+                <Ionicons name="add" size={16} color="#F0653A" />
               </TouchableOpacity>
             </View>
           </View>
@@ -293,7 +293,7 @@ export default function ProductDetailsScreen() {
                       isActive
                         ? {
                             backgroundColor: "#FEF2F2",
-                            borderColor: "#C52405",
+                            borderColor: "#F0653A",
                           }
                         : {
                             backgroundColor: colors.surface,
@@ -304,11 +304,11 @@ export default function ProductDetailsScreen() {
                     <Ionicons
                       name={isActive ? "checkmark-circle" : "ellipse-outline"}
                       size={14}
-                      color={isActive ? "#C52405" : colors.mutedForeground}
+                      color={isActive ? "#F0653A" : colors.mutedForeground}
                     />
                     <Text
                       style={tw.style("text-xs font-bold", {
-                        color: isActive ? "#C52405" : colors.text,
+                        color: isActive ? "#F0653A" : colors.text,
                       })}
                     >
                       {item}
@@ -345,7 +345,7 @@ export default function ProductDetailsScreen() {
               <TouchableOpacity
                 onPress={() => router.push("/(drawer)/(tabs)/shop")}
               >
-                <Text style={tw`text-xs font-bold text-[#C52405]`}>
+                <Text style={tw`text-xs font-bold text-[#F0653A]`}>
                   View All →
                 </Text>
               </TouchableOpacity>
@@ -387,7 +387,7 @@ export default function ProductDetailsScreen() {
                         <Ionicons
                           name={isLiked ? "heart" : "heart-outline"}
                           size={14}
-                          color={isLiked ? "#C52405" : "#6B7280"}
+                          color={isLiked ? "#F0653A" : "#6B7280"}
                         />
                       </TouchableOpacity>
 
@@ -424,7 +424,7 @@ export default function ProductDetailsScreen() {
                         style={tw`flex-row items-center justify-between mt-1`}
                       >
                         <View style={tw`flex-row items-baseline gap-1`}>
-                          <Text style={tw`text-xs font-bold text-[#C52405]`}>
+                          <Text style={tw`text-xs font-bold text-[#F0653A]`}>
                             ৳{item.price}
                           </Text>
                           {item.originalPrice && (
@@ -443,7 +443,7 @@ export default function ProductDetailsScreen() {
                           <Ionicons
                             name="bag-add-outline"
                             size={14}
-                            color="#C52405"
+                            color="#F0653A"
                           />
                         </TouchableOpacity>
                       </View>
@@ -478,18 +478,18 @@ export default function ProductDetailsScreen() {
                   }
                 : {
                     backgroundColor: "#FEF2F2",
-                    borderColor: "#C52405",
+                    borderColor: "#F0653A",
                   }
             )}
           >
             <Ionicons
               name={isAddedToCart ? "checkmark-circle" : "cart-outline"}
               size={18}
-              color={isAddedToCart ? "#16A34A" : "#C52405"}
+              color={isAddedToCart ? "#16A34A" : "#F0653A"}
             />
             <Text
               style={tw.style("text-sm font-bold", {
-                color: isAddedToCart ? "#16A34A" : "#C52405",
+                color: isAddedToCart ? "#16A34A" : "#F0653A",
               })}
             >
               {isAddedToCart ? "Added to Cart" : "Add to Cart"}
@@ -499,7 +499,7 @@ export default function ProductDetailsScreen() {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => router.push("/(modal)/order-summery-modal")}
-            style={tw`flex-1 h-12 rounded-2xl bg-[#C52405] flex-row items-center justify-center gap-2 shadow-sm`}
+            style={tw`flex-1 h-12 rounded-2xl bg-[#F0653A] flex-row items-center justify-center gap-2 shadow-sm`}
           >
             <Text style={tw`text-sm font-bold text-white`}>Buy Now</Text>
             <Ionicons name="flash-outline" size={16} color="#FFF" />

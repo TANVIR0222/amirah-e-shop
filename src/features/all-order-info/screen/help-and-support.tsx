@@ -130,7 +130,7 @@ export default function HelpAndSupportScreen() {
         {/* Support Banner */}
         <View
           style={tw.style(`p-4 rounded-2xl flex-row items-center gap-3`, {
-            backgroundColor: "#C52405",
+            backgroundColor: "#F0653A",
           })}
         >
           <View
@@ -164,7 +164,7 @@ export default function HelpAndSupportScreen() {
             <View
               style={tw`w-9 h-9 rounded-xl bg-[#FDECEA] items-center justify-center`}
             >
-              <Ionicons name="chatbubbles" size={18} color="#C52405" />
+              <Ionicons name="chatbubbles" size={18} color="#F0653A" />
             </View>
             <Text style={tw.style(`text-xs font-bold`, { color: colors.text })}>
               Live Chat
@@ -265,7 +265,7 @@ export default function HelpAndSupportScreen() {
                 key={faq.id}
                 style={tw.style(`rounded-2xl border overflow-hidden`, {
                   backgroundColor: colors.surface,
-                  borderColor: isExpanded ? "#C52405" : colors.border,
+                  borderColor: isExpanded ? "#F0653A" : colors.border,
                 })}
               >
                 <TouchableOpacity
@@ -275,7 +275,7 @@ export default function HelpAndSupportScreen() {
                 >
                   <Text
                     style={tw.style(`flex-1 text-sm font-semibold`, {
-                      color: isExpanded ? "#C52405" : colors.text,
+                      color: isExpanded ? "#F0653A" : colors.text,
                     })}
                   >
                     {faq.question}
@@ -283,7 +283,7 @@ export default function HelpAndSupportScreen() {
                   <Ionicons
                     name={isExpanded ? "chevron-up" : "chevron-down"}
                     size={18}
-                    color={isExpanded ? "#C52405" : colors.mutedForeground}
+                    color={isExpanded ? "#F0653A" : colors.mutedForeground}
                   />
                 </TouchableOpacity>
 

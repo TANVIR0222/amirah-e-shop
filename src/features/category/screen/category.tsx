@@ -61,7 +61,7 @@ function CategoryProductCard({ item }: { item: Product }) {
           <Ionicons
             name={liked ? "heart" : "heart-outline"}
             size={16}
-            color={liked ? "#C52405" : colors.mutedForeground}
+            color={liked ? "#F0653A" : colors.mutedForeground}
           />
         </TouchableOpacity>
       </View>
@@ -77,7 +77,7 @@ function CategoryProductCard({ item }: { item: Product }) {
           {item.name}
         </Text>
 
-        <Text style={tw`text-sm font-extrabold text-[#C52405] mt-1`}>
+        <Text style={tw`text-sm font-extrabold text-[#F0653A] mt-1`}>
           ৳{item.price}
         </Text>
 
@@ -107,7 +107,7 @@ function CategoryProductCard({ item }: { item: Product }) {
 
           <TouchableOpacity
             style={tw.style(`w-8 h-8 rounded-lg items-center justify-center`, {
-              backgroundColor: "#C52405",
+              backgroundColor: "#F0653A",
             })}
           >
             <Ionicons name="bag-handle-outline" size={16} color="#fff" />
@@ -188,7 +188,7 @@ export default function CategoryScreen() {
         {/* Filter button */}
         <TouchableOpacity
           onPress={() => router.push("/(modal)/order-filter-modal")}
-          style={tw`w-10 h-10 rounded-xl items-center justify-center bg-[#C52405]`}
+          style={tw`w-10 h-10 rounded-xl items-center justify-center bg-[#F0653A]`}
         >
           <Ionicons name="options-outline" size={18} color="#fff" />
         </TouchableOpacity>
@@ -221,7 +221,7 @@ export default function CategoryScreen() {
                   {/* Selected left indicator bar */}
                   {isSelected && (
                     <View
-                      style={tw`absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[#C52405]`}
+                      style={tw`absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[#F0653A]`}
                     />
                   )}
 
@@ -231,7 +231,7 @@ export default function CategoryScreen() {
                       `w-12 h-12 rounded-xl overflow-hidden mb-1 justify-center items-center`,
                       {
                         borderWidth: isSelected ? 2 : 1,
-                        borderColor: isSelected ? "#C52405" : colors.border,
+                        borderColor: isSelected ? "#F0653A" : colors.border,
                         backgroundColor: colors.background,
                       }
                     )}
@@ -248,7 +248,7 @@ export default function CategoryScreen() {
                     style={{
                       fontSize: 10,
                       fontWeight: isSelected ? "700" : "500",
-                      color: isSelected ? "#C52405" : colors.mutedForeground,
+                      color: isSelected ? "#F0653A" : colors.mutedForeground,
                       textAlign: "center",
                       lineHeight: 13,
                     }}
@@ -277,8 +277,8 @@ export default function CategoryScreen() {
                     key={sub}
                     onPress={() => setSelectedSubCat(sub)}
                     style={tw.style(`px-3.5 py-1.5 rounded-full border`, {
-                      backgroundColor: isActive ? "#C52405" : colors.surface,
-                      borderColor: isActive ? "#C52405" : colors.border,
+                      backgroundColor: isActive ? "#F0653A" : colors.surface,
+                      borderColor: isActive ? "#F0653A" : colors.border,
                     })}
                   >
                     <Text
@@ -301,7 +301,7 @@ export default function CategoryScreen() {
             style={tw.style(
               `rounded-2xl p-3 mb-3 flex-row items-center justify-between overflow-hidden`,
               {
-                backgroundColor: "#C52405",
+                backgroundColor: "#F0653A",
               }
             )}
           >
