@@ -186,8 +186,11 @@ export default function ProfileScreen() {
       title: "My Account",
       rows: [
         { icon: "person-outline", label: "Edit Profile" },
-        { icon: "location-outline", label: "Saved Addresses" },
-        { icon: "card-outline", label: "Payment Methods" },
+        {
+          icon: "location-outline",
+          label: "Saved Addresses",
+          onPress: () => router.push("/profile/addresses"),
+        },
       ],
     },
     {

@@ -2,13 +2,30 @@ import tw from "@/lib/tailwind"
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "@/utils/phone-screen-size"
 import { MaterialIcons } from "@expo/vector-icons"
 import React, { useRef } from "react"
-import { Image, TouchableOpacity, View } from "react-native"
-import PagerView from "react-native-pager-view"
+import {
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native"
+
+let PagerView: any = null
+if (Platform.OS !== "web") {
+  try {
+    // Dynamically require PagerView on mobile platforms to prevent Web Metro bundling errors
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    PagerView = require("react-native-pager-view").default
+  } catch {
+    PagerView = null
+  }
+}
 
 const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
-  console.log(images)
-
   const pagerRef = useRef<any>(null)
+  const scrollViewRef = useRef<ScrollView>(null)
   const [currentIndex, setCurrentIndex] = React.useState(0)
 
   const imageUrls = (images || []).map((img) => ({
@@ -20,35 +37,88 @@ const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
 
   const scrollToIndex = (index: number) => {
     if (index >= 0 && index < imageUrls.length) {
-      pagerRef.current?.setPage(index)
+      if (Platform.OS !== "web" && PagerView && pagerRef.current) {
+        pagerRef.current.setPage(index)
+      } else if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          x: index * IMAGE_WIDTH,
+          animated: true,
+        })
+      }
       setCurrentIndex(index)
+    }
+  }
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x
+    const newIndex = Math.round(contentOffsetX / IMAGE_WIDTH)
+    if (
+      newIndex !== currentIndex &&
+      newIndex >= 0 &&
+      newIndex < imageUrls.length
+    ) {
+      setCurrentIndex(newIndex)
     }
   }
 
   return (
     <View style={tw`relative mt-3`}>
-      <PagerView
-        ref={pagerRef}
-        initialPage={0}
-        style={{
-          width: IMAGE_WIDTH,
-          height: IMAGE_HEIGHT,
-          alignSelf: "center",
-        }}
-        onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
-      >
-        {imageUrls.map((img, index) => (
-          <Image
-            key={index}
-            source={{ uri: img.uri }}
-            style={{
-              width: IMAGE_WIDTH,
-              height: IMAGE_HEIGHT,
-              borderRadius: 8,
-            }}
-          />
-        ))}
-      </PagerView>
+      {Platform.OS !== "web" && PagerView ? (
+        <PagerView
+          ref={pagerRef}
+          initialPage={0}
+          style={{
+            width: IMAGE_WIDTH,
+            height: IMAGE_HEIGHT,
+            alignSelf: "center",
+          }}
+          onPageSelected={(e: any) => setCurrentIndex(e.nativeEvent.position)}
+        >
+          {imageUrls.map((img, index) => (
+            <View
+              key={index}
+              style={{ width: IMAGE_WIDTH, height: IMAGE_HEIGHT }}
+            >
+              <Image
+                source={{ uri: img.uri }}
+                style={{
+                  width: IMAGE_WIDTH,
+                  height: IMAGE_HEIGHT,
+                  borderRadius: 8,
+                }}
+                resizeMode="cover"
+              />
+            </View>
+          ))}
+        </PagerView>
+      ) : (
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          style={{
+            width: IMAGE_WIDTH,
+            height: IMAGE_HEIGHT,
+            alignSelf: "center",
+          }}
+        >
+          {imageUrls.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={{
+                width: IMAGE_WIDTH,
+                height: IMAGE_HEIGHT,
+                borderRadius: 8,
+              }}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {imageUrls.length > 1 && (
         <>
@@ -56,7 +126,7 @@ const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
             onPress={() => scrollToIndex(currentIndex - 1)}
             disabled={currentIndex === 0}
             style={[
-              tw`absolute left-2 top-1/2 bg-[#E2E2E2] p-1 rounded-full`,
+              tw`absolute left-2 top-1/2 bg-[#E2E2E2] p-1 rounded-full z-10`,
               { marginTop: -18, opacity: currentIndex === 0 ? 0.5 : 1 },
             ]}
           >
@@ -67,7 +137,7 @@ const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
             onPress={() => scrollToIndex(currentIndex + 1)}
             disabled={currentIndex === imageUrls.length - 1}
             style={[
-              tw`absolute right-2 top-1/2 bg-[#E2E2E2] p-1 rounded-full`,
+              tw`absolute right-2 top-1/2 bg-[#E2E2E2] p-1 rounded-full z-10`,
               {
                 marginTop: -18,
                 opacity: currentIndex === imageUrls.length - 1 ? 0.5 : 1,

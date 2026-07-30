@@ -9,17 +9,14 @@ import { Screen } from "@/components/ui/screen"
 import { useSession } from "@/features/auth/auth-session"
 import { useAuthForm } from "@/features/auth/hooks/use-auth-form"
 import tw from "@/lib/tailwind"
-import { Checkbox } from "expo-checkbox"
 
 import { Formik } from "formik"
-import React from "react"
-import { Text, TouchableOpacity, View } from "react-native"
+import { View } from "react-native"
 import { loginValidationSchema } from "../validations/auth-validation-schema"
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const { signIn } = useSession()
   const { email, isValid } = useAuthForm()
-  const [rememberMe, setRememberMe] = React.useState(false)
 
   function handleSubmit() {
     if (!isValid) return
@@ -39,7 +36,7 @@ export default function LoginScreen() {
           <Formik
             initialValues={{ email: "", password: "" }}
             validationSchema={loginValidationSchema}
-            onSubmit={() => {}}
+            onSubmit={() => router.push("/(auth)/otp-verification")}
           >
             {({
               handleChange,
@@ -61,59 +58,15 @@ export default function LoginScreen() {
                     error={errors.email}
                     touched={touched.email}
                   />
-
-                  <View>
-                    <MainInput
-                      label="Password"
-                      placeholder="********"
-                      value={values.password}
-                      onChangeText={handleChange("password")}
-                      onBlur={() => handleBlur("password")}
-                      error={errors.password}
-                      touched={touched.password}
-                      isPassword
-                    />
-                  </View>
                 </View>
                 <View style={tw`flex-col gap-6`}>
-                  {/* Options Row */}
-                  <View style={tw`flex-row justify-between items-center `}>
-                    <View style={tw`flex-row items-center`}>
-                      <Checkbox
-                        value={rememberMe}
-                        onValueChange={setRememberMe}
-                        color={rememberMe ? "#2D8CFF" : "#C4C4C4"}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 4,
-                        }}
-                      />
-
-                      <Text style={tw`text-text_gray text-xs ml-2`}>
-                        Remember me
-                      </Text>
-                    </View>
-
-                    <TouchableOpacity
-                      onPress={() => router.push("/(auth)/forgot-password")}
-                    >
-                      <Text style={tw`text-text_gray text-xs underline`}>
-                        Forgot password
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
                   {/* Log In Button */}
                   <MainButton
-                    title={"Log in"}
-                    onPress={() => handleSubmit()}
+                    title={"Continue"}
+                    onPress={() => router.push("/(auth)/otp-verification")}
                     isLoading={false}
                     textStyle={tw`text-white`}
-                    showSignUpLink={true}
-                    signUpPrompt="Don’t have an account?"
-                    signUpText="Register"
-                    onSignUpPress={() => router.push("/(auth)/signup")}
+                    showSignUpLink={false}
                   />
                 </View>
               </View>
