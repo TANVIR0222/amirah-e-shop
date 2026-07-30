@@ -2,22 +2,24 @@ import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
 import { useSession } from "@/features/auth/auth-session"
 import tw from "@/lib/tailwind"
+import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { DrawerActions } from "expo-router/react-navigation"
 import { router, useNavigation } from "expo-router"
+import { DrawerActions } from "expo-router/react-navigation"
 import React from "react"
-import { Text, TextInput, TouchableOpacity, View } from "react-native"
+import { TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
 import HomeItemsCard from "../components/home-items-card"
 
-const BRAND_RED = "#C52405"
+const BRAND_RED = "#F0653A"
 
 export default function HomeScreen() {
   const navigation = useNavigation()
   const { user } = useSession()
   const { top } = useSafeAreaInsets()
+  const { colors, spacing } = useAppTheme()
 
   const [search, setSearch] = React.useState<string>("")
 
@@ -37,7 +39,7 @@ export default function HomeScreen() {
       {/* ── Top Header Bar ── */}
       <View
         style={tw.style(`flex-row items-center px-3 pt-2 pb-2.5`, {
-          backgroundColor: BRAND_RED,
+          backgroundColor: colors.danger,
           paddingTop: top + 15,
           columnGap: 10,
         })}

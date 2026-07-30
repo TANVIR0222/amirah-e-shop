@@ -45,7 +45,9 @@ function CategoryProductCard({ item }: { item: Product }) {
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={{ uri: item.image }}
+          source={{
+            uri: "https://amiraheshop.com/images/product/202607170221361.jpeg",
+          }}
           resizeMode="contain"
           style={tw`w-full h-32`}
         />
