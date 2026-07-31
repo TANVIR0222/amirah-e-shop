@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { useSession } from "@/features/auth/auth-session"
 import { useAppTheme } from "@/theme/theme-provider"
 
+const BRAND_ORANGE = "#F0653A"
+
 type NavItem = {
   label: string
   route:
@@ -93,7 +95,7 @@ function CustomDrawerContent(props: any) {
               width: 36,
               height: 36,
               borderRadius: 10,
-              backgroundColor: colors.primary,
+              backgroundColor: BRAND_ORANGE,
               alignItems: "center",
               justifyContent: "center",
               marginRight: 10,
@@ -114,29 +116,34 @@ function CustomDrawerContent(props: any) {
         </View>
 
         {/* User profile */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <View style={{ alignItems: "flex-start", gap: 8, marginTop: 4 }}>
           <View
             style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: colors.primary + "22",
+              width: 56,
+              height: 56,
+              borderRadius: 28,
+              backgroundColor: `${BRAND_ORANGE}1A`,
               borderWidth: 2,
-              borderColor: colors.primary,
+              borderColor: BRAND_ORANGE,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
             <Text
-              style={{ fontSize: 17, fontWeight: "700", color: colors.primary }}
+              style={{ fontSize: 20, fontWeight: "700", color: BRAND_ORANGE }}
             >
               {initials}
             </Text>
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={{ alignItems: "center" }}>
             <Text
               numberOfLines={1}
-              style={{ fontSize: 15, fontWeight: "700", color: colors.text }}
+              style={{
+                fontSize: 15,
+                fontWeight: "700",
+                color: colors.text,
+                textAlign: "center",
+              }}
             >
               {user?.name ?? "Guest"}
             </Text>
@@ -146,6 +153,7 @@ function CustomDrawerContent(props: any) {
                 fontSize: 12,
                 color: colors.mutedForeground,
                 marginTop: 1,
+                textAlign: "center",
               }}
             >
               {user?.email ?? ""}
@@ -169,9 +177,9 @@ function CustomDrawerContent(props: any) {
               key={item.label}
               label={item.label}
               focused={isActive}
-              activeTintColor={colors.primary}
+              activeTintColor={BRAND_ORANGE}
               inactiveTintColor={colors.mutedForeground}
-              activeBackgroundColor={colors.primarySoft}
+              activeBackgroundColor={`${BRAND_ORANGE}15`}
               style={{
                 borderRadius: 12,
                 marginHorizontal: 8,
@@ -217,13 +225,11 @@ function CustomDrawerContent(props: any) {
             gap: 12,
             padding: 12,
             borderRadius: 12,
-            backgroundColor: colors.danger + "12",
+            backgroundColor: "#E53E3E12",
           }}
         >
-          <Ionicons name="log-out-outline" size={22} color={colors.danger} />
-          <Text
-            style={{ fontSize: 15, fontWeight: "600", color: colors.danger }}
-          >
+          <Ionicons name="log-out-outline" size={22} color="#E53E3E" />
+          <Text style={{ fontSize: 15, fontWeight: "600", color: "#E53E3E" }}>
             Sign Out
           </Text>
         </TouchableOpacity>
@@ -245,7 +251,7 @@ export default function DrawerLayout() {
             backgroundColor: colors.background,
             width: 280,
           },
-          drawerActiveTintColor: colors.primary,
+          drawerActiveTintColor: BRAND_ORANGE,
           drawerInactiveTintColor: colors.mutedForeground,
         }}
       >

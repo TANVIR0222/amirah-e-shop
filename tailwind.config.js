@@ -13,6 +13,8 @@ module.exports = {
         primaryText: "#41410B",
         primaryBody: "#898FA2",
         primaryBtn: "#FF8C00",
+
+        red: "#CA3535",
       },
     },
   },
