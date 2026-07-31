@@ -167,7 +167,7 @@ export default function OrderScreen() {
       <AppText variant="title"> My Orders</AppText>
 
       {/* Tabs */}
-      <View style={tw`bg-white  pb-3`}>
+      <View style={tw`  pb-3`}>
         <View style={tw`flex-row gap-2 mt-3`}>
           {TABS.map((tab) => {
             const isActive = tab === activeTab
@@ -177,8 +177,8 @@ export default function OrderScreen() {
                 key={tab}
                 onPress={() => setActiveTab(tab)}
                 style={[
-                  tw`flex-1 py-2 rounded-full items-center`,
-                  { backgroundColor: isActive ? cfg.color : "#F5F5F5" },
+                  tw`flex-1 py-2 rounded-full  items-center`,
+                  { backgroundColor: isActive ? cfg.color : "#fff" },
                 ]}
               >
                 <Text
