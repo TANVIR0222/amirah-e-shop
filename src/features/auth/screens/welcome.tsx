@@ -1,14 +1,11 @@
 import { AppText } from "@/components/ui/app-text"
 import { Button } from "@/components/ui/button"
 import { Screen } from "@/components/ui/screen"
-import { useI18n } from "@/i18n"
 import { router } from "expo-router"
 import { Image, View } from "react-native"
 import tw from "../../../lib/tailwind"
 
 export default function WelcomeScreen() {
-  const { t } = useI18n()
-
   return (
     <Screen
       scroll={false}
@@ -36,7 +33,7 @@ export default function WelcomeScreen() {
         <View style={tw`w-full mt-10 gap-4`}>
           <Button
             label="Log In"
-            variant="primary"
+            variant="orange"
             onPress={() => router.push("/(auth)/login")}
           />
 
