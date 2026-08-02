@@ -41,7 +41,7 @@ const MainButton: React.FC<MainButtonProps> = ({
       <TouchableOpacity
         onPress={onPress}
         style={[
-          tw`bg-primaryBtn  p-4 rounded-full`,
+          tw`bg-[#F0653A]  p-4 rounded-full`,
           disabled && tw`bg-black`,
           buttonStyle,
         ]}
