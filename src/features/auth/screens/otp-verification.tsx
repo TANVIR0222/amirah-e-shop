@@ -77,7 +77,7 @@ export default function OtpVerificationScreen() {
         />
         <Card>
           <OtpInput
-            focusColor="#58C1F0"
+            focusColor="#F0653A"
             placeholder="000000"
             autoFocus={false}
             numberOfDigits={6}
