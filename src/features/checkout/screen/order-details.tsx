@@ -475,7 +475,7 @@ export default function OrderDetails() {
                           values.delivery_type === "Cash on Delivery"
                             ? {
                                 backgroundColor: "#FEF2F2",
-                                borderColor: "#C52405",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -492,7 +492,7 @@ export default function OrderDetails() {
                           size={18}
                           color={
                             values.delivery_type === "Cash on Delivery"
-                              ? "#C52405"
+                              ? "#F0653A"
                               : colors.mutedForeground
                           }
                         />
@@ -522,7 +522,7 @@ export default function OrderDetails() {
                           values.delivery_type === "Online Delivery"
                             ? {
                                 backgroundColor: "#FEF2F2",
-                                borderColor: "#C52405",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -539,7 +539,7 @@ export default function OrderDetails() {
                           size={18}
                           color={
                             values.delivery_type === "Online Delivery"
-                              ? "#C52405"
+                              ? "#F0653A"
                               : colors.mutedForeground
                           }
                         />
@@ -572,7 +572,7 @@ export default function OrderDetails() {
                           values.payment_method === "COD"
                             ? {
                                 backgroundColor: "#FEF2F2",
-                                borderColor: "#C52405",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -590,7 +590,7 @@ export default function OrderDetails() {
                             size={18}
                             color={
                               values.payment_method === "COD"
-                                ? "#C52405"
+                                ? "#F0653A"
                                 : colors.mutedForeground
                             }
                           />
@@ -628,7 +628,7 @@ export default function OrderDetails() {
                           values.payment_method === "bKash"
                             ? {
                                 backgroundColor: "#FEF2F2",
-                                borderColor: "#C52405",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -646,7 +646,7 @@ export default function OrderDetails() {
                             size={18}
                             color={
                               values.payment_method === "bKash"
-                                ? "#C52405"
+                                ? "#F0653A"
                                 : colors.mutedForeground
                             }
                           />
@@ -684,7 +684,7 @@ export default function OrderDetails() {
                           values.payment_method === "Card"
                             ? {
                                 backgroundColor: "#FEF2F2",
-                                borderColor: "#C52405",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -702,7 +702,7 @@ export default function OrderDetails() {
                             size={18}
                             color={
                               values.payment_method === "Card"
-                                ? "#C52405"
+                                ? "#F0653A"
                                 : colors.mutedForeground
                             }
                           />

@@ -79,13 +79,13 @@ const HomeCarousel = () => {
           width: 10,
           height: 10,
           borderRadius: 100,
-          backgroundColor: "#c52405",
+          backgroundColor: "#F0653A",
         }}
         activeDotStyle={{
           width: 28,
           height: 10,
           borderRadius: 100,
-          backgroundColor: "#c52405",
+          backgroundColor: "#F0653A",
         }}
         customReanimatedStyle={(value, index, length) => {
           let inputRange = [index - 1, index, index + 1]

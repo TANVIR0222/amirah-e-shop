@@ -1,3 +1,4 @@
+import { areas, districts } from "@/features/checkout/screen/order-details"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -14,7 +15,6 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { areas, districts } from "@/features/checkout/screen/order-details"
 
 type AddressItem = {
   id: string
@@ -154,7 +154,7 @@ export default function AddressBookScreen() {
 
           <TouchableOpacity
             onPress={() => setIsModalOpen(true)}
-            style={tw`px-3 py-1.5 rounded-full bg-[#C52405] flex-row items-center gap-1.5 shadow-sm`}
+            style={tw`px-3 py-1.5 rounded-full bg-[#F0653A] flex-row items-center gap-1.5 shadow-sm`}
           >
             <Ionicons name="add-circle" size={16} color="#FFF" />
             <Text style={tw`text-xs font-bold text-white`}>Add New</Text>
@@ -174,7 +174,7 @@ export default function AddressBookScreen() {
             key={item.id}
             style={tw.style("p-4 rounded-2xl border gap-3 relative", {
               backgroundColor: colors.surface,
-              borderColor: item.isDefault ? "#C52405" : colors.border,
+              borderColor: item.isDefault ? "#F0653A" : colors.border,
             })}
           >
             {/* Header Badge */}
@@ -214,7 +214,7 @@ export default function AddressBookScreen() {
                   <View
                     style={tw`px-2 py-0.5 rounded-full bg-red-50 border border-red-100`}
                   >
-                    <Text style={tw`text-[10px] font-bold text-[#C52405]`}>
+                    <Text style={tw`text-[10px] font-bold text-[#F0653A]`}>
                       DEFAULT ADDRESS
                     </Text>
                   </View>
@@ -254,9 +254,9 @@ export default function AddressBookScreen() {
                 <Ionicons
                   name="checkmark-circle-outline"
                   size={16}
-                  color="#C52405"
+                  color="#F0653A"
                 />
-                <Text style={tw`text-xs font-bold text-[#C52405]`}>
+                <Text style={tw`text-xs font-bold text-[#F0653A]`}>
                   Set as Default Address
                 </Text>
               </TouchableOpacity>
@@ -313,7 +313,7 @@ export default function AddressBookScreen() {
                     style={tw.style(
                       "px-4 py-2 rounded-xl border flex-row items-center gap-1.5",
                       label === tag
-                        ? { backgroundColor: "#FEF2F2", borderColor: "#C52405" }
+                        ? { backgroundColor: "#FEF2F2", borderColor: "#F0653A" }
                         : {
                             backgroundColor: colors.surface,
                             borderColor: colors.border,
@@ -322,7 +322,7 @@ export default function AddressBookScreen() {
                   >
                     <Text
                       style={tw.style("text-xs font-bold", {
-                        color: label === tag ? "#C52405" : colors.text,
+                        color: label === tag ? "#F0653A" : colors.text,
                       })}
                     >
                       {tag}
@@ -478,7 +478,7 @@ export default function AddressBookScreen() {
 
             <TouchableOpacity
               onPress={handleSaveAddress}
-              style={tw`mt-4 h-12 rounded-2xl bg-[#C52405] items-center justify-center shadow-sm`}
+              style={tw`mt-4 h-12 rounded-2xl bg-[#F0653A] items-center justify-center shadow-sm`}
             >
               <Text style={tw`text-sm font-bold text-white`}>Save Address</Text>
             </TouchableOpacity>

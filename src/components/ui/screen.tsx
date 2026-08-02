@@ -24,7 +24,7 @@ export function Screen({ children, contentStyle, scroll = true }: ScreenProps) {
   ]
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: "#F3F4F6" }}>
       {scroll ? (
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"

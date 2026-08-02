@@ -33,7 +33,7 @@ export default function HomeCategories() {
             tw`w-20 h-20 rounded-2xl overflow-hidden`,
             {
               borderWidth: 2,
-              borderColor: isActive ? "#C52405" : "transparent",
+              borderColor: isActive ? "#F0653A" : "transparent",
               backgroundColor: colors.surface,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 2 },
@@ -57,7 +57,7 @@ export default function HomeCategories() {
             marginTop: 6,
             fontSize: 12,
             fontWeight: "600",
-            color: isActive ? "#C52405" : colors.text,
+            color: isActive ? "#F0653A" : colors.text,
             maxWidth: 72,
             textAlign: "center",
           }}

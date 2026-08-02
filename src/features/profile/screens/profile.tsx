@@ -6,6 +6,8 @@ import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 
+const BRAND_ORANGE = "#F0653A"
+
 type IoniconName = keyof typeof Ionicons.glyphMap
 
 type MenuRow = {
@@ -43,13 +45,24 @@ function StatCard({
         },
       ]}
     >
-      <Ionicons name={icon} size={22} color={colors.primary} />
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 12,
+          backgroundColor: `${BRAND_ORANGE}15`,
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 6,
+        }}
+      >
+        <Ionicons name={icon} size={20} color={BRAND_ORANGE} />
+      </View>
       <Text
         style={{
           fontSize: 18,
           fontWeight: "800",
           color: colors.text,
-          marginTop: 4,
         }}
       >
         {value}
@@ -109,9 +122,7 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                backgroundColor: row.danger
-                  ? (colors.danger ?? "#E53E3E") + "18"
-                  : colors.primary + "18",
+                backgroundColor: row.danger ? "#E53E3E18" : `${BRAND_ORANGE}15`,
                 alignItems: "center",
                 justifyContent: "center",
                 marginRight: 12,
@@ -120,9 +131,7 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
               <Ionicons
                 name={row.icon}
                 size={18}
-                color={
-                  row.danger ? (colors.danger ?? "#E53E3E") : colors.primary
-                }
+                color={row.danger ? "#E53E3E" : BRAND_ORANGE}
               />
             </View>
 
@@ -131,9 +140,7 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
                 style={{
                   fontSize: 14,
                   fontWeight: "600",
-                  color: row.danger
-                    ? (colors.danger ?? "#E53E3E")
-                    : colors.text,
+                  color: row.danger ? "#E53E3E" : colors.text,
                 }}
               >
                 {row.label}
@@ -185,7 +192,11 @@ export default function ProfileScreen() {
     {
       title: "My Account",
       rows: [
-        { icon: "person-outline", label: "Edit Profile" },
+        {
+          icon: "person-outline",
+          label: "Edit Profile",
+          onPress: () => router.push("/profile/edit-profile"),
+        },
         {
           icon: "location-outline",
           label: "Saved Addresses",
@@ -253,19 +264,19 @@ export default function ProfileScreen() {
         <View style={tw`items-center pt-4 pb-6`}>
           <View
             style={{
-              width: 84,
-              height: 84,
-              borderRadius: 42,
-              backgroundColor: colors.primary + "22",
+              width: 88,
+              height: 88,
+              borderRadius: 44,
+              backgroundColor: `${BRAND_ORANGE}1A`,
               borderWidth: 3,
-              borderColor: colors.primary,
+              borderColor: BRAND_ORANGE,
               alignItems: "center",
               justifyContent: "center",
               marginBottom: 14,
             }}
           >
             <Text
-              style={{ fontSize: 30, fontWeight: "800", color: colors.primary }}
+              style={{ fontSize: 32, fontWeight: "800", color: BRAND_ORANGE }}
             >
               {initials}
             </Text>
@@ -285,18 +296,17 @@ export default function ProfileScreen() {
           </Text>
 
           <TouchableOpacity
+            onPress={() => router.push("/profile/edit-profile")}
             style={{
-              marginTop: 12,
-              paddingHorizontal: 18,
-              paddingVertical: 7,
+              marginTop: 14,
+              paddingHorizontal: 20,
+              paddingVertical: 8,
               borderRadius: 20,
-              borderWidth: 1.5,
-              borderColor: colors.primary,
+              backgroundColor: BRAND_ORANGE,
             }}
+            activeOpacity={0.8}
           >
-            <Text
-              style={{ fontSize: 13, fontWeight: "600", color: colors.primary }}
-            >
+            <Text style={{ fontSize: 13, fontWeight: "700", color: "#FFFFFF" }}>
               Edit Profile
             </Text>
           </TouchableOpacity>
@@ -328,20 +338,16 @@ export default function ProfileScreen() {
             paddingVertical: 14,
             borderRadius: 16,
             borderWidth: 1.5,
-            borderColor: (colors.danger ?? "#E53E3E") + "40",
-            backgroundColor: (colors.danger ?? "#E53E3E") + "0D",
+            borderColor: "#E53E3E40",
+            backgroundColor: "#E53E3E0D",
           }}
         >
-          <Ionicons
-            name="log-out-outline"
-            size={20}
-            color={colors.danger ?? "#E53E3E"}
-          />
+          <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
           <Text
             style={{
               fontSize: 15,
               fontWeight: "700",
-              color: colors.danger ?? "#E53E3E",
+              color: "#E53E3E",
             }}
           >
             Sign Out

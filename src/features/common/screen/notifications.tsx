@@ -301,8 +301,8 @@ export default function NotificationsScreen() {
                   "px-4 py-1.5 rounded-full border flex-row items-center gap-1.5",
                   isSelected
                     ? {
-                        backgroundColor: "#C52405",
-                        borderColor: "#C52405",
+                        backgroundColor: "#F0653A",
+                        borderColor: "#F0653A",
                       }
                     : {
                         backgroundColor: colors.surface,
@@ -327,7 +327,7 @@ export default function NotificationsScreen() {
                   >
                     <Text
                       style={tw.style("text-[10px] font-bold", {
-                        color: isSelected ? "#FFFFFF" : "#C52405",
+                        color: isSelected ? "#FFFFFF" : "#F0653A",
                       })}
                     >
                       {categoryCount}

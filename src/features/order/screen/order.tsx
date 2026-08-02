@@ -1,5 +1,4 @@
 import { AppText } from "@/components/ui/app-text"
-import { Divider } from "@/components/ui/divider"
 import { Screen } from "@/components/ui/screen"
 import tw from "@/lib/tailwind"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -63,7 +62,7 @@ const STATUS_CONFIG: Record<
   { color: string; bg: string; icon: keyof typeof Ionicons.glyphMap }
 > = {
   Delivered: { color: "#22C55E", bg: "#F0FDF4", icon: "checkmark-circle" },
-  Shipped: { color: "#C52405", bg: "#FDECEA", icon: "bicycle" },
+  Shipped: { color: "#F0653A", bg: "#FDECEA", icon: "bicycle" },
   Processing: { color: "#F59E0B", bg: "#FFFBEB", icon: "time" },
   Cancelled: { color: "#EF4444", bg: "#FEF2F2", icon: "close-circle" },
 }
@@ -118,7 +117,7 @@ function OrderCard({ order }: { order: Order }) {
             <Text style={tw`text-xs text-[#757575]`}>
               {order.items} item{order.items > 1 ? "s" : ""} · {order.date}
             </Text>
-            <Text style={tw`text-sm font-geist-bold text-[#C52405]`}>
+            <Text style={tw`text-sm font-geist-bold text-[#F0653A]`}>
               ৳ {order.total}
             </Text>
           </View>
@@ -131,7 +130,7 @@ function OrderCard({ order }: { order: Order }) {
           <TouchableOpacity
             style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
           >
-            <Text style={tw`text-xs font-semibold text-[#C52405]`}>
+            <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
               Buy Again
             </Text>
           </TouchableOpacity>
@@ -146,7 +145,7 @@ function OrderCard({ order }: { order: Order }) {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={tw`flex-1 h-9 rounded-full bg-[#C52405] items-center justify-center`}
+          style={tw`flex-1 h-9 rounded-full bg-[#F0653A] items-center justify-center`}
         >
           <Text style={tw`text-xs font-semibold text-white`}>View Details</Text>
         </TouchableOpacity>
@@ -168,7 +167,7 @@ export default function OrderScreen() {
       <AppText variant="title"> My Orders</AppText>
 
       {/* Tabs */}
-      <View style={tw`bg-white  pb-3`}>
+      <View style={tw`  pb-3`}>
         <View style={tw`flex-row gap-2 mt-3`}>
           {TABS.map((tab) => {
             const isActive = tab === activeTab
@@ -178,8 +177,8 @@ export default function OrderScreen() {
                 key={tab}
                 onPress={() => setActiveTab(tab)}
                 style={[
-                  tw`flex-1 py-2 rounded-full items-center`,
-                  { backgroundColor: isActive ? cfg.color : "#F5F5F5" },
+                  tw`flex-1 py-2 rounded-full  items-center`,
+                  { backgroundColor: isActive ? cfg.color : "#fff" },
                 ]}
               >
                 <Text

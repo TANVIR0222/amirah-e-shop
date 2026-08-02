@@ -3,7 +3,7 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useState } from "react"
-import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { Text, TouchableOpacity, View } from "react-native"
 
 const SORT_OPTIONS = [
   "Newest",
@@ -58,7 +58,7 @@ export default function OrderFilterModal() {
                   style={tw.style(
                     `flex-row items-center justify-between px-4 py-3 rounded-xl border`,
                     {
-                      borderColor: active ? "#C52405" : colors.border,
+                      borderColor: active ? "#F0653A" : colors.border,
                       backgroundColor: active ? "#FDECEA" : colors.surface,
                     }
                   )}
@@ -67,7 +67,7 @@ export default function OrderFilterModal() {
                     style={{
                       fontSize: 14,
                       fontWeight: "600",
-                      color: active ? "#C52405" : colors.text,
+                      color: active ? "#F0653A" : colors.text,
                     }}
                   >
                     {opt}
@@ -76,7 +76,7 @@ export default function OrderFilterModal() {
                     <Ionicons
                       name="checkmark-circle"
                       size={18}
-                      color="#C52405"
+                      color="#F0653A"
                     />
                   )}
                 </TouchableOpacity>
@@ -106,8 +106,8 @@ export default function OrderFilterModal() {
                   key={cat}
                   onPress={() => setActiveCategory(cat)}
                   style={tw.style(`px-4 py-2 rounded-full border`, {
-                    borderColor: active ? "#C52405" : colors.border,
-                    backgroundColor: active ? "#C52405" : colors.surface,
+                    borderColor: active ? "#F0653A" : colors.border,
+                    backgroundColor: active ? "#F0653A" : colors.surface,
                   })}
                 >
                   <Text
@@ -129,7 +129,7 @@ export default function OrderFilterModal() {
         <TouchableOpacity
           onPress={() => router.back()}
           style={tw.style(`h-14 rounded-2xl items-center justify-center`, {
-            backgroundColor: "#C52405",
+            backgroundColor: "#F0653A",
           })}
         >
           <Text style={tw`text-white text-base font-bold`}>Apply Filters</Text>

@@ -96,7 +96,7 @@ export default function OrderTrackingScreen() {
             <Text style={tw.style("text-xl font-bold", { color: colors.text })}>
               Track Live Order
             </Text>
-            <Text style={tw.style("text-xs font-semibold text-[#C52405]")}>
+            <Text style={tw.style("text-xs font-semibold text-[#F0653A]")}>
               Order #ORD-2026-88421
             </Text>
           </View>
@@ -126,14 +126,14 @@ export default function OrderTrackingScreen() {
             <Text style={tw`text-xs font-semibold text-red-800`}>
               Estimated Delivery Time
             </Text>
-            <Text style={tw`text-lg font-bold text-[#C52405]`}>
+            <Text style={tw`text-lg font-bold text-[#F0653A]`}>
               Today, 04:30 PM (25-35 mins)
             </Text>
           </View>
           <View
             style={tw`w-12 h-12 rounded-2xl bg-white items-center justify-center border border-red-100`}
           >
-            <Ionicons name="time-outline" size={24} color="#C52405" />
+            <Ionicons name="time-outline" size={24} color="#F0653A" />
           </View>
         </View>
 
@@ -179,7 +179,7 @@ export default function OrderTrackingScreen() {
 
             <TouchableOpacity
               onPress={handleCallRider}
-              style={tw`px-3.5 py-2.5 rounded-2xl bg-[#C52405] flex-row items-center gap-1.5 shadow-sm`}
+              style={tw`px-3.5 py-2.5 rounded-2xl bg-[#F0653A] flex-row items-center gap-1.5 shadow-sm`}
             >
               <Ionicons name="call-outline" size={16} color="#FFF" />
               <Text style={tw`text-xs font-bold text-white`}>Call</Text>
@@ -218,8 +218,8 @@ export default function OrderTrackingScreen() {
                             }
                           : isCurrent
                             ? {
-                                backgroundColor: "#C52405",
-                                borderColor: "#C52405",
+                                backgroundColor: "#F0653A",
+                                borderColor: "#F0653A",
                               }
                             : {
                                 backgroundColor: colors.surface,
@@ -257,7 +257,7 @@ export default function OrderTrackingScreen() {
                         style={tw.style(
                           "text-xs font-bold",
                           isCurrent
-                            ? { color: "#C52405" }
+                            ? { color: "#F0653A" }
                             : isDone
                               ? { color: colors.text }
                               : { color: colors.mutedForeground }
@@ -297,7 +297,7 @@ export default function OrderTrackingScreen() {
           })}
         >
           <View style={tw`flex-row items-center gap-2`}>
-            <Ionicons name="location-outline" size={18} color="#C52405" />
+            <Ionicons name="location-outline" size={18} color="#F0653A" />
             <Text style={tw.style("text-xs font-bold", { color: colors.text })}>
               Delivery Address (Home)
             </Text>

@@ -239,7 +239,7 @@ export default function DeliveryHistoryScreen() {
             <View
               style={tw`w-9 h-9 rounded-full bg-red-100 items-center justify-center mb-1`}
             >
-              <Ionicons name="star" size={18} color="#C52405" />
+              <Ionicons name="star" size={18} color="#F0653A" />
             </View>
             <Text
               style={tw.style("text-base font-bold", { color: colors.text })}
@@ -299,7 +299,7 @@ export default function DeliveryHistoryScreen() {
                   style={tw.style(
                     "px-3.5 py-1.5 rounded-full border flex-row items-center gap-1",
                     isActive
-                      ? { backgroundColor: "#C52405", borderColor: "#C52405" }
+                      ? { backgroundColor: "#F0653A", borderColor: "#F0653A" }
                       : {
                           backgroundColor: colors.surface,
                           borderColor: colors.border,
@@ -451,7 +451,7 @@ function DeliveryCard({ item }: { item: DeliveryItem }) {
                     item.deliveryType.includes("Express") ? "flash" : "bicycle"
                   }
                   size={12}
-                  color="#C52405"
+                  color="#F0653A"
                 />
                 <Text style={tw.style("text-[11px] font-medium text-red-600")}>
                   {item.deliveryType}

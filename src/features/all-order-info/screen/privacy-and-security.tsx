@@ -89,17 +89,17 @@ export default function PrivacyAndSecurityScreen() {
           style={tw.style(`p-4 rounded-2xl flex-row items-center gap-3`, {
             backgroundColor: "#FDECEA",
             borderWidth: 1,
-            borderColor: "#C52405" + "30",
+            borderColor: "#F0653A" + "30",
           })}
         >
           <View
-            style={tw`w-10 h-10 rounded-full bg-[#C52405] items-center justify-center`}
+            style={tw`w-10 h-10 rounded-full bg-[#F0653A] items-center justify-center`}
           >
             <Ionicons name="shield-checkmark" size={20} color="#fff" />
           </View>
 
           <View style={tw`flex-1`}>
-            <Text style={tw`text-sm font-bold text-[#C52405]`}>
+            <Text style={tw`text-sm font-bold text-[#F0653A]`}>
               256-Bit Encrypted Data Protection
             </Text>
             <Text style={tw`text-xs text-[#A81E04] mt-0.5`}>
@@ -156,7 +156,7 @@ export default function PrivacyAndSecurityScreen() {
                 <Switch
                   value={item.value}
                   onValueChange={() => toggleSwitch(item.id)}
-                  trackColor={{ false: colors.border, true: "#C52405" }}
+                  trackColor={{ false: colors.border, true: "#F0653A" }}
                   thumbColor="#FFFFFF"
                 />
               </View>
@@ -181,7 +181,7 @@ export default function PrivacyAndSecurityScreen() {
             })}
           >
             <View style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="eye-off-outline" size={18} color="#C52405" />
+              <Ionicons name="eye-off-outline" size={18} color="#F0653A" />
               <Text
                 style={tw.style(`text-sm font-bold`, { color: colors.text })}
               >

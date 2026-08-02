@@ -100,7 +100,7 @@ export default function CheckOutModal() {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => router.push("/checkout/order-details")}
-          style={tw`h-14 bg-[#c52405]  rounded-2xl items-center justify-center`}
+          style={tw`h-14 bg-[#F0653A]  rounded-2xl items-center justify-center`}
         >
           <Text style={tw`text-white text-base font-bold`}>Go to Checkout</Text>
         </TouchableOpacity>

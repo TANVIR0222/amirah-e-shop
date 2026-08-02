@@ -209,7 +209,7 @@ export default function CartScreen() {
           <View
             style={tw`w-24 h-24 rounded-full bg-red-50 items-center justify-center`}
           >
-            <Ionicons name="bag-handle-outline" size={48} color="#C52405" />
+            <Ionicons name="bag-handle-outline" size={48} color="#F0653A" />
           </View>
           <Text
             style={tw.style("text-xl font-bold text-center", {
@@ -229,7 +229,7 @@ export default function CartScreen() {
 
           <TouchableOpacity
             onPress={() => router.push("/(drawer)/(tabs)/shop")}
-            style={tw`mt-2 px-6 py-3.5 rounded-2xl bg-[#C52405] flex-row items-center gap-2`}
+            style={tw`mt-2 px-6 py-3.5 rounded-2xl bg-[#F0653A] flex-row items-center gap-2`}
           >
             <Ionicons name="storefront-outline" size={18} color="#FFF" />
             <Text style={tw`text-sm font-bold text-white`}>
@@ -328,7 +328,7 @@ export default function CartScreen() {
                       style={tw`flex-row items-center justify-between mt-1.5`}
                     >
                       <View style={tw`flex-row items-baseline gap-1.5`}>
-                        <Text style={tw`text-sm font-bold text-[#C52405]`}>
+                        <Text style={tw`text-sm font-bold text-[#F0653A]`}>
                           ৳{item.price}
                         </Text>
                         {item.originalPrice && (
@@ -441,7 +441,7 @@ export default function CartScreen() {
 
                   <TouchableOpacity
                     onPress={handleApplyCoupon}
-                    style={tw`px-4 h-10 rounded-xl bg-[#C52405] items-center justify-center`}
+                    style={tw`px-4 h-10 rounded-xl bg-[#F0653A] items-center justify-center`}
                   >
                     <Text style={tw`text-xs font-bold text-white`}>Apply</Text>
                   </TouchableOpacity>
@@ -537,7 +537,7 @@ export default function CartScreen() {
                 >
                   Grand Total
                 </Text>
-                <Text style={tw`text-base font-bold text-[#C52405]`}>
+                <Text style={tw`text-base font-bold text-[#F0653A]`}>
                   ৳{grandTotal}
                 </Text>
               </View>
@@ -561,14 +561,14 @@ export default function CartScreen() {
               >
                 Total Payable
               </Text>
-              <Text style={tw`text-xl font-bold text-[#C52405]`}>
+              <Text style={tw`text-xl font-bold text-[#F0653A]`}>
                 ৳{grandTotal}
               </Text>
             </View>
 
             <TouchableOpacity
               onPress={() => router.push("/checkout/order-details")}
-              style={tw`flex-1 h-12 rounded-2xl bg-[#C52405] flex-row items-center justify-center gap-2 shadow-sm`}
+              style={tw`flex-1 h-12 rounded-2xl bg-[#F0653A] flex-row items-center justify-center gap-2 shadow-sm`}
             >
               <Text style={tw`text-sm font-bold text-white`}>
                 Proceed to Checkout
