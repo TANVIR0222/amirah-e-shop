@@ -72,7 +72,8 @@ export function Button({
 
 type ThemeColors = (typeof colorTokens)[keyof typeof colorTokens]
 type ThemeSpacing = typeof spacingTokens
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger"
+type ButtonVariant =
+  "primary" | "secondary" | "outline" | "ghost" | "danger" | "orange"
 type ButtonSize = "sm" | "md" | "lg"
 
 function getButtonVariantStyles(colors: ThemeColors) {
@@ -100,6 +101,11 @@ function getButtonVariantStyles(colors: ThemeColors) {
     danger: {
       backgroundColor: colors.danger,
       borderColor: colors.danger,
+      foreground: colors.primaryForeground,
+    },
+    orange: {
+      backgroundColor: "#F0653A",
+      borderColor: "#F0653A",
       foreground: colors.primaryForeground,
     },
   } as const
