@@ -98,7 +98,7 @@ export default function LoginScreen() {
                       <Checkbox
                         value={rememberMe}
                         onValueChange={setRememberMe}
-                        color={rememberMe ? "#2D8CFF" : "#C4C4C4"}
+                        color={rememberMe ? "#F0653A" : "#C4C4C4"}
                         style={{
                           width: 20,
                           height: 20,
