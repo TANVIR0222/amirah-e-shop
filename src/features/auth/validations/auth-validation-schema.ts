@@ -20,12 +20,20 @@ export const registerValidationSchema = Yup.object().shape({
     .required("Full name is required"),
 
   email: Yup.string().email("Invalid email").required("Email is required"),
+
+  phone: Yup.string()
+    .matches(
+      /^(013|014|015|016|017|018|019)\d{8}$/,
+      "Enter a valid BD phone number (e.g. 01712345678)"
+    )
+    .required("Phone number is required"),
+
   password: Yup.string()
     .min(8, "Minimum 8 characters")
     .required("Password is required"),
-  password_confirmation: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords must match")
-    .required("Confirm password is required"),
+  // password_confirmation: Yup.string()
+  //   .oneOf([Yup.ref("password")], "Passwords must match")
+  //   .required("Confirm password is required"),
   checkbox: Yup.boolean().oneOf([true], "You must accept terms"),
 })
 

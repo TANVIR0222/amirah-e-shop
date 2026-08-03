@@ -5,25 +5,18 @@ import { HeroPanel } from "@/components/ui/hero-panel"
 import MainButton from "@/components/ui/MainButton"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
-import { useSession } from "@/features/auth/auth-session"
-import { useAuthForm } from "@/features/auth/hooks/use-auth-form"
 import tw from "@/lib/tailwind"
 import { Checkbox } from "expo-checkbox"
 
 import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
+import { appToast } from "@/lib/toast/app-toast"
 import { Formik } from "formik"
 import { Text, View } from "react-native"
+import { useUserRegisterMutation } from "../api/auth-api"
 import { registerValidationSchema } from "../validations/auth-validation-schema"
 
 export default function SignupScreen() {
-  const { signIn } = useSession()
-  const { email, password, setEmail, setPassword, isValid } = useAuthForm("")
-
-  function handleSubmit() {
-    if (!isValid) return
-    signIn(email)
-    router.replace("/")
-  }
+  const [userRegister, { isLoading }] = useUserRegisterMutation()
 
   return (
     <KeyboardAvoidingWrapper>
@@ -37,13 +30,47 @@ export default function SignupScreen() {
           <Formik
             initialValues={{
               email: "",
+              phone: "",
               password: "",
-              password_confirmation: "",
+              // password_confirmation: "",
               checkbox: false,
               full_name: "",
             }}
             validationSchema={registerValidationSchema}
-            onSubmit={() => {}}
+            onSubmit={async (data) => {
+              // Handle form submission here
+              // console.log("Form data:", data)
+              const { full_name, email, phone, password } = data
+
+              const payload = {
+                name: full_name,
+                email,
+                phone,
+                password,
+                is_active: 1, // Assuming active by default
+                role_id: "2", // Assuming a default role ID
+              }
+
+              try {
+                const response = await userRegister(payload).unwrap()
+                if (response?.success && response?.data) {
+                  appToast.success(
+                    response?.message || "Registration successful!"
+                  )
+                  router.replace("/(auth)/login")
+                } else {
+                  appToast.error(response?.message || "Registration failed")
+                }
+              } catch (error: any) {
+                if (__DEV__) {
+                  console.error("Registration failed:", error)
+                }
+                const errorMessage =
+                  error?.data?.message ||
+                  "Registration failed. Please check your credentials."
+                appToast.error(errorMessage)
+              }
+            }}
           >
             {({
               handleChange,
@@ -75,6 +102,18 @@ export default function SignupScreen() {
                     onBlur={() => handleBlur("email")}
                     error={errors.email}
                     touched={touched.email}
+                    keyboardType="email-address"
+                  />
+
+                  <MainInput
+                    label="Phone Number"
+                    placeholder="01XXXXXXXXX"
+                    value={values.phone}
+                    onChangeText={handleChange("phone")}
+                    onBlur={() => handleBlur("phone")}
+                    error={errors.phone}
+                    touched={touched.phone}
+                    keyboardType="phone-pad"
                   />
 
                   <View>
@@ -88,7 +127,7 @@ export default function SignupScreen() {
                       touched={touched.password}
                       isPassword
                     />
-                    <MainInput
+                    {/* <MainInput
                       label="Confirm Password"
                       placeholder="********"
                       value={values.password_confirmation}
@@ -97,7 +136,7 @@ export default function SignupScreen() {
                       error={errors.password_confirmation}
                       touched={touched.password_confirmation}
                       isPassword
-                    />
+                    /> */}
                   </View>
                 </View>
                 <View style={tw`flex-col gap-6`}>
@@ -109,7 +148,7 @@ export default function SignupScreen() {
                         onValueChange={(value) => {
                           setFieldValue("checkbox", value)
                         }}
-                        color={values.checkbox ? "#2D8CFF" : "#C4C4C4"}
+                        color={values.checkbox ? "#F0653A" : "#C4C4C4"}
                         style={{
                           width: 20,
                           height: 20,
@@ -133,7 +172,7 @@ export default function SignupScreen() {
                   <MainButton
                     title={"Sign up"}
                     onPress={() => handleSubmit()}
-                    isLoading={false}
+                    isLoading={isLoading}
                     textStyle={tw`text-white`}
                     showSignUpLink={true}
                     signUpPrompt="Already have an account?"
