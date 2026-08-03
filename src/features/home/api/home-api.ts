@@ -3,7 +3,8 @@ import { PaginatedResponse } from "@/types/api-paginated-response"
 import { ApiResponse } from "@/types/api-response"
 import { tagTypes } from "@/types/rtk-tag-type"
 
-import { CategoryPayload, CategoryResponse } from "../types/home-api-type"
+import { CategoryPayload } from "@/types/api-paginated-payload"
+import { CategoryResponse } from "../types/home-api-type"
 
 export const categoryApi = api.injectEndpoints({
   overrideExisting: true,
