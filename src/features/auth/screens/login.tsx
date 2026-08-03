@@ -6,26 +6,23 @@ import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
-import { useSession } from "@/features/auth/auth-session"
-import { useAuthForm } from "@/features/auth/hooks/use-auth-form"
 import tw from "@/lib/tailwind"
 import { Checkbox } from "expo-checkbox"
 
+import { appToast } from "@/lib/toast/app-toast"
 import { Formik } from "formik"
 import React from "react"
 import { Text, TouchableOpacity, View } from "react-native"
+import { useUserLoginMutation } from "../api/auth-api"
+import { useSession } from "../auth-session"
 import { loginValidationSchema } from "../validations/auth-validation-schema"
 
 export default function LoginScreen() {
-  const { signIn } = useSession()
-  const { email, isValid } = useAuthForm()
   const [rememberMe, setRememberMe] = React.useState(false)
+  const { signIn } = useSession()
 
-  function handleSubmit() {
-    if (!isValid) return
-    signIn(email)
-    router.replace("/")
-  }
+  // ------ api call for login ------------
+  const [userLogin, { isLoading }] = useUserLoginMutation()
 
   return (
     <KeyboardAvoidingWrapper>
@@ -39,7 +36,26 @@ export default function LoginScreen() {
           <Formik
             initialValues={{ email: "", password: "" }}
             validationSchema={loginValidationSchema}
-            onSubmit={() => {}}
+            onSubmit={async (data) => {
+              try {
+                const response = await userLogin(data).unwrap()
+                if (response?.success && response?.data) {
+                  signIn(response.data)
+                  appToast.success(response?.message || "Login successful!")
+                  router.replace("/(drawer)/(tabs)")
+                } else {
+                  appToast.error(response?.message || "Login failed")
+                }
+              } catch (error: any) {
+                if (__DEV__) {
+                  console.error("Login failed:", error)
+                }
+                const errorMessage =
+                  error?.data?.message ||
+                  "Login failed. Please check your credentials."
+                appToast.error(errorMessage)
+              }
+            }}
           >
             {({
               handleChange,
@@ -108,7 +124,7 @@ export default function LoginScreen() {
                   <MainButton
                     title={"Log in"}
                     onPress={() => handleSubmit()}
-                    isLoading={false}
+                    isLoading={isLoading}
                     textStyle={tw`text-white`}
                     showSignUpLink={true}
                     signUpPrompt="Don’t have an account?"
