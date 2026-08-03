@@ -14,8 +14,3 @@ export interface CategoryResponse {
   created_at: string
   updated_at: string
 }
-
-export interface CategoryPayload {
-  page: number
-  per_page: number
-}
