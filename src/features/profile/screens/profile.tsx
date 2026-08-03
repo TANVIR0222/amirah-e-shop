@@ -5,6 +5,7 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { useUserProfileQuery } from "../api/profile-api"
 
 const BRAND_ORANGE = "#F0653A"
 
@@ -173,6 +174,7 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
 export default function ProfileScreen() {
   const { user, signOut } = useSession()
   const { colors } = useAppTheme()
+  const { data, isLoading } = useUserProfileQuery()
 
   const initials = user?.name
     ? user.name
@@ -283,7 +285,7 @@ export default function ProfileScreen() {
           </View>
 
           <Text style={{ fontSize: 20, fontWeight: "800", color: colors.text }}>
-            {user?.name ?? "Guest"}
+            {data?.data?.name ?? "Guest"}
           </Text>
           <Text
             style={{
@@ -292,7 +294,7 @@ export default function ProfileScreen() {
               marginTop: 3,
             }}
           >
-            {user?.email ?? ""}
+            {data?.data?.email ?? ""}
           </Text>
 
           <TouchableOpacity
