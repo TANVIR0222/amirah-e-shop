@@ -6,24 +6,12 @@ import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
-import { useSession } from "@/features/auth/auth-session"
-import { useAuthForm } from "@/features/auth/hooks/use-auth-form"
 import tw from "@/lib/tailwind"
-
 import { Formik } from "formik"
 import { View } from "react-native"
 import { createNewPasswordValidationSchema } from "../validations/auth-validation-schema"
 
 export default function ChangePasswordScreen() {
-  const { signIn } = useSession()
-  const { email, isValid } = useAuthForm()
-
-  function handleSubmit() {
-    if (!isValid) return
-    signIn(email)
-    router.replace("/")
-  }
-
   return (
     <KeyboardAvoidingWrapper>
       <Screen scroll={false} contentStyle={{ justifyContent: "center" }}>
@@ -36,7 +24,7 @@ export default function ChangePasswordScreen() {
           <Formik
             initialValues={{ password: "", password_confirmation: "" }}
             validationSchema={createNewPasswordValidationSchema}
-            onSubmit={handleSubmit}
+            onSubmit={() => router.push("/(drawer)/(tabs)")}
           >
             {({
               handleChange,
