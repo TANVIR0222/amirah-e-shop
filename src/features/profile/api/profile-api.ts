@@ -1,24 +1,33 @@
 import { api } from "@/api/base-api/api"
+import { ApiResponse } from "@/types/api-response"
 import { tagTypes } from "@/types/rtk-tag-type"
+import {
+  ProfileEditPayload,
+  ProfileResponse,
+  ProfileUpdateResponse,
+} from "../types/profile-type"
 
 export const authenticationApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    userLogin: builder.mutation({
-      query: (data) => ({
+    userProfile: builder.query<ApiResponse<ProfileResponse>, void>({
+      query: () => ({
         url: "/user/profile",
-        method: "GET",
       }),
-      invalidatesTags: [tagTypes.auth],
+      providesTags: [tagTypes.profile],
     }),
-    userRegister: builder.mutation({
+    updateProfile: builder.mutation<
+      ApiResponse<ProfileUpdateResponse>,
+      ProfileEditPayload
+    >({
       query: (data) => ({
         url: "/user/profile",
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: [tagTypes.auth],
+      invalidatesTags: [tagTypes.profile],
     }),
   }),
 })
-export const {} = authenticationApi
+export const { useUserProfileQuery, useUpdateProfileMutation } =
+  authenticationApi
