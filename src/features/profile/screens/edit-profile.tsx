@@ -3,30 +3,29 @@ import { router } from "expo-router"
 import { Formik } from "formik"
 import React from "react"
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native"
-import * as Yup from "yup"
 
 import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
 import { useSession } from "@/features/auth/auth-session"
+import useAuthUserInfo from "@/hooks/use-auth-user-info"
 import tw from "@/lib/tailwind"
+import { appToast } from "@/lib/toast/app-toast"
 import { useAppTheme } from "@/theme/theme-provider"
 import * as ImagePicker from "expo-image-picker"
+import { useUpdateProfileMutation } from "../api/profile-api"
+import editProfileValidationSchema from "../validations/profile-validation-schema"
 
 const BRAND_ORANGE = "#F0653A"
-
-const editProfileValidationSchema = Yup.object().shape({
-  name: Yup.string().trim().required("Full name is required"),
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  phone: Yup.string().trim().required("Phone number is required"),
-})
 
 export default function EditProfileScreen() {
   const { user } = useSession()
   const { colors } = useAppTheme()
+  const { name, phone, isLoading } = useAuthUserInfo()
+
+  //
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
 
   const [image, setImage] = React.useState<string | null>(null)
 
@@ -159,14 +158,32 @@ export default function EditProfileScreen() {
         {/* Formik Form */}
         <Formik
           initialValues={{
-            name: user?.name ?? "Starter User",
-            email: user?.email ?? "hello@example.com",
-            phone: "+8801700000000",
+            name: name ?? "User",
+            phone: phone ?? "+8801700000000",
           }}
           validationSchema={editProfileValidationSchema}
-          onSubmit={(values) => {
-            console.log("Updated Profile:", values)
-            router.back()
+          onSubmit={async (data) => {
+            console.log("Updated Profile:", data)
+            // router.back()
+            try {
+              const response = await updateProfile(data).unwrap()
+              if (response?.success && response?.data) {
+                appToast.success(
+                  response?.message || "Profile updated successfully!"
+                )
+                router.back()
+              } else {
+                appToast.error(response?.message || "Failed to update profile")
+              }
+            } catch (error: any) {
+              if (__DEV__) {
+                console.error("Update profile failed:", error)
+              }
+              const errorMessage =
+                error?.data?.message ||
+                "Failed to update profile. Please try again."
+              appToast.error(errorMessage)
+            }
           }}
         >
           {({
@@ -188,17 +205,6 @@ export default function EditProfileScreen() {
                   onBlur={() => handleBlur("name")}
                   error={errors.name}
                   touched={touched.name}
-                />
-
-                <MainInput
-                  label="Email Address"
-                  placeholder="Enter your email"
-                  value={values.email}
-                  onChangeText={handleChange("email")}
-                  onBlur={() => handleBlur("email")}
-                  error={errors.email}
-                  touched={touched.email}
-                  keyboardType="email-address"
                 />
 
                 <MainInput
