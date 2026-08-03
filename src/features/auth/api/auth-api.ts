@@ -1,10 +1,16 @@
 import { api } from "@/api/base-api/api"
 import { tagTypes } from "@/types/rtk-tag-type"
+import {
+  UserLoginPayload,
+  UserLoginResponse,
+  UserRegisterPayload,
+  UserRegisterResponse,
+} from "../types"
 
 export const authenticationApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    userLogin: builder.mutation({
+    userLogin: builder.mutation<UserLoginResponse, UserLoginPayload>({
       query: (data) => ({
         url: "/login",
         method: "POST",
@@ -12,7 +18,7 @@ export const authenticationApi = api.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.auth],
     }),
-    userRegister: builder.mutation({
+    userRegister: builder.mutation<UserRegisterResponse, UserRegisterPayload>({
       query: (data) => ({
         url: "/register",
         method: "POST",
@@ -45,4 +51,10 @@ export const authenticationApi = api.injectEndpoints({
     }),
   }),
 })
-export const {} = authenticationApi
+export const {
+  useUserLoginMutation,
+  useUserRegisterMutation,
+  useUserVerifyMutation,
+  useResendOtpMutation,
+  useUserLogoutMutation,
+} = authenticationApi
