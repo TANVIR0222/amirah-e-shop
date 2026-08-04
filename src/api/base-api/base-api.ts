@@ -1,9 +1,10 @@
+import { appStorage } from "@/lib/storage/app-storage"
 import { BaseQueryArgs } from "@/types/base-api-type"
 import { BaseQueryFn } from "@reduxjs/toolkit/query/react"
 import axios, { AxiosResponse } from "axios"
 
 export const baseQueryWithRath: BaseQueryFn<BaseQueryArgs> = async (args) => {
-  // const token = await AsyncStorage.getItem("token");
+  const token = await appStorage.get<string | null>("auth-token", null)
 
   try {
     const result: AxiosResponse = await axios({
@@ -14,7 +15,7 @@ export const baseQueryWithRath: BaseQueryFn<BaseQueryArgs> = async (args) => {
       data: args.body,
       headers: {
         ...args.headers,
-        Authorization: true ? `Bearer ` : "",
+        Authorization: token ? `Bearer ${token}` : "",
       },
     })
     if (typeof result?.data === "string") {

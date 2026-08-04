@@ -11,7 +11,7 @@ import { TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
-import HomeItemsCard from "../components/home-items-card"
+import { ProductGrid } from "@/components/ui/product-grid"
 
 const BRAND_RED = "#F0653A"
 
@@ -142,7 +142,7 @@ export default function HomeScreen() {
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
         />
-        <HomeItemsCard />
+        <ProductGrid />
       </Screen>
     </View>
   )

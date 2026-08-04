@@ -6,8 +6,6 @@ import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
-import { useSession } from "@/features/auth/auth-session"
-import { useAuthForm } from "@/features/auth/hooks/use-auth-form"
 import tw from "@/lib/tailwind"
 
 import { Formik } from "formik"
@@ -15,15 +13,6 @@ import { View } from "react-native"
 import { loginValidationSchema } from "../validations/auth-validation-schema"
 
 export default function ForgotPasswordScreen() {
-  const { signIn } = useSession()
-  const { email, isValid } = useAuthForm()
-
-  function handleSubmit() {
-    if (!isValid) return
-    signIn(email)
-    router.replace("/")
-  }
-
   return (
     <KeyboardAvoidingWrapper>
       <Screen scroll={false} contentStyle={{ justifyContent: "center" }}>

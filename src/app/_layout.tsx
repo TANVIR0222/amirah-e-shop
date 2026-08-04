@@ -19,34 +19,39 @@ function RootNavigator() {
     <>
       <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(drawer)" />
-        <Stack.Screen name="product" />
-        <Stack.Screen name="(all-order-info)" />
-        <Stack.Screen name="checkout" />
-        <Stack.Screen name="(common)" />
-        <Stack.Screen
-          name="(modal)/order-summery-modal"
-          options={{
-            presentation: "formSheet",
-            sheetAllowedDetents: [0.5, 1],
-            sheetInitialDetentIndex: 0,
-            sheetGrabberVisible: true,
-            sheetCornerRadius: 24,
-            sheetLargestUndimmedDetentIndex: -1,
-          }}
-        />
-        <Stack.Screen
-          name="(modal)/order-filter-modal"
-          options={{
-            presentation: "formSheet",
-            sheetAllowedDetents: [0.6, 1],
-            sheetInitialDetentIndex: 0,
-            sheetGrabberVisible: true,
-            sheetCornerRadius: 24,
-            sheetLargestUndimmedDetentIndex: -1,
-          }}
-        />
+        <Stack.Protected guard={!isSignedIn}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
+
+        <Stack.Protected guard={isSignedIn}>
+          <Stack.Screen name="(drawer)" />
+          <Stack.Screen name="product" />
+          <Stack.Screen name="(all-order-info)" />
+          <Stack.Screen name="checkout" />
+          <Stack.Screen name="(common)" />
+          <Stack.Screen
+            name="(modal)/order-summery-modal"
+            options={{
+              presentation: "formSheet",
+              sheetAllowedDetents: [0.5, 1],
+              sheetInitialDetentIndex: 0,
+              sheetGrabberVisible: true,
+              sheetCornerRadius: 24,
+              sheetLargestUndimmedDetentIndex: -1,
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/order-filter-modal"
+            options={{
+              presentation: "formSheet",
+              sheetAllowedDetents: [0.6, 1],
+              sheetInitialDetentIndex: 0,
+              sheetGrabberVisible: true,
+              sheetCornerRadius: 24,
+              sheetLargestUndimmedDetentIndex: -1,
+            }}
+          />
+        </Stack.Protected>
       </Stack>
     </>
   )
