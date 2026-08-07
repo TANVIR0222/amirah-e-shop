@@ -8,6 +8,7 @@
   "dependencies": {
     "@expo/ui": "~56.0.21",
     "@expo/vector-icons": "^15.1.1",
+    "@native-html/render": "^1.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-picker/picker": "2.11.4",
     "@react-navigation/drawer": "^7.13.2",
