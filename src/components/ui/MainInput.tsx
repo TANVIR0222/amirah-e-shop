@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native"
 interface InputProps {
-  label: string
+  label?: string
   placeholder?: string
   value: string
   onChangeText: (text: string) => void
@@ -20,9 +20,11 @@ interface InputProps {
   labelStyle?: object
   textInputStyle?: object
   containerStyle?: object
+  outerContainerStyle?: object
   isPassword?: boolean
   multiline?: boolean
   numberOfLines?: number
+  autoCapitalize?: TextInputProps["autoCapitalize"]
 }
 
 const MainInput: React.FC<InputProps> = ({
@@ -37,25 +39,29 @@ const MainInput: React.FC<InputProps> = ({
   labelStyle,
   textInputStyle,
   containerStyle,
+  outerContainerStyle,
   isPassword = false,
   multiline = false,
   numberOfLines = 1,
+  autoCapitalize = "none",
 }) => {
   const [secureText, setSecureText] = React.useState(isPassword)
 
   const showError = touched && !!error
 
   return (
-    <View style={tw`mb-4`}>
+    <View style={tw.style(`mb-4`, outerContainerStyle)}>
       {/* Label */}
-      <Text
-        style={tw.style(
-          `text-text_gray font-geist-medium text-sm mb-2`,
-          labelStyle
-        )}
-      >
-        {label}
-      </Text>
+      {Boolean(label) && (
+        <Text
+          style={tw.style(
+            `text-text_gray font-geist-medium text-sm mb-2`,
+            labelStyle
+          )}
+        >
+          {label}
+        </Text>
+      )}
 
       {/* Input Container */}
       <View
@@ -83,6 +89,7 @@ const MainInput: React.FC<InputProps> = ({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlignVertical="top"
+          autoCapitalize={autoCapitalize}
         />
 
         {/* Password Toggle */}
