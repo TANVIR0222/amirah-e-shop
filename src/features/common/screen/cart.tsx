@@ -289,7 +289,17 @@ export default function CartScreen() {
                   )}
                 >
                   <Image
-                    source={{ uri: item.image }}
+                    source={
+                      typeof item?.image === "number"
+                        ? item.image
+                        : {
+                            uri:
+                              typeof item?.image === "string" &&
+                              item.image.trim() !== ""
+                                ? item.image
+                                : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                          }
+                    }
                     style={tw`w-20 h-20 rounded-xl bg-gray-100`}
                     resizeMode="cover"
                   />
