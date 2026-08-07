@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 import { AppToaster } from "@/components/ui/app-toaster"
+import { DraggableFloatingCart } from "@/components/ui/draggable-floating-cart"
 import { useSession } from "@/features/auth/auth-session"
 import { AppProviders } from "@/providers/app-providers"
 import { useAppTheme } from "@/theme/theme-provider"
@@ -54,6 +55,9 @@ function RootNavigator() {
           />
         </Stack.Protected>
       </Stack>
+
+      {/* ── Global Draggable Floating Cart ── */}
+      {isSignedIn && <DraggableFloatingCart />}
     </>
   )
 }
