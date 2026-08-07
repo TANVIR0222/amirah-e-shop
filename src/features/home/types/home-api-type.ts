@@ -14,3 +14,11 @@ export interface CategoryResponse {
   created_at: string
   updated_at: string
 }
+
+export interface BannerResponse {
+  id: number
+  title: any | null
+  link: any | null
+  order: number
+  image1: string
+}

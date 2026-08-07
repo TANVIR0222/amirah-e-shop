@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { cartStorage } from "@/lib/storage/cart-storage"
 import { useGetSingleProductQuery } from "../api/shop-api"
 import ProductImageSlider from "../components/product-image-slider"
 
@@ -72,8 +73,30 @@ export default function ProductDetailsScreen() {
   const handleIncrease = () => setQuantity((prev) => prev + 1)
   const handleDecrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (!data?.data) return
+    const product = data.data
+    await cartStorage.addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        category: product.category?.name || "General",
+        unit: activeSize || "1 Unit",
+        price: Number(product.price) || 0,
+        originalPrice:
+          product.wholesale_price && product.wholesale_price > product.price
+            ? Number(product.wholesale_price)
+            : undefined,
+        image: product.images_array?.[0] || product.image,
+        inStock: product.in_stock === 1,
+        variant: activeSize,
+      },
+      quantity
+    )
     setIsAddedToCart(true)
+    setTimeout(() => {
+      setIsAddedToCart(false)
+    }, 2500)
   }
 
   const toggleRelatedLike = (id: string) => {
@@ -181,10 +204,7 @@ export default function ProductDetailsScreen() {
 
           {/* Price & Quantity Controls */}
           <View
-            style={tw.style(
-              "flex-row justify-between items-center rounded px-3 py-3 border",
-              { borderColor: colors.border }
-            )}
+            style={tw`flex-row justify-between items-center rounded px-3 py-3`}
           >
             <View style={tw`gap-0.5`}>
               <View style={tw`flex-row items-baseline gap-2`}>
@@ -243,52 +263,56 @@ export default function ProductDetailsScreen() {
           <ProductCoupons />
 
           {/* Variations / Weight */}
-          <View style={tw`flex-col gap-2.5 mt-1`}>
-            <Text style={tw.style("text-sm font-bold", { color: colors.text })}>
-              Select Weight / Variant
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={tw`flex-row gap-2.5`}
-            >
-              {data?.data?.sizes_weights.map((item) => {
-                const isActive = activeSize === item
-                return (
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    key={item}
-                    onPress={() => setActiveSize(item)}
-                    style={tw.style(
-                      "px-4 py-2 rounded-2xl border flex-row items-center gap-1.5",
-                      isActive
-                        ? {
-                            backgroundColor: "#FEF2F2",
-                            borderColor: "#F0653A",
-                          }
-                        : {
-                            backgroundColor: colors.surface,
-                            borderColor: colors.border,
-                          }
-                    )}
-                  >
-                    <Ionicons
-                      name={isActive ? "checkmark-circle" : "ellipse-outline"}
-                      size={14}
-                      color={isActive ? "#F0653A" : colors.mutedForeground}
-                    />
-                    <Text
-                      style={tw.style("text-xs font-bold", {
-                        color: isActive ? "#F0653A" : colors.text,
-                      })}
+          {data?.data?.sizes_weights && (
+            <View style={tw`flex-col gap-2.5 mt-1`}>
+              <Text
+                style={tw.style("text-sm font-bold", { color: colors.text })}
+              >
+                Select Weight / Variant
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={tw`flex-row gap-2.5`}
+              >
+                {data?.data?.sizes_weights.map((item) => {
+                  const isActive = activeSize === item
+                  return (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      key={item}
+                      onPress={() => setActiveSize(item)}
+                      style={tw.style(
+                        "px-4 py-2 rounded-2xl border flex-row items-center gap-1.5",
+                        isActive
+                          ? {
+                              backgroundColor: "#FEF2F2",
+                              borderColor: "#F0653A",
+                            }
+                          : {
+                              backgroundColor: colors.surface,
+                              borderColor: colors.border,
+                            }
+                      )}
                     >
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </ScrollView>
-          </View>
+                      <Ionicons
+                        name={isActive ? "checkmark-circle" : "ellipse-outline"}
+                        size={14}
+                        color={isActive ? "#F0653A" : colors.mutedForeground}
+                      />
+                      <Text
+                        style={tw.style("text-xs font-bold", {
+                          color: isActive ? "#F0653A" : colors.text,
+                        })}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Description Section */}
           <View style={tw`flex-col gap-2 mt-1`}>

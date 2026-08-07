@@ -1,13 +1,14 @@
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
 import { useSession } from "@/features/auth/auth-session"
+import { useCart } from "@/lib/storage/cart-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router, useNavigation } from "expo-router"
 import { DrawerActions } from "expo-router/react-navigation"
 import React from "react"
-import { TextInput, TouchableOpacity, View } from "react-native"
+import { Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
@@ -19,6 +20,7 @@ export default function HomeScreen() {
   const { user } = useSession()
   const { top } = useSafeAreaInsets()
   const { colors, spacing } = useAppTheme()
+  const { totalCount } = useCart()
 
   const [search, setSearch] = React.useState<string>("")
 
@@ -100,7 +102,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           onPress={() => router.push("/cart")}
           style={tw.style(
-            `w-10 h-10 rounded-[10px] items-center justify-center`,
+            `w-10 h-10 rounded-[10px] items-center justify-center relative`,
             {
               backgroundColor: "rgba(255,255,255,0.2)",
             }
@@ -108,13 +110,20 @@ export default function HomeScreen() {
         >
           <Ionicons name="bag-handle-outline" size={20} color="#fff" />
 
-          <View
-            style={tw.style(`absolute w-2 h-2 rounded-full`, {
-              top: 6,
-              right: 6,
-              backgroundColor: "#FFD700",
-            })}
-          />
+          {totalCount > 0 ? (
+            <View
+              style={tw.style(
+                `absolute -top-1 -right-1 min-w-4 h-4 rounded-full px-1 items-center justify-center`,
+                {
+                  backgroundColor: "#FFD700",
+                }
+              )}
+            >
+              <Text style={tw`text-[10px] font-extrabold text-gray-900`}>
+                {totalCount > 99 ? "99+" : totalCount}
+              </Text>
+            </View>
+          ) : null}
         </TouchableOpacity>
       </View>
 
