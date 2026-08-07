@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     borderColor: "#FFFFFF",
   },
   glowRing: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: BUTTON_SIZE / 2,
     backgroundColor: "rgba(255, 255, 255, 0.12)",
   },
