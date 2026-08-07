@@ -1,12 +1,10 @@
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { PRODUCTS } from "@/utils/ui-data" // Assume Product type is derived from this
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router } from "expo-router"
 import { useState } from "react"
-import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native"
-
-type Product = (typeof PRODUCTS)[number]
+import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 
 const OUTER_PADDING = 24
 const GAP = 12
@@ -19,18 +17,21 @@ const CARD_WIDTH =
 
 export function ProductCard({ item }: any) {
   const { colors } = useAppTheme()
-  const [liked, setLiked] = useState(item.favorite)
+  const [liked, setLiked] = useState(item?.favorite ?? false)
   const [qty, setQty] = useState(1)
+
+  if (!item) return null
 
   return (
     <TouchableOpacity
+      activeOpacity={0.85}
       onPress={() =>
         router.push({
           pathname: "/product/[id]",
           params: { id: item.id },
         })
       }
-      style={tw.style(`rounded-2xl overflow-hidden border`, {
+      style={tw.style(`rounded-2xl  overflow-hidden border`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
         borderColor: colors.border,
@@ -41,17 +42,13 @@ export function ProductCard({ item }: any) {
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={
-            typeof item?.image === "number"
-              ? item.image
-              : {
-                  uri:
-                    typeof item?.image === "string" && item.image.trim() !== ""
-                      ? item.image
-                      : "https://amiraheshop.com/images/product/202607170221361.jpeg",
-                }
-          }
-          resizeMode="cover"
+          source={{
+            uri:
+              item?.image?.[0] ??
+              "https://amiraheshop.com/images/product/202607170221361.jpeg",
+          }}
+          contentFit="cover"
+          transition={200}
           style={tw`w-full h-40`}
         />
 
