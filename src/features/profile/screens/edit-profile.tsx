@@ -22,10 +22,9 @@ const BRAND_ORANGE = "#F0653A"
 export default function EditProfileScreen() {
   const { user } = useSession()
   const { colors } = useAppTheme()
-  const { name, phone, isLoading } = useAuthUserInfo()
+  const { name, phone } = useAuthUserInfo()
 
-  //
-  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
+  const [updateProfile] = useUpdateProfileMutation()
 
   const [image, setImage] = React.useState<string | null>(null)
 

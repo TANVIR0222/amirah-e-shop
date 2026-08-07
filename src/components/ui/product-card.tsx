@@ -1,12 +1,12 @@
+import { cartStorage } from "@/lib/storage/cart-storage"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { PRODUCTS } from "@/utils/ui-data" // Assume Product type is derived from this
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router } from "expo-router"
 import { useState } from "react"
-import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native"
-
-type Product = (typeof PRODUCTS)[number]
+import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 
 const OUTER_PADDING = 24
 const GAP = 12
@@ -19,12 +19,65 @@ const CARD_WIDTH =
 
 export function ProductCard({ item }: any) {
   const { colors } = useAppTheme()
-  const [liked, setLiked] = useState(item.favorite)
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [qty, setQty] = useState(1)
+  const [added, setAdded] = useState(false)
+
+  const imageUri =
+    (Array.isArray(item?.image) ? item.image[0] : item?.image) ||
+    item?.category?.image ||
+    "https://amiraheshop.com/images/product/202607170221361.jpeg"
+
+  if (!item) return null
+
+  const isLiked = isFavorite(item.id)
+
+  const handleToggleHeart = async (e: any) => {
+    e?.stopPropagation?.()
+    await toggleFavorite({
+      id: item.id,
+      name: item.name,
+      category: item.category?.name || "General",
+      price: Number(item.price) || 0,
+      originalPrice: item.wholesale_price
+        ? Number(item.wholesale_price)
+        : undefined,
+      image: item.images_array?.[0] || item.image,
+      rating: 4.8,
+      unit: item.unit || "1 Unit",
+      inStock: item.in_stock === 1,
+    })
+  }
+
+  const handleQuickAdd = async (e: any) => {
+    e?.stopPropagation?.()
+    await cartStorage.addToCart(
+      {
+        id: item.id,
+        name: item.name,
+        category: item.category?.name || "General",
+        price: Number(item.price) || 0,
+        originalPrice: item.wholesale_price
+          ? Number(item.wholesale_price)
+          : undefined,
+        image: item.images_array?.[0] || item.image,
+        inStock: item.in_stock === 1,
+      },
+      qty
+    )
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
+  }
 
   return (
     <TouchableOpacity
-      onPress={() => router.push("/product/[id]")}
+      activeOpacity={0.85}
+      onPress={() =>
+        router.push({
+          pathname: "/product/[id]",
+          params: { id: item.id },
+        })
+      }
       style={tw.style(`rounded-2xl overflow-hidden border`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
@@ -36,22 +89,25 @@ export function ProductCard({ item }: any) {
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={{ uri: item.image }}
-          resizeMode="cover"
+          source={{
+            uri: imageUri,
+          }}
+          contentFit="cover"
+          transition={200}
           style={tw`w-full h-40`}
         />
 
         {/* Heart button — on top of image */}
         <TouchableOpacity
-          onPress={() => setLiked((v: any) => !v)}
+          onPress={handleToggleHeart}
           style={tw.style(`absolute top-2 right-2 z-10 rounded-full p-1.5`, {
-            backgroundColor: colors.surface + "CC",
+            backgroundColor: isLiked ? "#FEF2F2" : colors.surface + "CC",
           })}
         >
           <Ionicons
-            name={liked ? "heart" : "heart-outline"}
+            name={isLiked ? "heart" : "heart-outline"}
             size={18}
-            color={liked ? "#E53E3E" : colors.mutedForeground}
+            color={isLiked ? "#E53E3E" : colors.mutedForeground}
           />
         </TouchableOpacity>
       </View>
@@ -98,11 +154,17 @@ export function ProductCard({ item }: any) {
           </View>
 
           <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleQuickAdd}
             style={tw.style(`w-9 h-9 rounded-xl items-center justify-center`, {
-              backgroundColor: colors.danger,
+              backgroundColor: added ? "#16A34A" : colors.danger,
             })}
           >
-            <Ionicons name="bag-handle-outline" size={18} color="#fff" />
+            <Ionicons
+              name={added ? "checkmark" : "bag-handle-outline"}
+              size={18}
+              color="#fff"
+            />
           </TouchableOpacity>
         </View>
       </View>

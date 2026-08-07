@@ -1,14 +1,13 @@
 import { AppText } from "@/components/ui/app-text"
+import { ProductGrid } from "@/components/ui/product-grid"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { PRODUCTS } from "@/utils/ui-data"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import {
-  Dimensions,
-  FlatList,
-  Image,
+  ActivityIndicator,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,157 +15,83 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window")
-const CARD_MARGIN = 12
-const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_MARGIN) / 2
-
-type Product = (typeof PRODUCTS)[number]
-
-function FavouriteCard({
-  item,
-  onRemove,
-}: {
-  item: Product
-  onRemove: (id: string) => void
-}) {
-  const { colors } = useAppTheme()
-  const [qty, setQty] = useState(1)
-
-  return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      onPress={() => router.push("/product/[id]")}
-      style={tw.style(`rounded-2xl overflow-hidden border mb-3`, {
-        width: CARD_WIDTH,
-        backgroundColor: colors.surface,
-        borderColor: colors.border,
-      })}
-    >
-      {/* Image container + heart badge */}
-      <View
-        style={tw.style(`relative`, { backgroundColor: colors.background })}
-      >
-        <Image
-          source={{ uri: item.image }}
-          resizeMode="contain"
-          style={tw`w-full h-36`}
-        />
-
-        {/* Remove from wishlist heart */}
-        <TouchableOpacity
-          onPress={() => onRemove(item.id)}
-          style={tw.style(`absolute top-2 right-2 z-10 rounded-full p-1.5`, {
-            backgroundColor: colors.surface + "CC",
-          })}
-        >
-          <Ionicons name="heart" size={18} color="#F0653A" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Card body */}
-      <View style={tw`p-3`}>
-        <Text
-          numberOfLines={2}
-          style={tw.style(`text-xs font-semibold leading-4`, {
-            color: colors.text,
-          })}
-        >
-          {item.name}
-        </Text>
-
-        <View style={tw`flex-row items-center justify-between mt-1.5`}>
-          <Text style={tw`text-base font-extrabold text-[#F0653A]`}>
-            ৳{item.price}
-          </Text>
-          <View
-            style={tw`flex-row items-center gap-1 bg-[#FFF8E1] px-1.5 py-0.5 rounded-md`}
-          >
-            <Ionicons name="star" size={12} color="#FFB300" />
-            <Text style={tw`text-[11px] font-bold text-[#FFB300]`}>4.8</Text>
-          </View>
-        </View>
-
-        {/* Stepper + Add to Cart */}
-        <View style={tw`flex-row items-center mt-2.5 gap-2`}>
-          <View
-            style={tw.style(
-              `flex-row items-center flex-1 h-9 rounded-xl border justify-around`,
-              { borderColor: colors.border }
-            )}
-          >
-            <TouchableOpacity
-              onPress={() => qty > 1 && setQty(qty - 1)}
-              hitSlop={4}
-            >
-              <Ionicons name="remove-outline" size={14} color={colors.text} />
-            </TouchableOpacity>
-
-            <Text style={tw.style(`text-xs font-bold`, { color: colors.text })}>
-              {qty}
-            </Text>
-
-            <TouchableOpacity onPress={() => setQty(qty + 1)} hitSlop={4}>
-              <Ionicons name="add-outline" size={14} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={tw.style(`w-9 h-9 rounded-xl items-center justify-center`, {
-              backgroundColor: "#F0653A",
-            })}
-          >
-            <Ionicons name="bag-handle-outline" size={18} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  )
-}
+const BRAND_COLOR = "#F0653A"
 
 export default function MyFavouriteProductScreen() {
   const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
-  const [items, setItems] = useState<Product[]>(PRODUCTS)
+  const { favorites, isLoading, clearFavorites } = useFavorites()
   const [search, setSearch] = useState("")
+  const [refreshing, setRefreshing] = useState(false)
 
-  const handleRemove = (id: string) => {
-    setItems((prev) => prev.filter((p) => p.id !== id))
-  }
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true)
+    setTimeout(() => {
+      setRefreshing(false)
+    }, 500)
+  }, [])
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+  const filteredItems = favorites.filter((item) =>
+    item.name?.toLowerCase().includes(search.toLowerCase().trim())
   )
+
+  console.log("Favorites: ", favorites[0]?.image)
 
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
-      {/* Top Header */}
+      {/* ── Top Header Bar ── */}
       <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 `, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-        })}
+        style={tw.style(
+          `px-4 pb-3 flex-row items-center justify-between border-b`,
+          {
+            paddingTop: top + 10,
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          }
+        )}
       >
-        <View style={tw`flex-1`}>
-          <AppText variant="title"> My Fovourite </AppText>
+        <View style={tw`flex-row items-center gap-3 flex-1`}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            style={tw.style(
+              `w-9 h-9 rounded-full items-center justify-center border shadow-xs`,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              }
+            )}
+          >
+            <Ionicons name="chevron-back" size={20} color={colors.text} />
+          </TouchableOpacity>
+
+          <View>
+            <AppText variant="title">My Favorites</AppText>
+            <Text style={tw`text-[11px] font-medium text-gray-400`}>
+              {favorites.length} {favorites.length === 1 ? "item" : "items"}{" "}
+              saved
+            </Text>
+          </View>
         </View>
 
-        {items.length > 0 && (
+        {favorites.length > 0 && (
           <TouchableOpacity
-            onPress={() => setItems([])}
+            onPress={() => clearFavorites()}
             hitSlop={6}
-            style={tw`px-3 py-1.5 rounded-full bg-[#FEF2F2]`}
+            style={tw`px-3 py-1.5 rounded-full bg-[#FEF2F2] border border-red-100 flex-row items-center gap-1`}
           >
+            <Ionicons name="trash-outline" size={13} color="#EF4444" />
             <Text style={tw`text-xs font-bold text-[#EF4444]`}>Clear All</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Search Bar */}
-      {items.length > 0 && (
+      {/* ── Search Bar ── */}
+      {favorites.length > 0 && (
         <View style={tw`px-4 pt-3 pb-2`}>
           <View
             style={tw.style(
-              `flex-row items-center rounded-xl border px-3 h-10 gap-2`,
+              `flex-row items-center rounded-xl border px-3 h-10.5 gap-2 shadow-xs`,
               {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
@@ -180,10 +105,11 @@ export default function MyFavouriteProductScreen() {
             />
             <TextInput
               style={tw.style(`flex-1 text-sm h-10`, { color: colors.text })}
-              placeholder="Search in favourites..."
+              placeholder="Search in favorites..."
               placeholderTextColor={colors.mutedForeground}
               value={search}
               onChangeText={setSearch}
+              returnKeyType="search"
             />
             {search.length > 0 && (
               <TouchableOpacity onPress={() => setSearch("")} hitSlop={6}>
@@ -198,49 +124,69 @@ export default function MyFavouriteProductScreen() {
         </View>
       )}
 
-      {/* Favorites Product Grid */}
-      <FlatList
-        data={filteredItems}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={tw`p-4 pb-8`}
-        columnWrapperStyle={tw`justify-between`}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <FavouriteCard item={item} onRemove={handleRemove} />
-        )}
-        ListEmptyComponent={
-          <View style={tw`items-center justify-center py-24`}>
-            <View
-              style={tw`w-20 h-20 rounded-full bg-[#FDECEA] items-center justify-center mb-4`}
-            >
-              <Ionicons
-                name="heart-dislike-outline"
-                size={38}
-                color="#F0653A"
-              />
-            </View>
-            <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
-              No Favourite Products
-            </Text>
-            <Text
-              style={tw.style(`text-xs mt-1 text-center px-8`, {
-                color: colors.mutedForeground,
-              })}
-            >
-              Tap the heart icon on any product to save it to your favourites
-              list for quick shopping.
-            </Text>
+      {/* ── Loader / Favorites ProductGrid ── */}
+      {isLoading ? (
+        <View style={tw`flex-1 items-center justify-center`}>
+          <ActivityIndicator size="large" color={BRAND_COLOR} />
+        </View>
+      ) : (
+        <View style={tw`flex-1 px-4`}>
+          <ProductGrid
+            data={filteredItems}
+            onRefresh={handleRefresh}
+            refreshing={refreshing}
+            contentContainerStyle={tw`pb-12`}
+            ListEmptyComponent={
+              <View style={tw`items-center justify-center py-20 px-6`}>
+                <View
+                  style={tw`w-20 h-20 rounded-full bg-[#FDECEA] items-center justify-center mb-4 shadow-xs`}
+                >
+                  <Ionicons
+                    name="heart-dislike-outline"
+                    size={40}
+                    color={BRAND_COLOR}
+                  />
+                </View>
+                <Text
+                  style={tw.style(`text-lg font-bold text-center`, {
+                    color: colors.text,
+                  })}
+                >
+                  {search ? "No Matches Found" : "No Favorite Products Yet"}
+                </Text>
+                <Text
+                  style={tw.style(
+                    `text-xs mt-1 text-center max-w-[280px] leading-5`,
+                    {
+                      color: colors.mutedForeground,
+                    }
+                  )}
+                >
+                  {search
+                    ? `We could not find any saved items matching "${search}".`
+                    : "Tap the heart icon on any product to save it to your favorites list for instant shopping."}
+                </Text>
 
-            <TouchableOpacity
-              onPress={() => router.push("/(drawer)/(tabs)/shop")}
-              style={tw`mt-6 px-6 py-3 rounded-full bg-[#F0653A]`}
-            >
-              <Text style={tw`text-white font-bold text-sm`}>Explore Shop</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
+                {!search && (
+                  <TouchableOpacity
+                    onPress={() => router.push("/(drawer)/(tabs)/shop")}
+                    style={tw`mt-6 px-6 py-3.5 rounded-2xl bg-[#F0653A] flex-row items-center gap-2 shadow-sm`}
+                  >
+                    <Ionicons
+                      name="storefront-outline"
+                      size={18}
+                      color="#FFF"
+                    />
+                    <Text style={tw`text-white font-bold text-sm`}>
+                      Explore Shop
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            }
+          />
+        </View>
+      )}
     </View>
   )
 }

@@ -15,7 +15,7 @@ import {
 import { useGetProductsQuery, useLazyGetProductsQuery } from "../api/shop-api"
 import { ShopProductResponse } from "../types/shop-type"
 
-const PER_PAGE = 5
+const PER_PAGE = 10
 const BRAND = "#F0653A"
 
 export default function Shop() {

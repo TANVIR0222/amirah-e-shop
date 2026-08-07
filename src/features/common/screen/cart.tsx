@@ -1,10 +1,11 @@
+import { useCart } from "@/lib/storage/cart-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router } from "expo-router"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,90 +15,25 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-type CartItem = {
-  id: string
-  name: string
-  category: string
-  unit: string
-  price: number
-  originalPrice?: number
-  quantity: number
-  image: string
-  inStock: boolean
-}
-
-const INITIAL_CART_ITEMS: CartItem[] = [
-  {
-    id: "CART-1",
-    name: "Fresh Organic Eggs",
-    category: "Groceries & Farm",
-    unit: "1 Dozen (12 Pcs)",
-    price: 145,
-    originalPrice: 160,
-    quantity: 2,
-    image: "https://amiraheshop.com/images/product/202607170221361.jpeg",
-    inStock: true,
-  },
-  {
-    id: "CART-2",
-    name: "Potato Regular (দেশি আলু)",
-    category: "Fresh Vegetables",
-    unit: "1 Kg",
-    price: 55,
-    originalPrice: 65,
-    quantity: 3,
-    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500",
-    inStock: true,
-  },
-  {
-    id: "CART-3",
-    name: "Premium Red Tomatoes",
-    category: "Fresh Vegetables",
-    unit: "500 Gm",
-    price: 48,
-    originalPrice: 55,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=500",
-    inStock: true,
-  },
-  {
-    id: "CART-4",
-    name: "Pure Mustard Oil (সরিষার তেল)",
-    category: "Cooking Essentials",
-    unit: "500 ml",
-    price: 180,
-    originalPrice: 200,
-    quantity: 1,
-    image: "https://amiraheshop.com/images/product/202607170959351.jpg",
-    inStock: true,
-  },
-]
-
 export default function CartScreen() {
   const { colors } = useAppTheme()
   const insets = useSafeAreaInsets()
 
-  const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART_ITEMS)
+  const {
+    cart: cartItems,
+    subtotal,
+    savings,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCart()
+
   const [couponCode, setCouponCode] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string
     discount: number
   } | null>({ code: "SAVE50", discount: 50 })
   const [couponError, setCouponError] = useState("")
-
-  // Calculations
-  const subtotal = useMemo(() => {
-    return cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-  }, [cartItems])
-
-  const savings = useMemo(() => {
-    return cartItems.reduce((acc, item) => {
-      if (item.originalPrice) {
-        return acc + (item.originalPrice - item.price) * item.quantity
-      }
-      return acc
-    }, 0)
-  }, [cartItems])
 
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0
   const freeDeliveryThreshold = 650
@@ -106,27 +42,16 @@ export default function CartScreen() {
     subtotal >= freeDeliveryThreshold || subtotal === 0 ? 0 : 60
   const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee)
 
-  const handleUpdateQuantity = (id: string, delta: number) => {
-    setCartItems(
-      (prev) =>
-        prev
-          .map((item) => {
-            if (item.id === id) {
-              const newQty = item.quantity + delta
-              return newQty > 0 ? { ...item, quantity: newQty } : null
-            }
-            return item
-          })
-          .filter(Boolean) as CartItem[]
-    )
+  const handleUpdateQuantity = (id: string | number, delta: number) => {
+    updateQuantity(id, delta)
   }
 
-  const handleRemoveItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id))
+  const handleRemoveItem = (id: string | number) => {
+    removeFromCart(id)
   }
 
   const handleClearCart = () => {
-    setCartItems([])
+    clearCart()
     setAppliedCoupon(null)
   }
 
@@ -289,7 +214,17 @@ export default function CartScreen() {
                   )}
                 >
                   <Image
-                    source={{ uri: item.image }}
+                    source={
+                      typeof item?.image === "number"
+                        ? item.image
+                        : {
+                            uri:
+                              typeof item?.image === "string" &&
+                              item.image.trim() !== ""
+                                ? item.image
+                                : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                          }
+                    }
                     style={tw`w-20 h-20 rounded-xl bg-gray-100`}
                     resizeMode="cover"
                   />

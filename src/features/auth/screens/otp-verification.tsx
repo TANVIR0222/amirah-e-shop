@@ -46,26 +46,11 @@ export default function OtpVerificationScreen() {
   }
 
   const handleOtpVerify = async () => {
-    // if (otpVerify.length === 6) {
-    //   try {
-    //     const res = await verify_otp_verify({ otp: otpVerify }).unwrap()
-    //     if (res?.status) {
-    //       // Save token
-    //       storage.set("token", res?.data?.token)
-    //       if (from === "reset-password") {
-    //         router.push("/(auth)/change-password")
-    //       } else {
-    //         router.push("/(drawer)/(tabs)")
-    //       }
-    //       // Navigate to destination
-    //       // router.push(destination);
-    //     }
-    //   } catch (error: any) {
-    //     alert(error?.message)
-    //   }
-    // } else {
-    //   Alert.alert("OTP Error", "Please enter a valid 6-digit OTP code.")
-    // }
+    if (otpVerify.length === 6) {
+      router.push("/(auth)/change-password")
+    } else {
+      router.push("/(auth)/change-password")
+    }
   }
   return (
     <KeyboardAvoidingWrapper>
@@ -121,7 +106,7 @@ export default function OtpVerificationScreen() {
           </View>
           <MainButton
             title={"Continue"}
-            onPress={() => router.push("/(auth)/change-password")}
+            onPress={handleOtpVerify}
             isLoading={false}
             textStyle={tw`text-white`}
             showSignUpLink={false}

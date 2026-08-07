@@ -1,36 +1,24 @@
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
-import { useSession } from "@/features/auth/auth-session"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router, useNavigation } from "expo-router"
 import { DrawerActions } from "expo-router/react-navigation"
 import React from "react"
-import { TextInput, TouchableOpacity, View } from "react-native"
+import { Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
-import { ProductGrid } from "@/components/ui/product-grid"
-
-const BRAND_RED = "#F0653A"
 
 export default function HomeScreen() {
   const navigation = useNavigation()
-  const { user } = useSession()
   const { top } = useSafeAreaInsets()
-  const { colors, spacing } = useAppTheme()
+  const { colors } = useAppTheme()
+  const { favorites } = useFavorites()
 
   const [search, setSearch] = React.useState<string>("")
-
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "U"
 
   return (
     <View style={tw`flex-col flex-1 gap-0 `}>
@@ -61,7 +49,7 @@ export default function HomeScreen() {
         {/* Search Bar */}
         <View
           style={tw.style(
-            `flex-1 flex-row items-center bg-white rounded-[10px] px-2.5 h-10`,
+            `flex-row flex-1 items-center bg-white rounded-[10px] px-2.5 h-10`,
             {
               columnGap: 6,
             }
@@ -106,25 +94,37 @@ export default function HomeScreen() {
           />
         </TouchableOpacity>
 
-        {/* Cart */}
+        {/* Favorites / Wishlist */}
         <TouchableOpacity
-          onPress={() => router.push("/cart")}
+          onPress={() => router.push("/(all-order-info)/my-favourite-product")}
+          activeOpacity={0.7}
           style={tw.style(
-            `w-10 h-10 rounded-[10px] items-center justify-center`,
+            `w-10 h-10 rounded-[10px] items-center justify-center relative`,
             {
               backgroundColor: "rgba(255,255,255,0.2)",
             }
           )}
         >
-          <Ionicons name="bag-handle-outline" size={20} color="#fff" />
-
-          <View
-            style={tw.style(`absolute w-2 h-2 rounded-full`, {
-              top: 6,
-              right: 6,
-              backgroundColor: "#FFD700",
-            })}
+          <Ionicons
+            name={favorites.length > 0 ? "heart" : "heart-outline"}
+            size={20}
+            color="#fff"
           />
+
+          {favorites.length > 0 ? (
+            <View
+              style={tw.style(
+                `absolute -top-1 -right-1 min-w-4 h-4 rounded-full px-1 items-center justify-center`,
+                {
+                  backgroundColor: "#FFD700",
+                }
+              )}
+            >
+              <Text style={tw`text-[10px] font-extrabold text-gray-900`}>
+                {favorites.length > 99 ? "99+" : favorites.length}
+              </Text>
+            </View>
+          ) : null}
         </TouchableOpacity>
       </View>
 
@@ -142,7 +142,6 @@ export default function HomeScreen() {
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
         />
-        <ProductGrid />
       </Screen>
     </View>
   )

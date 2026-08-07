@@ -1,20 +1,21 @@
 import tw from "@/lib/tailwind"
 import { _WIDTH } from "@/utils/phone-screen-size"
-import { homeCarousel } from "@/utils/ui-data"
 import * as React from "react"
 import { Image, View } from "react-native"
 import {
   Extrapolation,
   interpolate,
-  runOnJS,
   useSharedValue,
 } from "react-native-reanimated"
 import Carousel, {
   ICarouselInstance,
   Pagination,
 } from "react-native-reanimated-carousel"
+import { useGetHomeBannerQuery } from "../api/home-api"
 
 const HomeCarousel = () => {
+  const { data, isLoading } = useGetHomeBannerQuery()
+
   const ref = React.useRef<ICarouselInstance>(null)
 
   const progress = useSharedValue(0)
@@ -29,6 +30,14 @@ const HomeCarousel = () => {
     })
   }, [])
 
+  if (isLoading) {
+    return (
+      <View style={tw` items-center justify-center`}>
+        {/* // Loading Spinner or Placeholder */}
+      </View>
+    )
+  }
+
   return (
     <View style={tw`items-center `}>
       <Carousel
@@ -36,7 +45,7 @@ const HomeCarousel = () => {
         loop
         width={_WIDTH * 0.91}
         height={165}
-        data={homeCarousel || []}
+        data={(data?.data ?? []) as any[]}
         autoPlay
         autoPlayInterval={3000}
         scrollAnimationDuration={1000}
@@ -44,17 +53,15 @@ const HomeCarousel = () => {
         snapEnabled
         onProgressChange={(_, absoluteProgress) => {
           progress.value = absoluteProgress
-
-          runOnJS(() => {
-            currentIndex.current =
-              Math.round(absoluteProgress) % homeCarousel.length
-          })()
+        }}
+        onSnapToItem={(index) => {
+          currentIndex.current = index
         }}
         renderItem={({ item }) => (
           <View style={tw`flex-1 justify-center flex-row p-1`}>
             <Image
               source={{
-                uri: "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000",
+                uri: item?.image1,
               }}
               style={tw`w-full h-full rounded-xl`}
               resizeMode="cover"
@@ -66,7 +73,7 @@ const HomeCarousel = () => {
       {/* Pagination */}
       <Pagination.Custom
         progress={progress}
-        data={homeCarousel}
+        data={(data?.data ?? []) as any[]}
         size={10}
         horizontal
         onPress={onPressPagination}

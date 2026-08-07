@@ -4,7 +4,6 @@ import tw from "@/lib/tailwind"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type OrderStatus = "Processing" | "Shipped" | "Delivered" | "Cancelled"
 
@@ -155,7 +154,6 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 export default function OrderScreen() {
-  const { top } = useSafeAreaInsets()
   const [activeTab, setActiveTab] = useState<OrderStatus>("Processing")
 
   const filtered = MOCK_ORDERS.filter((o) => o.status === activeTab)
