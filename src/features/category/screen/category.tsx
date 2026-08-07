@@ -237,7 +237,16 @@ export default function CategoryScreen() {
                     )}
                   >
                     <Image
-                      source={cat.image}
+                      source={
+                        typeof cat.image === "number"
+                          ? cat.image
+                          : typeof cat.image === "string" &&
+                              cat.image.trim() !== ""
+                            ? { uri: cat.image }
+                            : {
+                                uri: "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                              }
+                      }
                       style={tw`w-full h-full`}
                       resizeMode="cover"
                     />
