@@ -1,5 +1,7 @@
 import { Screen } from "@/components/ui/screen"
 import { useSession } from "@/features/auth/auth-session"
+import { useCart } from "@/lib/storage/cart-storage"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -19,61 +21,73 @@ type MenuRow = {
   danger?: boolean
 }
 
-const STATS = [
-  { icon: "bag-handle" as IoniconName, label: "Orders", value: "12" },
-  { icon: "heart" as IoniconName, label: "Wishlist", value: "5" },
-  { icon: "star" as IoniconName, label: "Reviews", value: "8" },
-]
-
 function StatCard({
   icon,
   label,
   value,
+  color = BRAND_ORANGE,
+  bgColor,
+  onPress,
 }: {
   icon: IoniconName
   label: string
-  value: string
+  value: string | number
+  color?: string
+  bgColor?: string
+  onPress?: () => void
 }) {
   const { colors } = useAppTheme()
   return (
-    <View
-      style={[
-        tw`flex-1 items-center py-4 rounded-2xl`,
+    <TouchableOpacity
+      activeOpacity={0.75}
+      onPress={onPress}
+      style={tw.style(
+        `flex-1 items-center py-4 px-2 rounded-2xl border shadow-xs`,
         {
           backgroundColor: colors.surface,
-          borderWidth: 1,
           borderColor: colors.border,
-        },
-      ]}
+        }
+      )}
     >
+      {/* Icon Circle */}
       <View
         style={{
-          width: 38,
-          height: 38,
-          borderRadius: 12,
-          backgroundColor: `${BRAND_ORANGE}15`,
+          width: 42,
+          height: 42,
+          borderRadius: 14,
+          backgroundColor: bgColor || `${color}15`,
           alignItems: "center",
           justifyContent: "center",
-          marginBottom: 6,
+          marginBottom: 8,
         }}
       >
-        <Ionicons name={icon} size={20} color={BRAND_ORANGE} />
+        <Ionicons name={icon} size={20} color={color} />
       </View>
+
+      {/* Value Counter */}
       <Text
         style={{
-          fontSize: 18,
+          fontSize: 19,
           fontWeight: "800",
           color: colors.text,
         }}
       >
         {value}
       </Text>
+
+      {/* Label */}
       <Text
-        style={{ fontSize: 11, color: colors.mutedForeground, marginTop: 2 }}
+        numberOfLines={1}
+        style={{
+          fontSize: 11,
+          fontWeight: "600",
+          color: colors.mutedForeground,
+          marginTop: 2,
+        }}
       >
         {label}
       </Text>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -174,7 +188,9 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
 export default function ProfileScreen() {
   const { user, signOut } = useSession()
   const { colors } = useAppTheme()
-  const { data, isLoading } = useUserProfileQuery()
+  const { data } = useUserProfileQuery()
+  const { favorites } = useFavorites()
+  const { totalCount } = useCart()
 
   const initials = user?.name
     ? user.name
@@ -314,11 +330,34 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Stats ── */}
+        {/* ── Dynamic Stats Cards ── */}
         <View style={tw`flex-row gap-3 mb-6`}>
-          {STATS.map((s) => (
-            <StatCard key={s.label} {...s} />
-          ))}
+          <StatCard
+            icon="bag-handle-outline"
+            label="Orders"
+            value="4"
+            color="#3B82F6"
+            bgColor="#EFF6FF"
+            onPress={() => router.push("/(all-order-info)/my-orders")}
+          />
+          <StatCard
+            icon="heart-outline"
+            label="Wishlist"
+            value={favorites.length}
+            color="#EF4444"
+            bgColor="#FEF2F2"
+            onPress={() =>
+              router.push("/(all-order-info)/my-favourite-product")
+            }
+          />
+          <StatCard
+            icon="cart-outline"
+            label="Cart"
+            value={totalCount}
+            color="#F0653A"
+            bgColor="#FFF7ED"
+            onPress={() => router.push("/cart")}
+          />
         </View>
 
         {/* ── Menu Sections ── */}

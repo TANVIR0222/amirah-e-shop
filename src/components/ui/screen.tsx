@@ -10,7 +10,7 @@ type ScreenProps = {
 }
 
 export function Screen({ children, contentStyle, scroll = true }: ScreenProps) {
-  const { colors, spacing } = useAppTheme()
+  const { spacing } = useAppTheme()
   const insets = useSafeAreaInsets()
   const baseContentStyle = [
     {

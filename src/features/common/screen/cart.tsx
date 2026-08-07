@@ -4,9 +4,8 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { Image } from "expo-image"
 import { router } from "expo-router"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,7 +21,6 @@ export default function CartScreen() {
 
   const {
     cart: cartItems,
-    isLoading,
     subtotal,
     savings,
     updateQuantity,

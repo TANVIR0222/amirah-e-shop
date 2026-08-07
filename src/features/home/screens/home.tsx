@@ -1,7 +1,6 @@
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
-import { useSession } from "@/features/auth/auth-session"
-import { useCart } from "@/lib/storage/cart-storage"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -13,14 +12,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
 
-const BRAND_RED = "#F0653A"
-
 export default function HomeScreen() {
   const navigation = useNavigation()
-  const { user } = useSession()
   const { top } = useSafeAreaInsets()
-  const { colors, spacing } = useAppTheme()
-  const { totalCount } = useCart()
+  const { colors } = useAppTheme()
+  const { favorites } = useFavorites()
 
   const [search, setSearch] = React.useState<string>("")
 
@@ -53,7 +49,7 @@ export default function HomeScreen() {
         {/* Search Bar */}
         <View
           style={tw.style(
-            `flex-1 flex-row items-center bg-white rounded-[10px] px-2.5 h-10`,
+            `flex-row flex-1 items-center bg-white rounded-[10px] px-2.5 h-10`,
             {
               columnGap: 6,
             }
@@ -98,9 +94,10 @@ export default function HomeScreen() {
           />
         </TouchableOpacity>
 
-        {/* Cart */}
+        {/* Favorites / Wishlist */}
         <TouchableOpacity
-          onPress={() => router.push("/cart")}
+          onPress={() => router.push("/(all-order-info)/my-favourite-product")}
+          activeOpacity={0.7}
           style={tw.style(
             `w-10 h-10 rounded-[10px] items-center justify-center relative`,
             {
@@ -108,9 +105,13 @@ export default function HomeScreen() {
             }
           )}
         >
-          <Ionicons name="bag-handle-outline" size={20} color="#fff" />
+          <Ionicons
+            name={favorites.length > 0 ? "heart" : "heart-outline"}
+            size={20}
+            color="#fff"
+          />
 
-          {totalCount > 0 ? (
+          {favorites.length > 0 ? (
             <View
               style={tw.style(
                 `absolute -top-1 -right-1 min-w-4 h-4 rounded-full px-1 items-center justify-center`,
@@ -120,7 +121,7 @@ export default function HomeScreen() {
               )}
             >
               <Text style={tw`text-[10px] font-extrabold text-gray-900`}>
-                {totalCount > 99 ? "99+" : totalCount}
+                {favorites.length > 99 ? "99+" : favorites.length}
               </Text>
             </View>
           ) : null}

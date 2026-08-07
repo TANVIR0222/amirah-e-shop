@@ -13,7 +13,8 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { cartStorage } from "@/lib/storage/cart-storage"
+import { useCart } from "@/lib/storage/cart-storage"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import { useGetSingleProductQuery } from "../api/shop-api"
 import ProductImageSlider from "../components/product-image-slider"
 
@@ -40,34 +41,26 @@ const staticProduct = {
   ],
 }
 
-// --- Related Products Mock Data ---
-type RelatedProduct = {
-  id: string
-  name: string
-  category: string
-  price: number
-  originalPrice?: number
-  rating: number
-  image: string
-  unit: string
-}
-
 export default function ProductDetailsScreen() {
   const { colors } = useAppTheme()
   const { bottom, top } = useSafeAreaInsets()
-  const { id } = useLocalSearchParams<{ id: string }>() // Placeholder for search location query if needed
+  const { id } = useLocalSearchParams<{ id: string }>()
 
-  // console.log("Product ID from params:", id) // Debugging log for product ID
+  const { cart, addToCart } = useCart()
+  const { isFavorite, toggleFavorite } = useFavorites()
+
+  // Check if this product is in cart and favorite
+  const isAlreadyInCart = cart.some((c) => String(c.id) === String(id))
+  const isFav = isFavorite(id)
 
   // States
   const [activeSize, setActiveSize] = useState(staticProduct.sizes[0])
   const [quantity, setQuantity] = useState(1)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [isAddedToCart, setIsAddedToCart] = useState(false)
-  const [likedRelated, setLikedRelated] = useState<Record<string, boolean>>({})
+  const [justAdded, setJustAdded] = useState(false)
 
-  const { data, isLoading } = useGetSingleProductQuery({ id })
-  // console.log("data", data)
+  const { data } = useGetSingleProductQuery({ id })
+
+  const inCart = isAlreadyInCart || justAdded
 
   // Handlers
   const handleIncrease = () => setQuantity((prev) => prev + 1)
@@ -76,7 +69,7 @@ export default function ProductDetailsScreen() {
   const handleAddToCart = async () => {
     if (!data?.data) return
     const product = data.data
-    await cartStorage.addToCart(
+    await addToCart(
       {
         id: product.id,
         name: product.name,
@@ -93,14 +86,29 @@ export default function ProductDetailsScreen() {
       },
       quantity
     )
-    setIsAddedToCart(true)
+    setJustAdded(true)
     setTimeout(() => {
-      setIsAddedToCart(false)
-    }, 2500)
+      setJustAdded(false)
+    }, 2000)
   }
 
-  const toggleRelatedLike = (id: string) => {
-    setLikedRelated((prev) => ({ ...prev, [id]: !prev[id] }))
+  const handleToggleFavorite = async () => {
+    if (!data?.data) return
+    const product = data.data
+    await toggleFavorite({
+      id: product.id,
+      name: product.name,
+      category: product.category?.name || "General",
+      price: Number(product.price) || 0,
+      originalPrice:
+        product.wholesale_price && product.wholesale_price > product.price
+          ? Number(product.wholesale_price)
+          : undefined,
+      image: product.images_array?.[0] || product.image,
+      rating: 4.8,
+      unit: activeSize || "1 Unit",
+      inStock: product.in_stock === 1,
+    })
   }
 
   return (
@@ -131,20 +139,20 @@ export default function ProductDetailsScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setIsFavorite(!isFavorite)}
+            onPress={handleToggleFavorite}
             activeOpacity={0.8}
             style={tw.style(
               "w-10 h-10 rounded-full items-center justify-center border shadow-sm",
               {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
+                backgroundColor: isFav ? "#FEF2F2" : colors.surface,
+                borderColor: isFav ? "#F0653A" : colors.border,
               }
             )}
           >
             <Ionicons
-              name={isFavorite ? "heart" : "heart-outline"}
+              name={isFav ? "heart" : "heart-outline"}
               size={20}
-              color={isFavorite ? "#F0653A" : colors.text}
+              color={isFav ? "#F0653A" : colors.text}
             />
           </TouchableOpacity>
         </View>
@@ -354,11 +362,11 @@ export default function ProductDetailsScreen() {
             onPress={handleAddToCart}
             activeOpacity={0.8}
             style={tw.style(
-              "flex-1 h-12 rounded-2xl border flex-row items-center justify-center gap-2",
-              isAddedToCart
+              "flex-1 h-12 rounded-2xl border flex-row items-center justify-center gap-2 shadow-xs",
+              inCart
                 ? {
-                    backgroundColor: "#F0FDF4",
-                    borderColor: "#16A34A",
+                    backgroundColor: "#16A34A",
+                    borderColor: "#15803D",
                   }
                 : {
                     backgroundColor: "#FEF2F2",
@@ -367,16 +375,16 @@ export default function ProductDetailsScreen() {
             )}
           >
             <Ionicons
-              name={isAddedToCart ? "checkmark-circle" : "cart-outline"}
+              name={inCart ? "checkmark-circle" : "cart-outline"}
               size={18}
-              color={isAddedToCart ? "#16A34A" : "#F0653A"}
+              color={inCart ? "#FFFFFF" : "#F0653A"}
             />
             <Text
               style={tw.style("text-sm font-bold", {
-                color: isAddedToCart ? "#16A34A" : "#F0653A",
+                color: inCart ? "#FFFFFF" : "#F0653A",
               })}
             >
-              {isAddedToCart ? "Added to Cart" : "Add to Cart"}
+              {inCart ? "In Cart (Added)" : "Add to Cart"}
             </Text>
           </TouchableOpacity>
 
