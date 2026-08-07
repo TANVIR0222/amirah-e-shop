@@ -100,7 +100,17 @@ function OrderCard({ order }: { order: Order }) {
       <View style={tw`flex-row items-center gap-3`}>
         {/* Product image */}
         <Image
-          source={{ uri: order.image }}
+          source={
+            typeof order?.image === "number"
+              ? order.image
+              : {
+                  uri:
+                    typeof order?.image === "string" &&
+                    order.image.trim() !== ""
+                      ? order.image
+                      : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                }
+          }
           style={tw.style(`w-16 h-16 rounded-2xl`, {
             backgroundColor: colors.background,
           })}
