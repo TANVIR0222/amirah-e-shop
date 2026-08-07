@@ -24,7 +24,12 @@ export function ProductCard({ item }: any) {
 
   return (
     <TouchableOpacity
-      onPress={() => router.push("/product/[id]")}
+      onPress={() =>
+        router.push({
+          pathname: "/product/[id]",
+          params: { id: item.id },
+        })
+      }
       style={tw.style(`rounded-2xl overflow-hidden border`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
@@ -36,7 +41,16 @@ export function ProductCard({ item }: any) {
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={{ uri: item.image }}
+          source={
+            typeof item?.image === "number"
+              ? item.image
+              : {
+                  uri:
+                    typeof item?.image === "string" && item.image.trim() !== ""
+                      ? item.image
+                      : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                }
+          }
           resizeMode="cover"
           style={tw`w-full h-40`}
         />
