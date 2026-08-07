@@ -29,6 +29,7 @@ function RootNavigator() {
           <Stack.Screen name="(all-order-info)" />
           <Stack.Screen name="checkout" />
           <Stack.Screen name="(common)" />
+          <Stack.Screen name="cart" />
           <Stack.Screen
             name="(modal)/order-summery-modal"
             options={{
