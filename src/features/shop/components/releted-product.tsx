@@ -1,8 +1,8 @@
 import { ProductCard } from "@/components/ui/product-card"
-import { CategoryResponse } from "@/features/home/types/home-api-type"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import { logger } from "@/utils/logger"
+import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
 import {
@@ -30,7 +30,6 @@ function RelatedProduct({ id }: { id: string | number }) {
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [activeId, setActiveId] = useState<number | null>(null)
 
   // ── Page 1: RTK Query auto-fetches — no useEffect needed ─────────────────
   const {
@@ -62,10 +61,7 @@ function RelatedProduct({ id }: { id: string | number }) {
     [page1Items, extraItems]
   )
 
-  // Default active to first item (derived, not stored in effect)
-  const effectiveActiveId = activeId ?? page1Items[0]?.id ?? null
-
-  // ── Handlers (setState only from events — no effect-triggered setState) ───
+  // ── Handlers ─────────────────────────────────────────────────────────────
 
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !effectiveHasMore || isLoading) return
@@ -80,7 +76,7 @@ function RelatedProduct({ id }: { id: string | number }) {
         setNextPage(pagination.current_page + 1)
       })
       .catch((err) => {
-        if (__DEV__) console.warn("[HomeCategories] Load more error:", err)
+        if (__DEV__) console.warn("[RelatedProduct] Load more error:", err)
       })
       .finally(() => {
         setLoadingMore(false)
@@ -97,14 +93,6 @@ function RelatedProduct({ id }: { id: string | number }) {
       setRefreshing(false)
     })
   }, [refetch])
-
-  const handleCategoryPress = useCallback((item: CategoryResponse) => {
-    setActiveId(item.id)
-    router.push({
-      pathname: "/category",
-      params: { id: String(item.id), name: item.name },
-    })
-  }, [])
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -123,8 +111,18 @@ function RelatedProduct({ id }: { id: string | number }) {
           Related Products
         </Text>
 
-        <TouchableOpacity onPress={() => router.push("/(drawer)/(tabs)/shop")}>
-          <Text style={tw`text-xs font-bold text-[#F0653A]`}>View All →</Text>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() =>
+            router.push({
+              pathname: "/product",
+              params: { id: String(id), title: "Related Products" },
+            })
+          }
+          style={tw`flex-row items-center gap-1`}
+        >
+          <Text style={tw`text-xs font-bold text-[#F0653A]`}>View All</Text>
+          <Ionicons name="chevron-forward" size={14} color="#F0653A" />
         </TouchableOpacity>
       </View>
 

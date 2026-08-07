@@ -1,3 +1,4 @@
+import { cartStorage } from "@/lib/storage/cart-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -19,8 +20,29 @@ export function ProductCard({ item }: any) {
   const { colors } = useAppTheme()
   const [liked, setLiked] = useState(item?.favorite ?? false)
   const [qty, setQty] = useState(1)
+  const [added, setAdded] = useState(false)
 
   if (!item) return null
+
+  const handleQuickAdd = async (e: any) => {
+    e?.stopPropagation?.()
+    await cartStorage.addToCart(
+      {
+        id: item.id,
+        name: item.name,
+        category: item.category?.name || "General",
+        price: Number(item.price) || 0,
+        originalPrice: item.wholesale_price
+          ? Number(item.wholesale_price)
+          : undefined,
+        image: item.images_array?.[0] || item.image,
+        inStock: item.in_stock === 1,
+      },
+      qty
+    )
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
+  }
 
   return (
     <TouchableOpacity
@@ -31,7 +53,7 @@ export function ProductCard({ item }: any) {
           params: { id: item.id },
         })
       }
-      style={tw.style(`rounded-2xl  overflow-hidden border`, {
+      style={tw.style(`rounded-2xl overflow-hidden border`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
         borderColor: colors.border,
@@ -109,11 +131,16 @@ export function ProductCard({ item }: any) {
           </View>
 
           <TouchableOpacity
+            onPress={handleQuickAdd}
             style={tw.style(`w-9 h-9 rounded-xl items-center justify-center`, {
-              backgroundColor: colors.danger,
+              backgroundColor: added ? "#16A34A" : colors.danger,
             })}
           >
-            <Ionicons name="bag-handle-outline" size={18} color="#fff" />
+            <Ionicons
+              name={added ? "checkmark" : "bag-handle-outline"}
+              size={18}
+              color="#fff"
+            />
           </TouchableOpacity>
         </View>
       </View>
