@@ -1,3 +1,4 @@
+import ShopCardSkeleton from "@/features/shop/components/skeleton/all-category-skeleton"
 import tw from "@/lib/tailwind"
 import React, { memo, useCallback } from "react"
 import { Dimensions, FlatList } from "react-native"
@@ -6,6 +7,12 @@ import { ProductCard } from "./product-card"
 const GAP = 12
 const SCREEN_WIDTH = Dimensions.get("window").width
 const NUM_COLUMNS = SCREEN_WIDTH < 380 ? 1 : 2
+const OUTER_PADDING = 24
+
+const CARD_WIDTH =
+  NUM_COLUMNS === 1
+    ? SCREEN_WIDTH - OUTER_PADDING * 2
+    : (SCREEN_WIDTH - OUTER_PADDING * 2 - GAP) / 2
 
 export interface ProductGridProps {
   data?: any[]
@@ -19,6 +26,7 @@ export interface ProductGridProps {
   ListHeaderComponent?: React.ReactElement | null
   ListFooterComponent?: React.ReactElement | null
   ListEmptyComponent?: React.ReactElement | null
+  isLoading?: boolean
 }
 
 export const ProductGrid = memo(
@@ -32,6 +40,7 @@ export const ProductGrid = memo(
     ListHeaderComponent,
     ListFooterComponent,
     ListEmptyComponent,
+    isLoading = false,
   }: ProductGridProps) => {
     const safeData = Array.isArray(data) ? data : []
 
@@ -46,7 +55,9 @@ export const ProductGrid = memo(
       []
     )
 
-    return (
+    return isLoading ? (
+      <ShopCardSkeleton cardWidth={CARD_WIDTH} />
+    ) : (
       <FlatList
         data={safeData}
         renderItem={renderItem}
