@@ -1,11 +1,17 @@
+import { useUserLogoutMutation } from "@/features/auth/api/auth-api"
+import { useSession } from "@/features/auth/auth-session"
+import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router, usePathname } from "expo-router"
 import { Drawer, DrawerContentScrollView, DrawerItem } from "expo-router/drawer"
-import { Text, TouchableOpacity, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-
-import { useSession } from "@/features/auth/auth-session"
-import { useAppTheme } from "@/theme/theme-provider"
 
 const BRAND_ORANGE = "#F0653A"
 
@@ -66,6 +72,36 @@ function CustomDrawerContent(props: any) {
         .slice(0, 2)
     : "U"
 
+  const [userLogout, { isLoading: isLoggingOut }] = useUserLogoutMutation()
+
+  function handleSignOut() {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out from your account?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await userLogout().unwrap()
+            } catch (error) {
+              console.warn("[Drawer] Logout error:", error)
+            } finally {
+              signOut()
+              props.navigation.closeDrawer()
+              router.replace("/(auth)/welcome")
+            }
+          },
+        },
+      ]
+    )
+  }
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -88,105 +124,126 @@ function CustomDrawerContent(props: any) {
             flexDirection: "row",
             alignItems: "center",
             marginBottom: 20,
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                backgroundColor: BRAND_ORANGE,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="bag-handle" size={18} color="#FFF" />
+            </View>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                color: colors.text,
+                letterSpacing: -0.5,
+              }}
+            >
+              Amirah <Text style={{ color: BRAND_ORANGE }}>Shop</Text>
+            </Text>
+          </View>
+        </View>
+
+        {/* User profile card */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => {
+            router.push("/(drawer)/(tabs)/profile")
+            props.navigation.closeDrawer()
+          }}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            padding: 10,
+            borderRadius: 14,
+            backgroundColor: `${BRAND_ORANGE}10`,
           }}
         >
           <View
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              backgroundColor: BRAND_ORANGE,
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 10,
-            }}
-          >
-            <Ionicons name="bag" size={20} color="#fff" />
-          </View>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "800",
-              color: colors.text,
-              letterSpacing: -0.5,
-            }}
-          >
-            Amirah Shop
-          </Text>
-        </View>
-
-        {/* User profile */}
-        <View style={{ alignItems: "flex-start", gap: 8, marginTop: 4 }}>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 28,
-              backgroundColor: `${BRAND_ORANGE}1A`,
-              borderWidth: 2,
-              borderColor: BRAND_ORANGE,
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: `${BRAND_ORANGE}25`,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
             <Text
-              style={{ fontSize: 20, fontWeight: "700", color: BRAND_ORANGE }}
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: BRAND_ORANGE,
+              }}
             >
               {initials}
             </Text>
           </View>
-          <View style={{ alignItems: "center" }}>
+          <View style={{ flex: 1 }}>
             <Text
               numberOfLines={1}
               style={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: "700",
                 color: colors.text,
-                textAlign: "center",
               }}
             >
-              {user?.name ?? "Guest"}
+              {user?.name ?? "Guest User"}
             </Text>
             <Text
               numberOfLines={1}
               style={{
-                fontSize: 12,
+                fontSize: 11,
                 color: colors.mutedForeground,
                 marginTop: 1,
-                textAlign: "center",
               }}
             >
-              {user?.email ?? ""}
+              {user?.email ?? "Tap to view profile"}
             </Text>
           </View>
-        </View>
+          <Ionicons
+            name="chevron-forward"
+            size={16}
+            color={colors.mutedForeground}
+          />
+        </TouchableOpacity>
       </View>
 
-      {/* ── Nav Items ── */}
-      <View style={{ flex: 1, paddingTop: 12 }}>
+      {/* ── Navigation Items ── */}
+      <View style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 12 }}>
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.matchSegment === "index"
-              ? pathname === "/" ||
-                pathname.endsWith("/index") ||
-                pathname === pathname.replace(/\/[^/]+$/, "")
+              ? pathname === "/" || pathname === "/(drawer)/(tabs)"
               : pathname.includes(item.matchSegment)
 
           return (
             <DrawerItem
-              key={item.label}
+              key={item.route}
               label={item.label}
               focused={isActive}
               activeTintColor={BRAND_ORANGE}
-              inactiveTintColor={colors.mutedForeground}
+              inactiveTintColor={colors.text}
               activeBackgroundColor={`${BRAND_ORANGE}15`}
               style={{
                 borderRadius: 12,
-                marginHorizontal: 8,
-                marginVertical: 2,
+                marginVertical: 3,
+                marginHorizontal: 0,
+                paddingHorizontal: 8,
               }}
               labelStyle={{
-                fontWeight: isActive ? "700" : "400",
+                fontWeight: isActive ? "700" : "500",
+                marginLeft: -8,
                 fontSize: 15,
               }}
               icon={({ color }) => (
@@ -215,10 +272,8 @@ function CustomDrawerContent(props: any) {
         }}
       >
         <TouchableOpacity
-          onPress={() => {
-            signOut()
-            props.navigation.closeDrawer()
-          }}
+          onPress={handleSignOut}
+          disabled={isLoggingOut}
           style={{
             flexDirection: "row",
             alignItems: "center",
@@ -226,11 +281,16 @@ function CustomDrawerContent(props: any) {
             padding: 12,
             borderRadius: 12,
             backgroundColor: "#E53E3E12",
+            opacity: isLoggingOut ? 0.6 : 1,
           }}
         >
-          <Ionicons name="log-out-outline" size={22} color="#E53E3E" />
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color="#E53E3E" />
+          ) : (
+            <Ionicons name="log-out-outline" size={22} color="#E53E3E" />
+          )}
           <Text style={{ fontSize: 15, fontWeight: "600", color: "#E53E3E" }}>
-            Sign Out
+            {isLoggingOut ? "Signing Out..." : "Sign Out"}
           </Text>
         </TouchableOpacity>
       </View>
