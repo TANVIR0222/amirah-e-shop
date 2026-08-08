@@ -58,7 +58,7 @@ export const ProductGrid = memo(
             ? { justifyContent: "space-between", gap: GAP }
             : undefined
         }
-        contentContainerStyle={[tw`mt-20 pb-8 gap-3`, contentContainerStyle]}
+        contentContainerStyle={[tw`mt-4 pb-8 gap-3`, contentContainerStyle]}
         onEndReached={onLoadMore}
         onRefresh={onRefresh}
         refreshing={refreshing}

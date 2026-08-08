@@ -105,7 +105,6 @@ export default function Shop() {
 
       {/* Search bar + Filter icon */}
       <View style={tw`flex-row items-center gap-2 mt-4`}>
-        {/* Search input */}
         <View
           style={tw.style(
             `flex-1 flex-row items-center rounded-xl border px-3 h-11 gap-2`,
