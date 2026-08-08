@@ -68,7 +68,7 @@ const MainInput: React.FC<InputProps> = ({
         style={tw.style(
           `flex-row items-center border rounded-full px-4 bg-white`,
           multiline ? "min-h-28 rounded-3xl items-start pt-1" : "h-12",
-          showError ? "border-red" : "border-stroke",
+          showError ? "border-red" : "border-[#A2A2A2]",
           containerStyle
         )}
       >
@@ -80,7 +80,7 @@ const MainInput: React.FC<InputProps> = ({
             textInputStyle
           )}
           placeholder={placeholder}
-          placeholderTextColor="#A2A2A2"
+          // placeholderTextColor="#A2A2A2"
           keyboardType={keyboardType}
           secureTextEntry={isPassword && secureText}
           value={value}
@@ -101,7 +101,7 @@ const MainInput: React.FC<InputProps> = ({
             <Feather
               name={secureText ? "eye" : "eye-off"}
               size={24}
-              color="black"
+              color="#A2A2A2"
             />
             {/* <SvgXml xml={secureText ? IconsCloseEyse : IconsEyse} /> */}
           </TouchableOpacity>
