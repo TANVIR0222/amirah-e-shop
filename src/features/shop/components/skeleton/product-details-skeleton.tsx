@@ -12,9 +12,9 @@ const ProductDetailsSkeleton = () => {
 
         {/* Top Floating Buttons (Back & Favorite) Skeleton */}
         <View
-          style={tw.style(
-            "absolute left-4 right-4 flex-row justify-between items-center z-20 pt-10" // Adjusted pt-10 as an approximate safe area top
-          )}
+          style={
+            tw`absolute left-4 right-4 flex-row justify-between items-center z-20 pt-10` // Adjusted pt-10 as an approximate safe area top
+          }
         >
           {/* Back Button Skeleton */}
           <Skeleton width={40} height={40} style={tw`rounded-full`} />
