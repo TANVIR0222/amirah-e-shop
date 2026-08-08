@@ -142,6 +142,7 @@ export default function HomeScreen() {
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
         /> */}
+        {/* <HomeCategories /> */}
       </Screen>
     </View>
   )
