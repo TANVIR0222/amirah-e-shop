@@ -1,4 +1,5 @@
 import { Screen } from "@/components/ui/screen"
+import { useUserLogoutMutation } from "@/features/auth/api/auth-api"
 import { useSession } from "@/features/auth/auth-session"
 import { useCart } from "@/lib/storage/cart-storage"
 import { useFavorites } from "@/lib/storage/favorite-storage"
@@ -6,7 +7,14 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
-import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import { useUserProfileQuery } from "../api/profile-api"
 
 const BRAND_ORANGE = "#F0653A"
@@ -192,6 +200,8 @@ export default function ProfileScreen() {
   const { favorites } = useFavorites()
   const { totalCount } = useCart()
 
+  const [userLogout, { isLoading: isLoggingOut }] = useUserLogoutMutation()
+
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -202,8 +212,30 @@ export default function ProfileScreen() {
     : "U"
 
   function handleSignOut() {
-    signOut()
-    router.replace("/(auth)/welcome")
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out from your account?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await userLogout().unwrap()
+            } catch (error) {
+              console.warn("[Profile] Logout error:", error)
+            } finally {
+              signOut()
+              router.replace("/(auth)/welcome")
+            }
+          },
+        },
+      ]
+    )
   }
 
   const sections: { title: string; rows: MenuRow[] }[] = [
@@ -301,7 +333,7 @@ export default function ProfileScreen() {
           </View>
 
           <Text style={{ fontSize: 20, fontWeight: "800", color: colors.text }}>
-            {data?.data?.name ?? "Guest"}
+            {data?.data?.name ?? user?.name ?? "Guest"}
           </Text>
           <Text
             style={{
@@ -310,7 +342,7 @@ export default function ProfileScreen() {
               marginTop: 3,
             }}
           >
-            {data?.data?.email ?? ""}
+            {data?.data?.email ?? user?.email ?? ""}
           </Text>
 
           <TouchableOpacity
@@ -368,6 +400,7 @@ export default function ProfileScreen() {
         {/* ── Sign Out ── */}
         <TouchableOpacity
           onPress={handleSignOut}
+          disabled={isLoggingOut}
           activeOpacity={0.7}
           style={{
             flexDirection: "row",
@@ -381,9 +414,14 @@ export default function ProfileScreen() {
             borderWidth: 1.5,
             borderColor: "#E53E3E40",
             backgroundColor: "#E53E3E0D",
+            opacity: isLoggingOut ? 0.6 : 1,
           }}
         >
-          <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color="#E53E3E" />
+          ) : (
+            <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
+          )}
           <Text
             style={{
               fontSize: 15,
@@ -391,7 +429,7 @@ export default function ProfileScreen() {
               color: "#E53E3E",
             }}
           >
-            Sign Out
+            {isLoggingOut ? "Signing Out..." : "Sign Out"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
