@@ -32,7 +32,7 @@ export default function SignupScreen() {
               email: "",
               phone: "",
               password: "",
-              // password_confirmation: "",
+              password_confirmation: "",
               checkbox: false,
               full_name: "",
             }}
@@ -40,13 +40,20 @@ export default function SignupScreen() {
             onSubmit={async (data) => {
               // Handle form submission here
               // console.log("Form data:", data)
-              const { full_name, email, phone, password } = data
+              const {
+                full_name,
+                email,
+                phone,
+                password,
+                password_confirmation,
+              } = data
 
               const payload = {
                 name: full_name,
                 email,
                 phone,
                 password,
+                password_confirmation,
                 is_active: 1, // Assuming active by default
                 role_id: "2", // Assuming a default role ID
               }
@@ -62,9 +69,8 @@ export default function SignupScreen() {
                   appToast.error(response?.message || "Registration failed")
                 }
               } catch (error: any) {
-                if (__DEV__) {
-                  console.error("Registration failed:", error)
-                }
+                console.error("Registration failed:", error)
+
                 const errorMessage =
                   error?.data?.message ||
                   "Registration failed. Please check your credentials."
@@ -127,7 +133,7 @@ export default function SignupScreen() {
                       touched={touched.password}
                       isPassword
                     />
-                    {/* <MainInput
+                    <MainInput
                       label="Confirm Password"
                       placeholder="********"
                       value={values.password_confirmation}
@@ -136,7 +142,7 @@ export default function SignupScreen() {
                       error={errors.password_confirmation}
                       touched={touched.password_confirmation}
                       isPassword
-                    /> */}
+                    />
                   </View>
                 </View>
                 <View style={tw`flex-col gap-6`}>

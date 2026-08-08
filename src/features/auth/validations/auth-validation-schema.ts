@@ -31,9 +31,9 @@ export const registerValidationSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Minimum 8 characters")
     .required("Password is required"),
-  // password_confirmation: Yup.string()
-  //   .oneOf([Yup.ref("password")], "Passwords must match")
-  //   .required("Confirm password is required"),
+  password_confirmation: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
   checkbox: Yup.boolean().oneOf([true], "You must accept terms"),
 })
 
