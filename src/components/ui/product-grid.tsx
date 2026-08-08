@@ -58,14 +58,14 @@ export const ProductGrid = memo(
             ? { justifyContent: "space-between", gap: GAP }
             : undefined
         }
-        contentContainerStyle={[tw`mt-2 pb-8 gap-3`, contentContainerStyle]}
+        contentContainerStyle={[tw`mt-20 pb-8 gap-3`, contentContainerStyle]}
         onEndReached={onLoadMore}
-        onEndReachedThreshold={0.4}
         onRefresh={onRefresh}
         refreshing={refreshing}
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         ListEmptyComponent={ListEmptyComponent}
+        onEndReachedThreshold={0.4}
         removeClippedSubviews
         initialNumToRender={8}
         maxToRenderPerBatch={8}
