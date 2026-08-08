@@ -129,19 +129,19 @@ export default function HomeScreen() {
       </View>
 
       {/* ── Page Content ── */}
-      <Screen>
+      <Screen contentStyle={tw`flex-1 -top-6 bg-gray-100`}>
         <HomeCarousel />
         <SectionHeader
           title="Categories"
           action="View All"
-          onActionPress={() => router.push("/category")}
+          onActionPress={() => router.push("/(all-order-info)/all-category")}
         />
         <HomeCategories />
-        <SectionHeader
+        {/* <SectionHeader
           title="Featured Products"
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
-        />
+        /> */}
       </Screen>
     </View>
   )

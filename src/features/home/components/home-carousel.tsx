@@ -60,9 +60,11 @@ const HomeCarousel = () => {
         renderItem={({ item }) => (
           <View style={tw`flex-1 justify-center flex-row p-1`}>
             <Image
-              source={{
-                uri: item?.image1,
-              }}
+              // source={{
+              //   uri: item?.image1,
+              // }}
+
+              source={require("@/assets/app-icon/app-logo.png")}
               style={tw`w-full h-full rounded-xl`}
               resizeMode="cover"
             />
