@@ -35,7 +35,7 @@ export default function MyFavouriteProductScreen() {
     item.name?.toLowerCase().includes(search.toLowerCase().trim())
   )
 
-  console.log("Favorites: ", favorites[0]?.image)
+  // console.log("Favorites: ", favorites[0]?.image)
 
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
