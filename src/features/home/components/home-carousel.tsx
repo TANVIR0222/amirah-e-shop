@@ -60,11 +60,9 @@ const HomeCarousel = () => {
         renderItem={({ item }) => (
           <View style={tw`flex-1 justify-center flex-row p-1`}>
             <Image
-              // source={{
-              //   uri: item?.image1,
-              // }}
-
-              source={require("@/assets/app-icon/app-logo.png")}
+              source={{
+                uri: "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000",
+              }}
               style={tw`w-full h-full rounded-xl`}
               resizeMode="cover"
             />
