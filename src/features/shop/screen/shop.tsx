@@ -155,6 +155,7 @@ export default function Shop() {
         onLoadMore={handleLoadMore}
         onRefresh={handleRefresh}
         refreshing={refreshing}
+        isLoading={isLoading}
         ListFooterComponent={
           loadingMore ? (
             <View style={tw`px-4 justify-center`}>
