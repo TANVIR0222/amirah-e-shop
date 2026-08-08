@@ -20,6 +20,7 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import CategoryCardSkeleton from "../components/skeleton/all-category-skeleton"
 
 const PER_PAGE = 15
 const BRAND_COLOR = "#F0653A"
@@ -257,9 +258,7 @@ export default function AllCategoriesScreen() {
 
       {/* ── Categories Grid / Loader ── */}
       {isLoading ? (
-        <View style={tw`flex-1 items-center justify-center`}>
-          <ActivityIndicator size="large" color={BRAND_COLOR} />
-        </View>
+        <CategoryCardSkeleton cardWidth={CARD_WIDTH} />
       ) : (
         <FlatList
           data={filteredItems}
