@@ -3,16 +3,10 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
 import { useGetCategoriesQuery } from "../api/home-api"
 import { CategoryResponse } from "../types/home-api-type"
+import CategoryCardSkeleton from "./skeleton/category-skeleton"
 
 const MAX_CATEGORIES = 10
 const BRAND_COLOR = "#F0653A"
@@ -159,17 +153,9 @@ export default function HomeCategories() {
     })
   }, [])
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
-  if (isLoading) {
-    return (
-      <View style={tw`py-6 items-center`}>
-        <ActivityIndicator color={BRAND_COLOR} />
-      </View>
-    )
-  }
-
-  return (
+  return isLoading ? (
+    <CategoryCardSkeleton cardWidth={CARD_WIDTH} />
+  ) : (
     <FlatList
       horizontal
       data={displayedCategories}
