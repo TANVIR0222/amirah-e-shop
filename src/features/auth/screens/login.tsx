@@ -12,10 +12,12 @@ import { Checkbox } from "expo-checkbox"
 import { appToast } from "@/lib/toast/app-toast"
 import { Formik } from "formik"
 import React from "react"
-import { Text, TouchableOpacity, View } from "react-native"
+import { Text, View } from "react-native"
 import { useUserLoginMutation } from "../api/auth-api"
 import { useSession } from "../auth-session"
-import { loginValidationSchema } from "../validations/auth-validation-schema"
+
+const DEFAULT_EMAIL = "customer@example.com"
+const DEFAULT_PASSWORD = "password123"
 
 export default function LoginScreen() {
   const [rememberMe, setRememberMe] = React.useState(false)
@@ -34,11 +36,19 @@ export default function LoginScreen() {
         />
         <Card>
           <Formik
-            initialValues={{ email: "", password: "" }}
-            validationSchema={loginValidationSchema}
-            onSubmit={async (data) => {
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            onSubmit={async (values) => {
+              const submitData = {
+                email: values.email.trim()
+                  ? values.email.trim()
+                  : DEFAULT_EMAIL,
+                password: values.password ? values.password : DEFAULT_PASSWORD,
+              }
               try {
-                const response = await userLogin(data).unwrap()
+                const response = await userLogin(submitData).unwrap()
                 if (response?.success && response?.data) {
                   signIn(response.data)
                   appToast.success(response?.message || "Login successful!")
@@ -70,7 +80,7 @@ export default function LoginScreen() {
                 <View style={tw` `}>
                   <MainInput
                     label="Email Address"
-                    placeholder="Enter Your Email"
+                    placeholder="customer@example.com"
                     value={values.email}
                     onChangeText={handleChange("email")}
                     onBlur={() => handleBlur("email")}
@@ -81,7 +91,7 @@ export default function LoginScreen() {
                   <View>
                     <MainInput
                       label="Password"
-                      placeholder="********"
+                      placeholder="password123"
                       value={values.password}
                       onChangeText={handleChange("password")}
                       onBlur={() => handleBlur("password")}
@@ -111,13 +121,13 @@ export default function LoginScreen() {
                       </Text>
                     </View>
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => router.push("/(auth)/forgot-password")}
                     >
                       <Text style={tw`text-text_gray text-xs underline`}>
                         Forgot password
                       </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
 
                   {/* Log In Button */}
