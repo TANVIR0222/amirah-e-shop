@@ -15,7 +15,8 @@ import { useGetCategoriesQuery } from "../api/home-api"
 import { CategoryResponse } from "../types/home-api-type"
 
 const MAX_CATEGORIES = 10
-const BRAND = "#F0653A"
+const BRAND_COLOR = "#F0653A"
+const CARD_WIDTH = 100
 
 // ─── CategoryCard Component ─────────────────────────────────────────────────
 
@@ -39,23 +40,23 @@ function CategoryCard({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={tw`items-center mr-4`}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
+      style={tw.style(
+        `rounded-2xl h-34 overflow-hidden border mr-3 shadow-xs`,
+        {
+          width: CARD_WIDTH,
+          backgroundColor: colors.surface,
+          borderColor: isActive ? BRAND_COLOR : colors.border,
+        }
+      )}
     >
       <View
-        style={[
-          tw`w-20 h-20 rounded-2xl overflow-hidden`,
+        style={tw.style(
+          `w-full h-24 items-center justify-center overflow-hidden`,
           {
-            borderWidth: 2,
-            borderColor: isActive ? BRAND : "transparent",
-            backgroundColor: colors.surface,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 6,
-            elevation: 3,
-          },
-        ]}
+            backgroundColor: colors.background,
+          }
+        )}
       >
         <Image
           source={{ uri: imageUri }}
@@ -64,19 +65,16 @@ function CategoryCard({
         />
       </View>
 
-      <Text
-        numberOfLines={1}
-        style={{
-          marginTop: 6,
-          fontSize: 12,
-          fontWeight: "600",
-          color: isActive ? BRAND : colors.text,
-          maxWidth: 72,
-          textAlign: "center",
-        }}
-      >
-        {item.name}
-      </Text>
+      <View style={tw`p-2.5 items-center justify-center`}>
+        <Text
+          numberOfLines={1}
+          style={tw.style(`text-xs font-bold text-center leading-4`, {
+            color: isActive ? BRAND_COLOR : colors.text,
+          })}
+        >
+          {item.name}
+        </Text>
+      </View>
     </TouchableOpacity>
   )
 }
@@ -89,43 +87,38 @@ function ViewAllCard() {
   return (
     <TouchableOpacity
       onPress={() => router.push("/(all-order-info)/all-category")}
-      style={tw`items-center mr-4`}
       activeOpacity={0.75}
+      style={tw.style(`rounded-2xl overflow-hidden border mr-3 shadow-xs`, {
+        width: CARD_WIDTH,
+        backgroundColor: colors.surface,
+        borderColor: BRAND_COLOR,
+      })}
     >
       <View
-        style={[
-          tw`w-20 h-20 rounded-2xl items-center justify-center border`,
+        style={tw.style(
+          `w-full h-24 items-center justify-center overflow-hidden`,
           {
-            backgroundColor: colors.surface,
-            borderColor: BRAND,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 6,
-            elevation: 3,
-          },
-        ]}
+            backgroundColor: "#FEF2F2",
+          }
+        )}
       >
         <View
-          style={tw`w-9 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
+          style={tw`w-10 h-10 rounded-full bg-white items-center justify-center shadow-xs`}
         >
-          <Ionicons name="arrow-forward" size={18} color={BRAND} />
+          <Ionicons name="arrow-forward" size={20} color={BRAND_COLOR} />
         </View>
       </View>
 
-      <Text
-        numberOfLines={1}
-        style={{
-          marginTop: 6,
-          fontSize: 12,
-          fontWeight: "700",
-          color: BRAND,
-          maxWidth: 72,
-          textAlign: "center",
-        }}
-      >
-        View All
-      </Text>
+      <View style={tw`p-2.5 items-center justify-center`}>
+        <Text
+          numberOfLines={1}
+          style={tw.style(`text-xs font-bold text-center leading-4`, {
+            color: BRAND_COLOR,
+          })}
+        >
+          View All
+        </Text>
+      </View>
     </TouchableOpacity>
   )
 }
@@ -135,7 +128,7 @@ function ViewAllCard() {
 export default function HomeCategories() {
   const [activeId, setActiveId] = useState<number | null>(null)
 
-  // ── Fetch Categories (Fetch 15 to check if there are > 10 categories) ─────
+  // ── Fetch Categories ──────────────────────────────────────────────────────
   const {
     data: categoryData,
     isLoading,
@@ -171,7 +164,7 @@ export default function HomeCategories() {
   if (isLoading) {
     return (
       <View style={tw`py-6 items-center`}>
-        <ActivityIndicator color={BRAND} />
+        <ActivityIndicator color={BRAND_COLOR} />
       </View>
     )
   }
@@ -182,7 +175,7 @@ export default function HomeCategories() {
       data={displayedCategories}
       keyExtractor={(item) => String(item.id)}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
       onRefresh={refetch}
       refreshing={isFetching}
       renderItem={({ item }) => (
