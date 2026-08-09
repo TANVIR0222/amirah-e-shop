@@ -160,7 +160,7 @@ export default function RelatedProductsScreen() {
   }
 
   return (
-    <Screen scroll={false} contentStyle={tw`{flex-1 pb-[${top}px]}`}>
+    <Screen scroll={false}>
       {/* ── Top Bar with Back Button & Title ── */}
       <View style={tw`flex-row items-center justify-between mt-1 mb-3`}>
         <View style={tw`flex-row items-center gap-3`}>
@@ -243,7 +243,7 @@ export default function RelatedProductsScreen() {
             ) : !effectiveHasMore && filteredItems.length > 0 ? (
               <View style={tw`py-4 items-center justify-center`}>
                 <Text style={tw`text-xs font-semibold text-gray-400`}>
-                  ✓ You&apos;ve seen all {filteredItems.length} products
+                  You&apos;ve seen all {filteredItems.length} products
                 </Text>
               </View>
             ) : (
