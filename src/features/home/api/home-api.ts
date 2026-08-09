@@ -4,7 +4,11 @@ import { ApiResponse } from "@/types/api-response"
 import { tagTypes } from "@/types/rtk-tag-type"
 
 import { CategoryPayload } from "@/types/api-paginated-payload"
-import { BannerResponse, CategoryResponse } from "../types/home-api-type"
+import {
+  BannerResponse,
+  CategoryResponse,
+  StandardBrand,
+} from "../types/home-api-type"
 
 export const categoryApi = api.injectEndpoints({
   overrideExisting: true,
@@ -30,6 +34,12 @@ export const categoryApi = api.injectEndpoints({
       }),
       providesTags: [tagTypes.banner],
     }),
+    getNewProducts: builder.query<ApiResponse<StandardBrand>, void>({
+      query: () => ({
+        url: "/products/new",
+      }),
+      providesTags: [tagTypes.new_product],
+    }),
   }),
 })
 
@@ -37,4 +47,6 @@ export const {
   useGetCategoriesQuery,
   useLazyGetCategoriesQuery,
   useGetHomeBannerQuery,
+  useLazyGetHomeBannerQuery,
+  useGetNewProductsQuery,
 } = categoryApi
