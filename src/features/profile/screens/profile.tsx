@@ -6,6 +6,7 @@ import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router } from "expo-router"
 import {
   ActivityIndicator,
@@ -312,25 +313,16 @@ export default function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ── Avatar + Info ── */}
         <View style={tw`items-center pt-4 pb-6`}>
-          <View
-            style={{
-              width: 88,
-              height: 88,
-              borderRadius: 44,
-              backgroundColor: `${BRAND_ORANGE}1A`,
-              borderWidth: 3,
-              borderColor: BRAND_ORANGE,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 14,
+          <Image
+            source={{
+              uri: data?.data?.image ?? undefined,
             }}
-          >
-            <Text
-              style={{ fontSize: 32, fontWeight: "800", color: BRAND_ORANGE }}
-            >
-              {initials}
-            </Text>
-          </View>
+            style={tw`w-32 h-32 rounded-full`}
+            contentFit="cover"
+            placeholder={
+              "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000"
+            }
+          />
 
           <Text style={{ fontSize: 20, fontWeight: "800", color: colors.text }}>
             {data?.data?.name ?? user?.name ?? "Guest"}

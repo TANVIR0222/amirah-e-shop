@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { Formik } from "formik"
 import React from "react"
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Text, TouchableOpacity, View } from "react-native"
 
 import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
@@ -13,6 +13,7 @@ import useAuthUserInfo from "@/hooks/use-auth-user-info"
 import tw from "@/lib/tailwind"
 import { appToast } from "@/lib/toast/app-toast"
 import { useAppTheme } from "@/theme/theme-provider"
+import { Image } from "expo-image"
 import * as ImagePicker from "expo-image-picker"
 import { useUpdateProfileMutation } from "../api/profile-api"
 import editProfileValidationSchema from "../validations/profile-validation-schema"
@@ -22,7 +23,7 @@ const BRAND_ORANGE = "#F0653A"
 export default function EditProfileScreen() {
   const { user } = useSession()
   const { colors } = useAppTheme()
-  const { name, phone } = useAuthUserInfo()
+  const { name, phone, image: userImage } = useAuthUserInfo()
 
   const [updateProfile] = useUpdateProfileMutation()
 
@@ -108,18 +109,19 @@ export default function EditProfileScreen() {
                 <Image
                   source={{ uri: image }}
                   style={{ width: "100%", height: "100%" }}
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
               ) : (
-                <Text
-                  style={{
-                    fontSize: 34,
-                    fontWeight: "800",
-                    color: BRAND_ORANGE,
+                <Image
+                  source={{
+                    uri: userImage ?? undefined,
                   }}
-                >
-                  {initials}
-                </Text>
+                  style={tw`w-32 h-32 rounded-full`}
+                  contentFit="cover"
+                  placeholder={
+                    "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000"
+                  }
+                />
               )}
             </TouchableOpacity>
 
@@ -159,28 +161,46 @@ export default function EditProfileScreen() {
           initialValues={{
             name: name ?? "User",
             phone: phone ?? "+8801700000000",
+            image: userImage ?? null,
           }}
+
           validationSchema={editProfileValidationSchema}
+
           onSubmit={async (data) => {
-            console.log("Updated Profile:", data)
-            // router.back()
             try {
-              const response = await updateProfile(data).unwrap()
+              const formData = new FormData()
+
+              formData.append("name", data.name)
+              formData.append("phone", data.phone)
+
+              if (data.image) {
+                formData.append("image", {
+                  uri: image || userImage || "",
+                  type: "image/jpeg",
+                  name: "profile-image.jpg",
+                } as any)
+              }
+
+              console.log("FormData:", formData)
+
+              const response = await updateProfile(formData).unwrap()
+
               if (response?.success && response?.data) {
                 appToast.success(
                   response?.message || "Profile updated successfully!"
                 )
+
                 router.back()
               } else {
                 appToast.error(response?.message || "Failed to update profile")
               }
             } catch (error: any) {
-              if (__DEV__) {
-                console.error("Update profile failed:", error)
-              }
+              console.error("Update profile failed:", error)
+
               const errorMessage =
                 error?.data?.message ||
                 "Failed to update profile. Please try again."
+
               appToast.error(errorMessage)
             }
           }}
