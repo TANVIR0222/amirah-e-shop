@@ -5,7 +5,7 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
-import React, { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import {
   ActivityIndicator,
   TextInput,
@@ -161,10 +161,10 @@ export default function Shop() {
   )
 
   return (
-    <Screen scroll={false}>
+    <Screen>
       <ProductGrid
         data={allItems}
-        scrollEnabled={true}
+        // scrollEnabled={f}
         onLoadMore={handleLoadMore}
         onRefresh={handleRefresh}
         refreshing={refreshing}
