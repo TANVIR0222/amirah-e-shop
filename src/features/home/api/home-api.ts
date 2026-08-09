@@ -8,7 +8,6 @@ import {
   BannerResponse,
   CategoryResponse,
   Standard,
-  StandardBrand,
 } from "../types/home-api-type"
 
 export const categoryApi = api.injectEndpoints({
