@@ -1,7 +1,6 @@
 import { ProductCard } from "@/components/ui/product-card"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { logger } from "@/utils/logger"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
@@ -40,8 +39,6 @@ function RelatedProduct({ id }: { id: string | number }) {
 
   // ── Lazy query for pages 2+ ───────────────────────────────────────────────
   const [fetchMore] = useLazyGetRelatedProductsQuery()
-
-  logger.log("RelatedProduct: page1Data", fetchMore)
 
   // ── Derive page-1 items & pagination meta ─────────────────────────────────
   const page1Items = useMemo(() => page1Data?.data?.data ?? [], [page1Data])

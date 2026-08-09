@@ -1,3 +1,5 @@
+import { useCart } from "@/lib/storage/cart-storage"
+import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import { _WIDTH } from "@/utils/phone-screen-size"
@@ -13,13 +15,12 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { useCart } from "@/lib/storage/cart-storage"
-import { useFavorites } from "@/lib/storage/favorite-storage"
 import { useGetSingleProductQuery } from "../api/shop-api"
 import ProductImageSlider from "../components/product-image-slider"
 
 import ProductCoupons from "../components/product-coupons"
 import RelatedProduct from "../components/releted-product"
+import ProductDetailsSkeleton from "../components/skeleton/product-details-skeleton"
 
 // --- Static Product Data ---
 const staticProduct = {
@@ -58,7 +59,7 @@ export default function ProductDetailsScreen() {
   const [quantity, setQuantity] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
 
-  const { data } = useGetSingleProductQuery({ id })
+  const { data, isLoading } = useGetSingleProductQuery({ id })
 
   const inCart = isAlreadyInCart || justAdded
 
@@ -111,7 +112,9 @@ export default function ProductDetailsScreen() {
     })
   }
 
-  return (
+  return isLoading ? (
+    <ProductDetailsSkeleton />
+  ) : (
     <View style={styles.container}>
       {/* Header & Image Section */}
       <View style={tw`h-[360px] relative bg-gray-100`}>

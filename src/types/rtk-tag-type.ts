@@ -5,6 +5,7 @@ export enum tagTypes {
   category = "category",
   shop = "shop",
   banner = "banner",
+  new_product = "new_product",
   // product = "product",
 }
 
@@ -14,4 +15,5 @@ export const tagTypesList = [
   tagTypes.category,
   tagTypes.shop,
   tagTypes.banner,
+  tagTypes.new_product,
 ]

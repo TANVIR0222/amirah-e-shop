@@ -1,4 +1,8 @@
-export interface CategoryResponse {
+// ── Shared Generic Types ─────────────────────────────
+
+// ── Domain Models ────────────────────────────────────
+
+export interface StandardCategory {
   id: number
   name: string
   image: string
@@ -7,35 +11,6 @@ export interface CategoryResponse {
   short_description: string | null
   slug: string
   icon: string
-  featured: number
-  is_active: number
-  woocommerce_category_id: number | null
-  is_sync_disable: boolean | null
-  created_at: string
-  updated_at: string
-}
-
-export interface BannerResponse {
-  id: number
-  title: any | null
-  link: any | null
-  order: number
-  image1: string
-}
-
-// ── Shared Generic Types ─────────────────────────────
-
-// ── Domain Models ────────────────────────────────────
-
-export interface StandardCategory {
-  id: number
-  name: string
-  image: any | null
-  parent_id: number
-  page_title: number | null
-  short_description: string | null
-  slug: string
-  icon: any | null
   featured: number
   is_active: number
   woocommerce_category_id: number | null
@@ -117,3 +92,7 @@ export interface Standard {
   category: StandardCategory
   brand: StandardBrand
 }
+
+// ── Response Type ─────────────────────────────────────
+
+// export type ApiResult = ApiResponse<PaginatedResponse<Standard>>;

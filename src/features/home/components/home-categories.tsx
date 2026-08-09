@@ -1,25 +1,18 @@
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
+import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import {
-  useGetCategoriesQuery,
-  useLazyGetCategoriesQuery,
-} from "../api/home-api"
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
+import { useGetCategoriesQuery } from "../api/home-api"
 import { CategoryResponse } from "../types/home-api-type"
+import CategoryCardSkeleton from "./skeleton/category-skeleton"
 
-const PER_PAGE = 15
-const BRAND = "#F0653A"
+const MAX_CATEGORIES = 10
+const BRAND_COLOR = "#F0653A"
+const CARD_WIDTH = 100
 
-// ─── CategoryCard (top-level to satisfy React Hook Rules) ────────────────────
+// ─── CategoryCard Component ─────────────────────────────────────────────────
 
 function CategoryCard({
   item,
@@ -32,157 +25,145 @@ function CategoryCard({
 }) {
   const { colors } = useAppTheme()
 
+  const imageUri = item?.image
+    ? item.image.startsWith("http")
+      ? item.image
+      : `https://amiraheshop.com/${item.image.replace(/^\//, "")}`
+    : "https://amiraheshop.com/images/product/202607170221361.jpeg"
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={tw`items-center mr-4`}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
+      style={tw.style(
+        `rounded-2xl h-34 overflow-hidden border mr-3 shadow-xs`,
+        {
+          width: CARD_WIDTH,
+          backgroundColor: colors.surface,
+          borderColor: isActive ? BRAND_COLOR : colors.border,
+        }
+      )}
     >
       <View
-        style={[
-          tw`w-20 h-20 rounded-2xl overflow-hidden`,
+        style={tw.style(
+          `w-full h-24 items-center justify-center overflow-hidden`,
           {
-            borderWidth: 2,
-            borderColor: isActive ? BRAND : "transparent",
-            backgroundColor: colors.surface,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 6,
-            elevation: 3,
-          },
-        ]}
+            backgroundColor: colors.background,
+          }
+        )}
       >
         <Image
-          source={{
-            uri: "https://amiraheshop.com/images/product/202607170221361.jpeg",
-          }}
+          source={{ uri: imageUri }}
           style={tw`w-full h-full`}
           resizeMode="cover"
         />
       </View>
 
-      <Text
-        numberOfLines={1}
-        style={{
-          marginTop: 6,
-          fontSize: 12,
-          fontWeight: "600",
-          color: isActive ? BRAND : colors.text,
-          maxWidth: 72,
-          textAlign: "center",
-        }}
-      >
-        {item.name}
-      </Text>
+      <View style={tw`p-2.5 items-center justify-center`}>
+        <Text
+          numberOfLines={1}
+          style={tw.style(`text-xs font-bold text-center leading-4`, {
+            color: isActive ? BRAND_COLOR : colors.text,
+          })}
+        >
+          {item.name}
+        </Text>
+      </View>
     </TouchableOpacity>
   )
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── View All Categories Card ───────────────────────────────────────────────
+
+function ViewAllCard() {
+  const { colors } = useAppTheme()
+
+  return (
+    <TouchableOpacity
+      onPress={() => router.push("/category/all-category")}
+      activeOpacity={0.75}
+      style={tw.style(`rounded-2xl overflow-hidden border mr-3 shadow-xs`, {
+        width: CARD_WIDTH,
+        backgroundColor: colors.surface,
+        borderColor: BRAND_COLOR,
+      })}
+    >
+      <View
+        style={tw.style(
+          `w-full h-24 items-center justify-center overflow-hidden`,
+          {
+            backgroundColor: "#FEF2F2",
+          }
+        )}
+      >
+        <View
+          style={tw`w-10 h-10 rounded-full bg-white items-center justify-center shadow-xs`}
+        >
+          <Ionicons name="arrow-forward" size={20} color={BRAND_COLOR} />
+        </View>
+      </View>
+
+      <View style={tw`p-2.5 items-center justify-center`}>
+        <Text
+          numberOfLines={1}
+          style={tw.style(`text-xs font-bold text-center leading-4`, {
+            color: BRAND_COLOR,
+          })}
+        >
+          View All
+        </Text>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function HomeCategories() {
-  // Extra pages fetched beyond page 1
-  const [extraItems, setExtraItems] = useState<CategoryResponse[]>([])
-  const [nextPage, setNextPage] = useState(2)
-  const [hasMore, setHasMore] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
   const [activeId, setActiveId] = useState<number | null>(null)
 
-  // ── Page 1: RTK Query auto-fetches — no useEffect needed ─────────────────
+  // ── Fetch Categories ──────────────────────────────────────────────────────
   const {
-    data: page1Data,
+    data: categoryData,
     isLoading,
     refetch,
-  } = useGetCategoriesQuery({ page: 1, per_page: PER_PAGE })
+    isFetching,
+  } = useGetCategoriesQuery({ page: 1, per_page: 15 })
 
-  // ── Lazy query for pages 2+ ───────────────────────────────────────────────
-  const [fetchMore] = useLazyGetCategoriesQuery()
+  const rawItems = useMemo(() => categoryData?.data?.data ?? [], [categoryData])
+  const totalCount = categoryData?.data?.total ?? rawItems.length
 
-  // ── Derive page-1 items & pagination meta ─────────────────────────────────
-  const page1Items = useMemo(() => page1Data?.data?.data ?? [], [page1Data])
-  const page1Meta = useMemo(() => page1Data?.data, [page1Data])
-
-  // Effective hasMore: from page 1 meta initially, overridden after load-more
-  const effectiveHasMore =
-    extraItems.length === 0
-      ? page1Meta
-        ? page1Meta.current_page < page1Meta.last_page
-        : false
-      : hasMore
-
-  // ── Merge all items ───────────────────────────────────────────────────────
-  const allItems = useMemo(
-    () => [...page1Items, ...extraItems],
-    [page1Items, extraItems]
+  // Show max 10 categories on the home screen
+  const displayedCategories = useMemo(
+    () => rawItems.slice(0, MAX_CATEGORIES),
+    [rawItems]
   )
 
-  // Default active to first item (derived, not stored in effect)
-  const effectiveActiveId = activeId ?? page1Items[0]?.id ?? null
+  // Show "View All" card if total categories exceed 10
+  const showViewAll =
+    rawItems.length > MAX_CATEGORIES || totalCount > MAX_CATEGORIES
 
-  // ── Handlers (setState only from events — no effect-triggered setState) ───
-
-  const handleLoadMore = useCallback(() => {
-    if (loadingMore || !effectiveHasMore || isLoading) return
-    setLoadingMore(true)
-
-    fetchMore({ page: nextPage, per_page: PER_PAGE })
-      .unwrap()
-      .then((res) => {
-        const pagination = res.data
-        setExtraItems((prev) => [...prev, ...pagination.data])
-        setHasMore(pagination.current_page < pagination.last_page)
-        setNextPage(pagination.current_page + 1)
-      })
-      .catch((err) => {
-        if (__DEV__) console.warn("[HomeCategories] Load more error:", err)
-      })
-      .finally(() => {
-        setLoadingMore(false)
-      })
-  }, [loadingMore, effectiveHasMore, isLoading, fetchMore, nextPage])
-
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true)
-    setExtraItems([])
-    setNextPage(2)
-    setHasMore(true)
-
-    refetch().finally(() => {
-      setRefreshing(false)
-    })
-  }, [refetch])
+  const effectiveActiveId = activeId ?? displayedCategories[0]?.id ?? null
 
   const handleCategoryPress = useCallback((item: CategoryResponse) => {
     setActiveId(item.id)
     router.push({
-      pathname: "/category",
-      params: { id: String(item.id), name: item.name },
+      pathname: "/category/all-category",
+      params: { id: String(item.id) },
     })
   }, [])
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
-  if (isLoading) {
-    return (
-      <View style={tw`py-6 items-center`}>
-        <ActivityIndicator color={BRAND} />
-      </View>
-    )
-  }
-
-  return (
+  return isLoading ? (
+    <CategoryCardSkeleton cardWidth={CARD_WIDTH} />
+  ) : (
     <FlatList
       horizontal
-      data={allItems}
+      data={displayedCategories}
       keyExtractor={(item) => String(item.id)}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 8 }}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.5}
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
+      onRefresh={refetch}
+      refreshing={isFetching}
       renderItem={({ item }) => (
         <CategoryCard
           item={item}
@@ -190,13 +171,7 @@ export default function HomeCategories() {
           onPress={() => handleCategoryPress(item)}
         />
       )}
-      ListFooterComponent={
-        loadingMore ? (
-          <View style={tw`px-4 justify-center`}>
-            <ActivityIndicator size="small" color={BRAND} />
-          </View>
-        ) : null
-      }
+      ListFooterComponent={showViewAll ? <ViewAllCard /> : null}
     />
   )
 }
