@@ -6,6 +6,7 @@ export default function useAuthUserInfo() {
   return {
     name: data?.data?.name,
     phone: data?.data?.phone,
+    image: data?.data?.image,
     isLoading,
   }
 }
