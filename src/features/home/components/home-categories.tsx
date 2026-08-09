@@ -80,7 +80,7 @@ function ViewAllCard() {
 
   return (
     <TouchableOpacity
-      onPress={() => router.push("/(all-order-info)/all-category")}
+      onPress={() => router.push("/category/all-category")}
       activeOpacity={0.75}
       style={tw.style(`rounded-2xl overflow-hidden border mr-3 shadow-xs`, {
         width: CARD_WIDTH,
@@ -148,8 +148,8 @@ export default function HomeCategories() {
   const handleCategoryPress = useCallback((item: CategoryResponse) => {
     setActiveId(item.id)
     router.push({
-      pathname: "/category",
-      params: { id: String(item.id), name: item.name },
+      pathname: "/category/all-category",
+      params: { id: String(item.id) },
     })
   }, [])
 

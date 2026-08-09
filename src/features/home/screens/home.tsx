@@ -141,7 +141,7 @@ export default function HomeScreen() {
         <SectionHeader
           title="Categories"
           action="View All"
-          onActionPress={() => router.push("/(all-order-info)/all-category")}
+          onActionPress={() => router.push("/category/all-category")}
         />
         <HomeCategories />
         <SectionHeader

@@ -7,6 +7,7 @@ import { CategoryPayload } from "@/types/api-paginated-payload"
 import {
   BannerResponse,
   CategoryResponse,
+  Standard,
   StandardBrand,
 } from "../types/home-api-type"
 
@@ -34,7 +35,7 @@ export const categoryApi = api.injectEndpoints({
       }),
       providesTags: [tagTypes.banner],
     }),
-    getNewProducts: builder.query<ApiResponse<StandardBrand>, void>({
+    getNewProducts: builder.query<ApiResponse<Standard[]>, void>({
       query: () => ({
         url: "/products/new",
       }),
