@@ -1,37 +1,64 @@
 import Skeleton from "@/components/ui/skeleton"
+import tw from "@/lib/tailwind"
 import React from "react"
 import { FlatList, View } from "react-native"
-import tw from "twrnc"
 
 interface ShopCardSkeletonProps {
   cardWidth: number
+  scrollEnabled?: boolean
 }
 
-const ShopCardSkeleton: React.FC<ShopCardSkeletonProps> = ({ cardWidth }) => {
+const ShopCardSkeleton: React.FC<ShopCardSkeletonProps> = ({
+  cardWidth,
+  scrollEnabled = true,
+}) => {
+  const items = Array.from({ length: 10 })
+
+  const renderSkeletonCard = (key: string | number) => (
+    <View
+      key={key}
+      style={tw.style(
+        `rounded-2xl overflow-hidden border mb-3 shadow-xs bg-white border-gray-200`,
+        { width: cardWidth }
+      )}
+    >
+      {/* Image Area Skeleton */}
+      <Skeleton width="100%" height={144} style={tw`rounded-none`} />
+
+      {/* Text Area Skeleton */}
+      <View style={tw`p-3 items-center justify-center flex-col gap-1.5`}>
+        <Skeleton width="85%" height={12} style={tw`rounded-sm`} />
+        <Skeleton width="50%" height={12} style={tw`rounded-sm`} />
+      </View>
+    </View>
+  )
+
+  if (!scrollEnabled) {
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          gap: 12,
+          marginTop: 16,
+          paddingBottom: 32,
+        }}
+      >
+        {items.map((_, index) => renderSkeletonCard(`skeleton-${index}`))}
+      </View>
+    )
+  }
+
   return (
     <FlatList
-      data={Array.from({ length: 10 })} // Adjust the number of skeleton cards as needed
-      numColumns={2} // Display two columns
+      data={items}
+      numColumns={2}
       showsVerticalScrollIndicator={false}
       keyExtractor={(_, index) => `skeleton-${index}`}
       columnWrapperStyle={{ justifyContent: "space-between", gap: 12 }}
-      renderItem={() => (
-        <View
-          style={tw.style(
-            `rounded-2xl overflow-hidden border mb-3 shadow-xs bg-white border-gray-200`,
-            { width: cardWidth }
-          )}
-        >
-          {/* Image Area Skeleton (h-36 is equivalent to 144px) */}
-          <Skeleton width="100%" height={144} style={tw`rounded-none`} />
-
-          {/* Text Area Skeleton (Two lines to match numberOfLines={2}) */}
-          <View style={tw`p-3 items-center justify-center flex-col gap-1.5`}>
-            <Skeleton width="85%" height={12} style={tw`rounded-sm`} />
-            <Skeleton width="50%" height={12} style={tw`rounded-sm`} />
-          </View>
-        </View>
-      )}
+      contentContainerStyle={tw`mt-4 pb-8`}
+      renderItem={({ index }) => renderSkeletonCard(`skeleton-${index}`)}
     />
   )
 }
