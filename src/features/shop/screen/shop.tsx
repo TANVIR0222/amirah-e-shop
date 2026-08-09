@@ -5,7 +5,7 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
-import React, { useMemo } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import {
   ActivityIndicator,
   TextInput,
@@ -21,22 +21,26 @@ const BRAND = "#F0653A"
 
 export default function Shop() {
   const { colors } = useAppTheme()
-  const [search, setSearch] = React.useState("")
-
-  // console.log("🚀 ~ file: shop.tsx:22 ~ Shop ~ search:", search)
-
-  const [value] = useDebounce(search, 1000)
-
-  console.log("🚀 ~ file: shop.tsx:27 ~ Shop ~ value:", value)
+  const [search, setSearch] = useState("")
+  const [value] = useDebounce(search, 500)
 
   // Extra pages fetched beyond page 1
-  const [extraItems, setExtraItems] = React.useState<ShopProductResponse[]>([])
-  const [nextPage, setNextPage] = React.useState(2)
-  const [hasMore, setHasMore] = React.useState(true)
-  const [loadingMore, setLoadingMore] = React.useState(false)
-  const [refreshing, setRefreshing] = React.useState(false)
+  const [extraItems, setExtraItems] = useState<ShopProductResponse[]>([])
+  const [nextPage, setNextPage] = useState(2)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
-  // ── Page 1: RTK Query auto-fetches — no useEffect needed ─────────────────
+  // Synchronously reset extra pagination items during render when search changes
+  const [prevSearch, setPrevSearch] = useState(value)
+  if (prevSearch !== value) {
+    setPrevSearch(value)
+    setExtraItems([])
+    setNextPage(2)
+    setHasMore(true)
+  }
+
+  // ── Page 1: RTK Query auto-fetches ────────────────────────────────────────
   const {
     data: page1Data,
     isLoading,
@@ -50,7 +54,6 @@ export default function Shop() {
   const page1Items = useMemo(() => page1Data?.data?.data ?? [], [page1Data])
   const page1Meta = useMemo(() => page1Data?.data, [page1Data])
 
-  // Effective hasMore: from page 1 meta initially, overridden after load-more
   const effectiveHasMore =
     extraItems.length === 0
       ? page1Meta
@@ -58,15 +61,13 @@ export default function Shop() {
         : false
       : hasMore
 
-  // ── Merge all items ───────────────────────────────────────────────────────
-  const allItems = React.useMemo(
+  const allItems = useMemo(
     () => [...page1Items, ...extraItems],
     [page1Items, extraItems]
   )
 
-  // ── Handlers (setState only from events — no effect-triggered setState) ───
-
-  const handleLoadMore = React.useCallback(() => {
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const handleLoadMore = useCallback(() => {
     if (loadingMore || !effectiveHasMore || isLoading) return
     setLoadingMore(true)
 
@@ -74,9 +75,11 @@ export default function Shop() {
       .unwrap()
       .then((res) => {
         const pagination = res.data
-        setExtraItems((prev) => [...prev, ...pagination.data])
-        setHasMore(pagination.current_page < pagination.last_page)
-        setNextPage(pagination.current_page + 1)
+        if (pagination?.data) {
+          setExtraItems((prev) => [...prev, ...pagination.data])
+          setHasMore(pagination.current_page < pagination.last_page)
+          setNextPage(pagination.current_page + 1)
+        }
       })
       .catch((err) => {
         if (__DEV__) console.warn("[Shop] Load more error:", err)
@@ -86,7 +89,7 @@ export default function Shop() {
       })
   }, [loadingMore, effectiveHasMore, isLoading, fetchMore, nextPage, value])
 
-  const handleRefresh = React.useCallback(() => {
+  const handleRefresh = useCallback(() => {
     setRefreshing(true)
     setExtraItems([])
     setNextPage(2)
@@ -97,76 +100,79 @@ export default function Shop() {
     })
   }, [refetch])
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Header Component for ProductGrid ──────────────────────────────────────
+  const ListHeader = useMemo(
+    () => (
+      <View style={tw`pb-2`}>
+        <AppText variant="title">Shop</AppText>
 
-  if (isLoading) {
-    return (
-      <View style={tw`py-6 items-center flex-1 justify-center`}>
-        <ActivityIndicator color={BRAND} size="large" />
+        {/* Search bar + Filter icon */}
+        <View style={tw`flex-row items-center gap-2 mt-4`}>
+          <View
+            style={tw.style(
+              `flex-1 flex-row items-center rounded-xl border px-3 h-11 gap-2`,
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.surface,
+              }
+            )}
+          >
+            <Ionicons
+              name="search-outline"
+              size={18}
+              color={colors.mutedForeground}
+            />
+            <TextInput
+              style={{ flex: 1, fontSize: 14, color: colors.text, height: 44 }}
+              placeholder="Search products..."
+              value={search}
+              onChangeText={setSearch}
+              placeholderTextColor={colors.mutedForeground}
+              returnKeyType="search"
+              autoCapitalize="none"
+            />
+            {search.length > 0 && (
+              <TouchableOpacity onPress={() => setSearch("")} hitSlop={6}>
+                <Ionicons
+                  name="close-circle"
+                  size={16}
+                  color={colors.mutedForeground}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Filter button → opens modal */}
+          <TouchableOpacity
+            onPress={() => router.push("/(modal)/order-filter-modal")}
+            style={tw.style(
+              `w-11 h-11 rounded-xl items-center justify-center`,
+              {
+                backgroundColor: BRAND,
+              }
+            )}
+          >
+            <Ionicons name="options-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
-    )
-  }
+    ),
+    [colors.border, colors.mutedForeground, colors.surface, colors.text, search]
+  )
 
   return (
-    <Screen scroll={true}>
-      <AppText variant="title">Shop</AppText>
-
-      {/* Search bar + Filter icon */}
-      <View style={tw`flex-row items-center gap-2 mt-4`}>
-        <View
-          style={tw.style(
-            `flex-1 flex-row items-center rounded-xl border px-3 h-11 gap-2`,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
-            }
-          )}
-        >
-          <Ionicons
-            name="search-outline"
-            size={18}
-            color={colors.mutedForeground}
-          />
-          <TextInput
-            style={{ flex: 1, fontSize: 14, color: colors.text, height: 44 }}
-            placeholder="Search products..."
-            value={search}
-            onChangeText={setSearch}
-            placeholderTextColor={colors.mutedForeground}
-            returnKeyType="search"
-            autoCapitalize="none"
-          />
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch("")} hitSlop={6}>
-              <Ionicons
-                name="close-circle"
-                size={16}
-                color={colors.mutedForeground}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Filter button → opens modal */}
-        <TouchableOpacity
-          onPress={() => router.push("/(modal)/order-filter-modal")}
-          style={tw.style(`w-11 h-11 rounded-xl items-center justify-center`, {
-            backgroundColor: "#F0653A",
-          })}
-        >
-          <Ionicons name="options-outline" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
+    <Screen scroll={false}>
       <ProductGrid
         data={allItems}
+        scrollEnabled={true}
         onLoadMore={handleLoadMore}
         onRefresh={handleRefresh}
         refreshing={refreshing}
-        isLoading={isLoading}
+        isLoading={isLoading && allItems.length === 0}
+        ListHeaderComponent={ListHeader}
         ListFooterComponent={
           loadingMore ? (
-            <View style={tw`px-4 justify-center`}>
+            <View style={tw`py-4 justify-center items-center`}>
               <ActivityIndicator size="small" color={BRAND} />
             </View>
           ) : null
