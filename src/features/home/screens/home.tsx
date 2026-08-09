@@ -149,7 +149,11 @@ export default function HomeScreen() {
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
         />
-        <ProductGrid data={allProducts} isLoading={isLoading} />
+        <ProductGrid
+          data={allProducts}
+          isLoading={isLoading}
+          scrollEnabled={false}
+        />
       </Screen>
     </View>
   )
