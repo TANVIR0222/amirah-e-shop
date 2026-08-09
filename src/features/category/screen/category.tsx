@@ -1,13 +1,16 @@
+import { useGetCategoriesQuery } from "@/features/home/api/home-api"
+import { CategoryResponse } from "@/features/home/types/home-api-type"
+import { useProductActions } from "@/hooks/use-product-actions"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { PRODUCTS, homeCategory } from "@/utils/ui-data"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router, useLocalSearchParams } from "expo-router"
-import { useState } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   ScrollView,
   Text,
   TextInput,
@@ -15,53 +18,168 @@ import {
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useDebounce } from "use-debounce"
+import {
+  useGetProductsQuery,
+  useLazyGetProductsQuery,
+} from "../api/category-api"
+import CategoryCardSkeleton from "../components/skeleton/all-category-skeleton"
+import { Standard } from "../type/category-type"
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
 const SIDEBAR_WIDTH = 84
-const GRID_CONTAINER_WIDTH = SCREEN_WIDTH - SIDEBAR_WIDTH - 24 // 24 = margins
-const CARD_WIDTH = (GRID_CONTAINER_WIDTH - 10) / 2
-
-type Product = (typeof PRODUCTS)[number]
+const GRID_CONTAINER_WIDTH = SCREEN_WIDTH - SIDEBAR_WIDTH - 24
+const CARD_WIDTH = Math.floor((GRID_CONTAINER_WIDTH - 10) / 2)
+const BRAND_COLOR = "#F0653A"
+const FALLBACK_IMAGE =
+  "https://amiraheshop.com/images/product/202607170221361.jpeg"
 
 const SUBCATEGORIES = ["All", "Popular", "Organic", "New In", "Offers"]
 
-function CategoryProductCard({ item }: { item: Product }) {
+// ─── Sidebar Category Card (Same Design as all-category.tsx) ─────────────────
+
+const SidebarCategoryCard = memo(
+  ({
+    item,
+    isActive,
+    onPress,
+  }: {
+    item: CategoryResponse
+    isActive: boolean
+    onPress: (id: number) => void
+  }) => {
+    const { colors } = useAppTheme()
+
+    const handlePress = useCallback(() => {
+      onPress(item.id)
+    }, [item.id, onPress])
+
+    const imageUri = item?.image
+      ? item.image.startsWith("http")
+        ? item.image
+        : `https://amiraheshop.com/${item.image.replace(/^\//, "")}`
+      : FALLBACK_IMAGE
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handlePress}
+        style={tw.style(
+          `w-[76px] self-center rounded-xl overflow-hidden mb-2.5 border items-center shadow-xs`,
+          isActive
+            ? {
+                borderColor: BRAND_COLOR,
+                borderWidth: 2,
+                backgroundColor: colors.surface,
+              }
+            : {
+                borderColor: colors.border,
+                borderWidth: 1,
+                backgroundColor: colors.surface,
+              }
+        )}
+      >
+        {/* Category Image */}
+        <View
+          style={tw.style(`w-full h-14 items-center justify-center relative`, {
+            backgroundColor: colors.background,
+          })}
+        >
+          <Image
+            source={{ uri: imageUri }}
+            style={tw`w-full h-full`}
+            contentFit="cover"
+            transition={150}
+            cachePolicy="memory-disk"
+            placeholder={FALLBACK_IMAGE}
+          />
+          {isActive && (
+            <View
+              style={tw`absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F0653A]`}
+            />
+          )}
+        </View>
+
+        {/* Category Title */}
+        <View style={tw`p-1.5 w-full items-center justify-center min-h-[34px]`}>
+          <Text
+            numberOfLines={2}
+            style={tw.style(`text-[10px] font-bold text-center leading-3`, {
+              color: isActive ? BRAND_COLOR : colors.text,
+            })}
+          >
+            {item.name}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )
+  },
+  (prev, next) =>
+    prev.item.id === next.item.id &&
+    prev.isActive === next.isActive &&
+    prev.item.name === next.item.name &&
+    prev.item.image === next.item.image
+)
+
+SidebarCategoryCard.displayName = "SidebarCategoryCard"
+
+// ─── Category Product Card (With useProductActions hook) ────────────────────
+
+const CategoryProductCard = memo(({ item }: { item: Standard }) => {
   const { colors } = useAppTheme()
-  const [qty, setQty] = useState(1)
-  const [liked, setLiked] = useState(item.favorite)
+
+  const {
+    qty,
+    increaseQty,
+    decreaseQty,
+    isLiked,
+    isAdded,
+    imageUri,
+    handleToggleHeart,
+    handleQuickAdd,
+  } = useProductActions(item)
+
+  const handleCardPress = useCallback(() => {
+    router.push({
+      pathname: "/product/[id]",
+      params: { id: String(item.id) },
+    })
+  }, [item.id])
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => router.push("/product/[id]")}
+      onPress={handleCardPress}
       style={tw.style(`rounded-2xl overflow-hidden border mb-2.5`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
         borderColor: colors.border,
       })}
     >
-      {/* Image container + heart */}
+      {/* Product Image */}
       <View
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={{
-            uri: "https://amiraheshop.com/images/product/202607170221361.jpeg",
-          }}
-          resizeMode="contain"
+          source={{ uri: imageUri }}
+          contentFit="cover"
+          transition={150}
+          cachePolicy="memory-disk"
           style={tw`w-full h-32`}
         />
 
+        {/* Heart Favorite Button */}
         <TouchableOpacity
-          onPress={() => setLiked((v) => !v)}
+          activeOpacity={0.7}
+          onPress={handleToggleHeart}
           style={tw.style(`absolute top-2 right-2 z-10 rounded-full p-1.5`, {
-            backgroundColor: colors.surface + "CC",
+            backgroundColor: isLiked ? "#FEF2F2" : colors.surface + "CC",
           })}
         >
           <Ionicons
-            name={liked ? "heart" : "heart-outline"}
+            name={isLiked ? "heart" : "heart-outline"}
             size={16}
-            color={liked ? "#F0653A" : colors.mutedForeground}
+            color={isLiked ? "#E53E3E" : colors.mutedForeground}
           />
         </TouchableOpacity>
       </View>
@@ -70,18 +188,18 @@ function CategoryProductCard({ item }: { item: Product }) {
       <View style={tw`p-2.5`}>
         <Text
           numberOfLines={2}
-          style={tw.style(`text-xs font-semibold leading-4`, {
+          style={tw.style(`text-xs font-semibold leading-4 min-h-[32px]`, {
             color: colors.text,
           })}
         >
-          {item.name}
+          {item?.name || "Product"}
         </Text>
 
-        <Text style={tw`text-sm font-extrabold text-[#F0653A] mt-1`}>
-          ৳{item.price}
+        <Text style={tw`text-sm font-extrabold text-[#08A44A] mt-1`}>
+          ৳{item?.price ?? item?.cost ?? 0}
         </Text>
 
-        {/* Stepper + Add */}
+        {/* Stepper + Add to Cart */}
         <View style={tw`flex-row items-center mt-2 gap-1.5`}>
           <View
             style={tw.style(
@@ -89,10 +207,7 @@ function CategoryProductCard({ item }: { item: Product }) {
               { borderColor: colors.border }
             )}
           >
-            <TouchableOpacity
-              onPress={() => qty > 1 && setQty(qty - 1)}
-              hitSlop={4}
-            >
+            <TouchableOpacity onPress={decreaseQty} hitSlop={4}>
               <Ionicons name="remove-outline" size={14} color={colors.text} />
             </TouchableOpacity>
 
@@ -100,38 +215,179 @@ function CategoryProductCard({ item }: { item: Product }) {
               {qty}
             </Text>
 
-            <TouchableOpacity onPress={() => setQty(qty + 1)} hitSlop={4}>
+            <TouchableOpacity onPress={increaseQty} hitSlop={4}>
               <Ionicons name="add-outline" size={14} color={colors.text} />
             </TouchableOpacity>
           </View>
 
+          {/* Quick Add Button */}
           <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleQuickAdd}
             style={tw.style(`w-8 h-8 rounded-lg items-center justify-center`, {
-              backgroundColor: "#F0653A",
+              backgroundColor: isAdded ? "#16A34A" : BRAND_COLOR,
             })}
           >
-            <Ionicons name="bag-handle-outline" size={16} color="#fff" />
+            <Ionicons
+              name={isAdded ? "checkmark" : "bag-handle-outline"}
+              size={16}
+              color="#fff"
+            />
           </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
   )
-}
+})
+
+CategoryProductCard.displayName = "CategoryProductCard"
+
+// ─── Main Category Screen ───────────────────────────────────────────────────
 
 export default function CategoryScreen() {
+  const PER_PAGE = 10
   const params = useLocalSearchParams<{ id?: string; name?: string }>()
   const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
 
-  const initialCatId = params.id
-    ? Number(params.id)
-    : (homeCategory[0]?.id ?? 1)
-  const [selectedCatId, setSelectedCatId] = useState<number>(initialCatId)
+  // ── Fetch all categories for sidebar ──
+  const { data: categoriesData } = useGetCategoriesQuery({
+    page: 1,
+    per_page: 50,
+  })
+  const categories = useMemo(
+    () => categoriesData?.data?.data ?? [],
+    [categoriesData]
+  )
+
+  const [userSelectedCatId, setUserSelectedCatId] = useState<number | null>(
+    null
+  )
   const [selectedSubCat, setSelectedSubCat] = useState<string>("All")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [search] = useDebounce(searchQuery, 400)
 
-  const activeCategoryObj =
-    homeCategory.find((c) => c.id === selectedCatId) || homeCategory[0]
+  // Derived effective category ID: user click > route param > first category from API
+  const selectedCatId = useMemo(() => {
+    if (userSelectedCatId !== null) return userSelectedCatId
+    if (params.id) return Number(params.id)
+    if (categories.length > 0) return categories[0].id
+    return null
+  }, [userSelectedCatId, params.id, categories])
+
+  const activeCategoryObj = useMemo(() => {
+    return (
+      categories.find((c) => c.id === selectedCatId) ||
+      (categories.length > 0 ? categories[0] : null)
+    )
+  }, [categories, selectedCatId])
+
+  // Extra pages fetched beyond page 1
+  const [extraItems, setExtraItems] = useState<Standard[]>([])
+  const [nextPage, setNextPage] = useState(2)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Synchronously reset extra pagination items during render when filter changes
+  const [prevFilter, setPrevFilter] = useState({ id: selectedCatId, search })
+  if (prevFilter.id !== selectedCatId || prevFilter.search !== search) {
+    setPrevFilter({ id: selectedCatId, search })
+    setExtraItems([])
+    setNextPage(2)
+    setHasMore(true)
+  }
+
+  // ── Page 1 Products: RTK Query ──────────────────────────────────────────
+  const {
+    data: page1Data,
+    isLoading: isProductsLoading,
+    refetch,
+  } = useGetProductsQuery(
+    {
+      page: 1,
+      per_page: PER_PAGE,
+      id: selectedCatId ? String(selectedCatId) : undefined,
+      search,
+    },
+    { skip: selectedCatId === null }
+  )
+
+  const [fetchMore] = useLazyGetProductsQuery()
+
+  const page1Items = useMemo(() => page1Data?.data?.data ?? [], [page1Data])
+  const page1Meta = useMemo(() => page1Data?.data, [page1Data])
+
+  const effectiveHasMore =
+    extraItems.length === 0
+      ? page1Meta
+        ? page1Meta.current_page < page1Meta.last_page
+        : false
+      : hasMore
+
+  const allItems = useMemo(
+    () => [...page1Items, ...extraItems],
+    [page1Items, extraItems]
+  )
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
+
+  const handleSelectCategory = useCallback((id: number) => {
+    setUserSelectedCatId(id)
+    setSelectedSubCat("All")
+  }, [])
+
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !effectiveHasMore || isProductsLoading || !selectedCatId)
+      return
+    setLoadingMore(true)
+
+    fetchMore({
+      page: nextPage,
+      per_page: PER_PAGE,
+      id: String(selectedCatId),
+      search,
+    })
+      .unwrap()
+      .then((res) => {
+        const pagination = res.data
+        if (pagination?.data) {
+          setExtraItems((prev) => [...prev, ...pagination.data])
+          setHasMore(pagination.current_page < pagination.last_page)
+          setNextPage(pagination.current_page + 1)
+        }
+      })
+      .catch((err) => {
+        if (__DEV__) console.warn("[CategoryProducts] Load more error:", err)
+      })
+      .finally(() => {
+        setLoadingMore(false)
+      })
+  }, [
+    loadingMore,
+    effectiveHasMore,
+    isProductsLoading,
+    selectedCatId,
+    fetchMore,
+    nextPage,
+    search,
+  ])
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true)
+    setExtraItems([])
+    setNextPage(2)
+    setHasMore(true)
+
+    refetch().finally(() => {
+      setRefreshing(false)
+    })
+  }, [refetch])
+
+  const renderProductItem = useCallback(
+    ({ item }: { item: Standard }) => <CategoryProductCard item={item} />,
+    []
+  )
 
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
@@ -143,13 +399,19 @@ export default function CategoryScreen() {
           borderBottomColor: colors.border,
         })}
       >
-        {/* <TouchableOpacity
+        <TouchableOpacity
           onPress={() => router.back()}
-          hitSlop={8}
-          style={tw`w-9 h-9 rounded-full items-center justify-center bg-gray-100 dark:bg-zinc-800`}
+          activeOpacity={0.7}
+          style={tw.style(
+            `w-9 h-9 rounded-full items-center justify-center border shadow-xs`,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+            }
+          )}
         >
           <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
         {/* Search input */}
         <View
@@ -168,7 +430,7 @@ export default function CategoryScreen() {
           />
           <TextInput
             style={tw.style(`flex-1 text-sm h-10`, { color: colors.text })}
-            placeholder={`Search in ${activeCategoryObj?.titile || "Categories"}...`}
+            placeholder={`Search in ${activeCategoryObj?.name || "Category"}...`}
             placeholderTextColor={colors.mutedForeground}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -198,76 +460,24 @@ export default function CategoryScreen() {
       <View style={tw`flex-1 flex-row`}>
         {/* Left Category Sidebar */}
         <View
-          style={tw.style(`w-[84px] border-r py-2`, {
+          style={tw.style(`w-[84px] border-r pt-2`, {
             backgroundColor: colors.surface,
             borderRightColor: colors.border,
           })}
         >
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {homeCategory.map((cat) => {
-              const isSelected = cat.id === selectedCatId
-              return (
-                <TouchableOpacity
-                  key={cat.id}
-                  onPress={() => {
-                    setSelectedCatId(cat.id)
-                    setSelectedSubCat("All")
-                  }}
-                  activeOpacity={0.7}
-                  style={tw.style(`items-center py-3 px-1 relative`, {
-                    backgroundColor: isSelected ? "#FDECEA" : "transparent",
-                  })}
-                >
-                  {/* Selected left indicator bar */}
-                  {isSelected && (
-                    <View
-                      style={tw`absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[#F0653A]`}
-                    />
-                  )}
-
-                  {/* Icon / Image container */}
-                  <View
-                    style={tw.style(
-                      `w-12 h-12 rounded-xl overflow-hidden mb-1 justify-center items-center`,
-                      {
-                        borderWidth: isSelected ? 2 : 1,
-                        borderColor: isSelected ? "#F0653A" : colors.border,
-                        backgroundColor: colors.background,
-                      }
-                    )}
-                  >
-                    <Image
-                      source={
-                        typeof cat.image === "number"
-                          ? cat.image
-                          : typeof cat.image === "string" &&
-                              cat.image.trim() !== ""
-                            ? { uri: cat.image }
-                            : {
-                                uri: "https://amiraheshop.com/images/product/202607170221361.jpeg",
-                              }
-                      }
-                      style={tw`w-full h-full`}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      fontSize: 10,
-                      fontWeight: isSelected ? "700" : "500",
-                      color: isSelected ? "#F0653A" : colors.mutedForeground,
-                      textAlign: "center",
-                      lineHeight: 13,
-                    }}
-                  >
-                    {cat.titile}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </ScrollView>
+          <FlatList
+            data={categories}
+            keyExtractor={(item) => `sidebar-${item.id}`}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`pb-20`}
+            renderItem={({ item }) => (
+              <SidebarCategoryCard
+                item={item}
+                isActive={selectedCatId === item.id}
+                onPress={handleSelectCategory}
+              />
+            )}
+          />
         </View>
 
         {/* Right Content Area */}
@@ -284,10 +494,11 @@ export default function CategoryScreen() {
                 return (
                   <TouchableOpacity
                     key={sub}
+                    activeOpacity={0.75}
                     onPress={() => setSelectedSubCat(sub)}
                     style={tw.style(`px-3.5 py-1.5 rounded-full border`, {
-                      backgroundColor: isActive ? "#F0653A" : colors.surface,
-                      borderColor: isActive ? "#F0653A" : colors.border,
+                      backgroundColor: isActive ? BRAND_COLOR : colors.surface,
+                      borderColor: isActive ? BRAND_COLOR : colors.border,
                     })}
                   >
                     <Text
@@ -306,39 +517,101 @@ export default function CategoryScreen() {
           </View>
 
           {/* Banner inside category */}
-          <View
-            style={tw.style(
-              `rounded-2xl p-3 mb-3 flex-row items-center justify-between overflow-hidden`,
-              {
-                backgroundColor: "#F0653A",
-              }
-            )}
-          >
-            <View style={tw`flex-1 pr-2`}>
-              <Text style={tw`text-white font-bold text-base`}>
-                {activeCategoryObj?.titile || "Category"}
-              </Text>
-              <Text style={tw`text-red-100 text-xs mt-0.5`}>
-                {PRODUCTS.length * 3}+ Products Available
-              </Text>
+          {activeCategoryObj && (
+            <View
+              style={tw.style(
+                `rounded-2xl p-3 mb-3 flex-row items-center justify-between overflow-hidden`,
+                {
+                  backgroundColor: BRAND_COLOR,
+                }
+              )}
+            >
+              <View style={tw`flex-1 pr-2`}>
+                <Text style={tw`text-white font-bold text-base`}>
+                  {activeCategoryObj.name}
+                </Text>
+                <Text style={tw`text-red-100 text-xs mt-0.5`}>
+                  {allItems.length > 0
+                    ? `${allItems.length} Products Available`
+                    : "Fresh & Quality Products"}
+                </Text>
+              </View>
+              <View style={tw`bg-white/20 px-2.5 py-1 rounded-lg`}>
+                <Text style={tw`text-white text-xs font-extrabold`}>
+                  Up to 40% OFF
+                </Text>
+              </View>
             </View>
-            <View style={tw`bg-white/20 px-2.5 py-1 rounded-lg`}>
-              <Text style={tw`text-white text-xs font-extrabold`}>
-                Up to 40% OFF
-              </Text>
-            </View>
-          </View>
+          )}
 
-          {/* Product Grid */}
-          <FlatList
-            data={PRODUCTS}
-            numColumns={2}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            columnWrapperStyle={tw`justify-between`}
-            contentContainerStyle={tw`pb-20`}
-            renderItem={({ item }) => <CategoryProductCard item={item} />}
-          />
+          {/* Product Grid / Skeleton Loader */}
+          {isProductsLoading && allItems.length === 0 ? (
+            <CategoryCardSkeleton
+              cardWidth={CARD_WIDTH}
+              columnWrapperStyle={{
+                justifyContent: "space-between",
+                gap: 8,
+              }}
+              contentContainerStyle={tw`pt-0 pb-10`}
+            />
+          ) : (
+            <FlatList
+              data={allItems}
+              numColumns={2}
+              keyExtractor={(item) => String(item?.id)}
+              showsVerticalScrollIndicator={false}
+              columnWrapperStyle={{
+                justifyContent: "space-between",
+                gap: 8,
+              }}
+              contentContainerStyle={tw`pb-24`}
+              renderItem={renderProductItem}
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.4}
+              ListEmptyComponent={
+                <View style={tw`items-center justify-center py-16 px-4`}>
+                  <View
+                    style={tw`w-16 h-16 rounded-full bg-[#FDECEA] items-center justify-center mb-3`}
+                  >
+                    <Ionicons
+                      name="cube-outline"
+                      size={32}
+                      color={BRAND_COLOR}
+                    />
+                  </View>
+                  <Text
+                    style={tw.style(`text-base font-bold text-center`, {
+                      color: colors.text,
+                    })}
+                  >
+                    No Products Found
+                  </Text>
+                  <Text
+                    style={tw.style(
+                      `text-xs mt-1 text-center text-gray-400 leading-4 max-w-[200px]`
+                    )}
+                  >
+                    {search
+                      ? `No products matching "${search}" in this category.`
+                      : "No products currently available in this category."}
+                  </Text>
+                </View>
+              }
+              ListFooterComponent={
+                loadingMore ? (
+                  <View style={tw`py-3 justify-center items-center`}>
+                    <ActivityIndicator size="small" color={BRAND_COLOR} />
+                  </View>
+                ) : null
+              }
+              removeClippedSubviews
+              initialNumToRender={8}
+              maxToRenderPerBatch={8}
+              windowSize={7}
+            />
+          )}
         </View>
       </View>
     </View>
