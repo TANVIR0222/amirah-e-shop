@@ -1,3 +1,4 @@
+import { ProductGrid } from "@/components/ui/product-grid"
 import { Screen } from "@/components/ui/screen"
 import { SectionHeader } from "@/components/ui/section-header"
 import { useFavorites } from "@/lib/storage/favorite-storage"
@@ -9,6 +10,7 @@ import { DrawerActions } from "expo-router/react-navigation"
 import React from "react"
 import { Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useGetNewProductsQuery } from "../api/home-api"
 import HomeCarousel from "../components/home-carousel"
 import HomeCategories from "../components/home-categories"
 
@@ -17,6 +19,11 @@ export default function HomeScreen() {
   const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
   const { favorites } = useFavorites()
+
+  const { data, isLoading } = useGetNewProductsQuery()
+
+  // console.log("🚀 ~ file: home.tsx:24 ~ HomeScreen ~ data:", data?.data)
+  const allProducts = data?.data || []
 
   const [search, setSearch] = React.useState<string>("")
 
@@ -129,7 +136,7 @@ export default function HomeScreen() {
       </View>
 
       {/* ── Page Content ── */}
-      <Screen contentStyle={tw`flex-1 -top-6 bg-gray-100`}>
+      <Screen>
         <HomeCarousel />
         <SectionHeader
           title="Categories"
@@ -137,12 +144,12 @@ export default function HomeScreen() {
           onActionPress={() => router.push("/(all-order-info)/all-category")}
         />
         <HomeCategories />
-        {/* <SectionHeader
+        <SectionHeader
           title="Featured Products"
           action="View All"
           onActionPress={() => router.push("/(drawer)/(tabs)/shop")}
-        /> */}
-        {/* <HomeCategories /> */}
+        />
+        <ProductGrid data={allProducts} isLoading={isLoading} />
       </Screen>
     </View>
   )
