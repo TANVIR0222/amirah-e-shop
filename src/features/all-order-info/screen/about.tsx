@@ -1,9 +1,8 @@
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const HIGHLIGHTS = [
   {
@@ -29,38 +28,12 @@ const HIGHLIGHTS = [
 ]
 
 export default function AboutScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
 
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* Header */}
-      <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 border-b`, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-          borderBottomColor: colors.border,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={tw.style(`w-9 h-9 rounded-full items-center justify-center`, {
-            backgroundColor: colors.background,
-          })}
-        >
-          <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity>
-
-        <View style={tw`flex-1`}>
-          <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
-            About Us
-          </Text>
-          <Text style={tw.style(`text-xs`, { color: colors.mutedForeground })}>
-            Amirah E-Shop v2.4.0
-          </Text>
-        </View>
-      </View>
+      <TopHeaderBar title="About Us" subtitle="Amirah E-Shop v2.4.0" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

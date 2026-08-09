@@ -1,11 +1,10 @@
-import { AppText } from "@/components/ui/app-text"
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type OrderStatus = "Processing" | "Shipped" | "Delivered" | "Cancelled"
 
@@ -207,7 +206,6 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 export default function MyOrdersScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
   const [activeTab, setActiveTab] = useState<string>("All")
 
@@ -218,16 +216,11 @@ export default function MyOrdersScreen() {
 
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
-      {/* Top Bar with Back Button */}
-
-      <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 `, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-        })}
-      >
-        <AppText variant="title"> My Fovourite </AppText>
-      </View>
+      {/* Top Header Bar */}
+      <TopHeaderBar
+        title="My Orders"
+        subtitle={`${filtered.length} ${filtered.length === 1 ? "order" : "orders"} found`}
+      />
 
       {/* Tabs */}
       <View

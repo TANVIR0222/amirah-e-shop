@@ -1,4 +1,4 @@
-import { AppText } from "@/components/ui/app-text"
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import {
   useGetCategoriesQuery,
   useLazyGetCategoriesQuery,
@@ -9,14 +9,7 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import React, { useCallback, useMemo, useState } from "react"
-import {
-  Dimensions,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Text,
-} from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Dimensions, TextInput, TouchableOpacity, View } from "react-native"
 import AllCategoryCard from "../components/all-category-card"
 import CategoryCardSkeleton from "../components/skeleton/all-category-skeleton"
 
@@ -27,7 +20,6 @@ const PADDING = 16
 const CARD_WIDTH = Math.floor((SCREEN_WIDTH - PADDING * 2 - GAP) / 2)
 
 export default function AllCategoriesScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
 
   const [search, setSearch] = useState("")
@@ -125,40 +117,10 @@ export default function AllCategoriesScreen() {
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* ── Top Header Bar ── */}
-      <View
-        style={tw.style(
-          `px-4 pb-3 flex-row items-center justify-between border-b`,
-          {
-            paddingTop: top + 10,
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          }
-        )}
-      >
-        <View style={tw`flex-row items-center gap-3 flex-1`}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-            style={tw.style(
-              `w-9 h-9 rounded-full items-center justify-center border shadow-xs`,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              }
-            )}
-          >
-            <Ionicons name="chevron-back" size={20} color={colors.text} />
-          </TouchableOpacity>
-
-          <View>
-            <AppText variant="title">All Categories</AppText>
-            <Text style={tw`text-[11px] font-medium text-gray-400`}>
-              {filteredItems.length}{" "}
-              {filteredItems.length === 1 ? "category" : "categories"} available
-            </Text>
-          </View>
-        </View>
-      </View>
+      <TopHeaderBar
+        title="All Categories"
+        subtitle={`${filteredItems.length} ${filteredItems.length === 1 ? "category" : "categories"} available`}
+      />
 
       {/* ── Search Bar ── */}
       <View style={tw`px-4 pt-3 pb-2`}>

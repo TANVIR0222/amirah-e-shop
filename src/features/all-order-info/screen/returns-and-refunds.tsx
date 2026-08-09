@@ -1,10 +1,9 @@
-import { AppText } from "@/components/ui/app-text"
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { useState } from "react"
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type ReturnStatus = "Pending" | "Refunded" | "Rejected"
 
@@ -152,7 +151,6 @@ function ReturnCard({ item }: { item: ReturnItem }) {
 }
 
 export default function ReturnsAndRefundsScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
   const [activeTab, setActiveTab] = useState<string>("All")
 
@@ -164,35 +162,10 @@ export default function ReturnsAndRefundsScreen() {
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* Top Header */}
-      <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 `, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-        })}
-      >
-        {/* <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={tw.style(`w-9 h-9 rounded-full items-center justify-center`, {
-            backgroundColor: colors.background,
-          })}
-        >
-          <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity> */}
-
-        <View style={tw`flex-1`}>
-          <AppText variant="title"> Returns & Refunds </AppText>
-        </View>
-
-        {/* <View style={tw`flex-1`}>
-          <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
-            Returns & Refunds
-          </Text>
-          <Text style={tw.style(`text-xs`, { color: colors.mutedForeground })}>
-            Track your return requests
-          </Text>
-        </View> */}
-      </View>
+      <TopHeaderBar
+        title="Returns & Refunds"
+        subtitle="Track your return requests"
+      />
 
       <ScrollView
         contentContainerStyle={tw`p-4 pb-24`}
