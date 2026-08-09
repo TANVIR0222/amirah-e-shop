@@ -1,10 +1,9 @@
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
 import { useState } from "react"
 import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type SecuritySetting = {
   id: string
@@ -14,7 +13,6 @@ type SecuritySetting = {
 }
 
 export default function PrivacyAndSecurityScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
 
   const [settings, setSettings] = useState<SecuritySetting[]>([
@@ -53,32 +51,10 @@ export default function PrivacyAndSecurityScreen() {
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* Header */}
-      <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 border-b`, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-          borderBottomColor: colors.border,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={tw.style(`w-9 h-9 rounded-full items-center justify-center`, {
-            backgroundColor: colors.background,
-          })}
-        >
-          <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity>
-
-        <View style={tw`flex-1`}>
-          <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
-            Privacy & Security
-          </Text>
-          <Text style={tw.style(`text-xs`, { color: colors.mutedForeground })}>
-            Manage your permissions & data safety
-          </Text>
-        </View>
-      </View>
+      <TopHeaderBar
+        title="Privacy & Security"
+        subtitle="Manage your permissions & data safety"
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

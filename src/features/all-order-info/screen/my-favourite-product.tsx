@@ -1,5 +1,5 @@
-import { AppText } from "@/components/ui/app-text"
 import { ProductGrid } from "@/components/ui/product-grid"
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
@@ -13,12 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const BRAND_COLOR = "#F0653A"
 
 export default function MyFavouriteProductScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
   const { favorites, isLoading, clearFavorites } = useFavorites()
   const [search, setSearch] = useState("")
@@ -40,51 +38,14 @@ export default function MyFavouriteProductScreen() {
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* ── Top Header Bar ── */}
-      <View
-        style={tw.style(
-          `px-4 pb-3 flex-row items-center justify-between border-b`,
-          {
-            paddingTop: top + 10,
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          }
-        )}
-      >
-        <View style={tw`flex-row items-center gap-3 flex-1`}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-            style={tw.style(
-              `w-9 h-9 rounded-full items-center justify-center border shadow-xs`,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              }
-            )}
-          >
-            <Ionicons name="chevron-back" size={20} color={colors.text} />
-          </TouchableOpacity>
-
-          <View>
-            <AppText variant="title">My Favorites</AppText>
-            <Text style={tw`text-[11px] font-medium text-gray-400`}>
-              {favorites.length} {favorites.length === 1 ? "item" : "items"}{" "}
-              saved
-            </Text>
-          </View>
-        </View>
-
-        {favorites.length > 0 && (
-          <TouchableOpacity
-            onPress={() => clearFavorites()}
-            hitSlop={6}
-            style={tw`px-3 py-1.5 rounded-full bg-[#FEF2F2] border border-red-100 flex-row items-center gap-1`}
-          >
-            <Ionicons name="trash-outline" size={13} color="#EF4444" />
-            <Text style={tw`text-xs font-bold text-[#EF4444]`}>Clear All</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      <TopHeaderBar
+        title="My Favorites"
+        subtitle={`${favorites.length} ${favorites.length === 1 ? "item" : "items"} saved`}
+        actionText={favorites.length > 0 ? "Clear All" : undefined}
+        actionIcon={favorites.length > 0 ? "trash-outline" : undefined}
+        onActionPress={clearFavorites}
+        actionVariant="danger"
+      />
 
       {/* ── Search Bar ── */}
       {favorites.length > 0 && (

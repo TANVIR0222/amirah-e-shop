@@ -1,7 +1,7 @@
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
 import { useState } from "react"
 import {
   LayoutAnimation,
@@ -13,7 +13,6 @@ import {
   UIManager,
   View,
 } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 if (
   Platform.OS === "android" &&
@@ -75,7 +74,6 @@ const FAQ_DATA: FAQItem[] = [
 ]
 
 export default function HelpAndSupportScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
 
   const [expandedId, setExpandedId] = useState<string | null>("1")
@@ -96,32 +94,10 @@ export default function HelpAndSupportScreen() {
   return (
     <View style={tw.style(`flex-1`, { backgroundColor: colors.background })}>
       {/* Top Header */}
-      <View
-        style={tw.style(`px-4 pb-3 flex-row items-center gap-3 border-b`, {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-          borderBottomColor: colors.border,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={tw.style(`w-9 h-9 rounded-full items-center justify-center`, {
-            backgroundColor: colors.background,
-          })}
-        >
-          <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity>
-
-        <View style={tw`flex-1`}>
-          <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
-            Help & Support
-          </Text>
-          <Text style={tw.style(`text-xs`, { color: colors.mutedForeground })}>
-            Frequently Asked Questions & Contact
-          </Text>
-        </View>
-      </View>
+      <TopHeaderBar
+        title="Help & Support"
+        subtitle="Frequently Asked Questions & Contact"
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

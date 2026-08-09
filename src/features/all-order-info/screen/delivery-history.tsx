@@ -1,7 +1,7 @@
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
 import { useMemo, useState } from "react"
 import {
   Image,
@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 type DeliveryFilter = "All" | "This Month" | "Express"
 
@@ -106,20 +105,20 @@ const MOCK_DELIVERIES: DeliveryItem[] = [
 ]
 
 export default function DeliveryHistoryScreen() {
-  const { top } = useSafeAreaInsets()
   const { colors } = useAppTheme()
-  const [searchQuery, setSearchQuery] = useState("")
+
   const [activeFilter, setActiveFilter] = useState<DeliveryFilter>("All")
+  const [searchQuery, setSearchQuery] = useState("")
 
   const filteredDeliveries = useMemo(() => {
     return MOCK_DELIVERIES.filter((item) => {
-      const matchesSearch =
-        item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.productSummary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.address.toLowerCase().includes(searchQuery.toLowerCase())
-
-      if (!matchesSearch) return false
-
+      if (searchQuery.trim().length > 0) {
+        const q = searchQuery.toLowerCase()
+        const matchesId = item.id.toLowerCase().includes(q)
+        const matchesProduct = item.productSummary.toLowerCase().includes(q)
+        const matchesRider = item.riderName.toLowerCase().includes(q)
+        if (!matchesId && !matchesProduct && !matchesRider) return false
+      }
       if (activeFilter === "This Month") {
         return item.deliveryDate.includes("Jul 2026")
       }
@@ -132,45 +131,24 @@ export default function DeliveryHistoryScreen() {
 
   return (
     <View style={tw.style("flex-1", { backgroundColor: colors.background })}>
-      {/* Header */}
-      <View
-        style={tw.style("px-4 pb-3 flex-row items-center gap-3 border-b", {
-          paddingTop: top + 10,
-          backgroundColor: colors.surface,
-          borderBottomColor: colors.border,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={tw.style("w-9 h-9 rounded-full items-center justify-center", {
-            backgroundColor: colors.background,
-          })}
-        >
-          <Ionicons name="chevron-back" size={20} color={colors.text} />
-        </TouchableOpacity>
-
-        <View style={tw`flex-1`}>
-          <Text style={tw.style("text-lg font-bold", { color: colors.text })}>
-            Delivery History
-          </Text>
-          <Text style={tw.style("text-xs", { color: colors.mutedForeground })}>
-            {MOCK_DELIVERIES.length} completed deliveries
-          </Text>
-        </View>
-
-        <View
-          style={tw.style(
-            "px-2.5 py-1 rounded-full flex-row items-center gap-1.5",
-            { backgroundColor: "#F0FDF4" }
-          )}
-        >
-          <Ionicons name="shield-checkmark" size={14} color="#16A34A" />
-          <Text style={tw`text-[11px] font-bold text-green-700`}>
-            100% On-Time
-          </Text>
-        </View>
-      </View>
+      {/* Top Header Bar */}
+      <TopHeaderBar
+        title="Delivery History"
+        subtitle={`${MOCK_DELIVERIES.length} completed deliveries`}
+        rightComponent={
+          <View
+            style={tw.style(
+              "px-2.5 py-1 rounded-full flex-row items-center gap-1.5",
+              { backgroundColor: "#F0FDF4" }
+            )}
+          >
+            <Ionicons name="shield-checkmark" size={14} color="#16A34A" />
+            <Text style={tw`text-[11px] font-bold text-green-700`}>
+              100% On-Time
+            </Text>
+          </View>
+        }
+      />
 
       {/* Main Content */}
       <ScrollView

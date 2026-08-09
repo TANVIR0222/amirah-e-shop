@@ -1,77 +1,98 @@
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { Image } from "expo-image"
 import { router } from "expo-router"
-import { useCallback, useMemo, useState } from "react"
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
+import React, { memo, useCallback, useMemo, useState } from "react"
+import { FlatList, Text, TouchableOpacity, View } from "react-native"
 import { useGetCategoriesQuery } from "../api/home-api"
 import { CategoryResponse } from "../types/home-api-type"
 import CategoryCardSkeleton from "./skeleton/category-skeleton"
 
 const MAX_CATEGORIES = 10
 const BRAND_COLOR = "#F0653A"
-const CARD_WIDTH = 100
+const CARD_WIDTH = 110
+const FALLBACK_IMAGE =
+  "https://amiraheshop.com/images/product/202607170221361.jpeg"
 
 // ─── CategoryCard Component ─────────────────────────────────────────────────
 
-function CategoryCard({
-  item,
-  isActive,
-  onPress,
-}: {
-  item: CategoryResponse
-  isActive: boolean
-  onPress: () => void
-}) {
-  const { colors } = useAppTheme()
+const CategoryCard = memo(
+  ({
+    item,
+    isActive,
+    onPress,
+  }: {
+    item: CategoryResponse
+    isActive: boolean
+    onPress: () => void
+  }) => {
+    const { colors } = useAppTheme()
 
-  const imageUri = item?.image
-    ? item.image.startsWith("http")
-      ? item.image
-      : `https://amiraheshop.com/${item.image.replace(/^\//, "")}`
-    : "https://amiraheshop.com/images/product/202607170221361.jpeg"
+    const imageUri = item?.image
+      ? item.image.startsWith("http")
+        ? item.image
+        : `https://amiraheshop.com/${item.image.replace(/^\//, "")}`
+      : FALLBACK_IMAGE
 
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.75}
-      style={tw.style(
-        `rounded-2xl h-34 overflow-hidden border mr-3 shadow-xs`,
-        {
-          width: CARD_WIDTH,
-          backgroundColor: colors.surface,
-          borderColor: isActive ? BRAND_COLOR : colors.border,
-        }
-      )}
-    >
-      <View
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.75}
         style={tw.style(
-          `w-full h-24 items-center justify-center overflow-hidden`,
+          `rounded-2xl h-36 overflow-hidden border mr-3 shadow-xs`,
           {
-            backgroundColor: colors.background,
+            width: CARD_WIDTH,
+            backgroundColor: colors.surface,
+            borderColor: isActive ? BRAND_COLOR : colors.border,
+            borderWidth: isActive ? 2 : 1,
           }
         )}
       >
-        <Image
-          source={{ uri: imageUri }}
-          style={tw`w-full h-full`}
-          resizeMode="cover"
-        />
-      </View>
-
-      <View style={tw`p-2.5 items-center justify-center`}>
-        <Text
-          numberOfLines={1}
-          style={tw.style(`text-xs font-bold text-center leading-4`, {
-            color: isActive ? BRAND_COLOR : colors.text,
-          })}
+        <View
+          style={tw.style(
+            `w-full h-24 items-center justify-center overflow-hidden relative`,
+            {
+              backgroundColor: colors.background,
+            }
+          )}
         >
-          {item.name}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  )
-}
+          <Image
+            source={{ uri: imageUri }}
+            style={tw`w-full h-full`}
+            contentFit="cover"
+            transition={150}
+            cachePolicy="memory-disk"
+            placeholder={FALLBACK_IMAGE}
+          />
+          {isActive && (
+            <View
+              style={tw`absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-[#F0653A]`}
+            />
+          )}
+        </View>
+
+        <View style={tw`p-2 items-center justify-center flex-1`}>
+          <Text
+            numberOfLines={1}
+            style={tw.style(`text-xs font-bold text-center leading-4`, {
+              color: isActive ? BRAND_COLOR : colors.text,
+            })}
+          >
+            {item.name}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )
+  },
+  (prev, next) =>
+    prev.item.id === next.item.id &&
+    prev.isActive === next.isActive &&
+    prev.item.name === next.item.name &&
+    prev.item.image === next.item.image
+)
+
+CategoryCard.displayName = "CategoryCard"
 
 // ─── View All Categories Card ───────────────────────────────────────────────
 
@@ -82,11 +103,14 @@ function ViewAllCard() {
     <TouchableOpacity
       onPress={() => router.push("/category/all-category")}
       activeOpacity={0.75}
-      style={tw.style(`rounded-2xl overflow-hidden border mr-3 shadow-xs`, {
-        width: CARD_WIDTH,
-        backgroundColor: colors.surface,
-        borderColor: BRAND_COLOR,
-      })}
+      style={tw.style(
+        `rounded-2xl h-36 overflow-hidden border mr-3 shadow-xs`,
+        {
+          width: CARD_WIDTH,
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+        }
+      )}
     >
       <View
         style={tw.style(
@@ -103,7 +127,7 @@ function ViewAllCard() {
         </View>
       </View>
 
-      <View style={tw`p-2.5 items-center justify-center`}>
+      <View style={tw`p-2 items-center justify-center flex-1`}>
         <Text
           numberOfLines={1}
           style={tw.style(`text-xs font-bold text-center leading-4`, {
@@ -143,13 +167,11 @@ export default function HomeCategories() {
   const showViewAll =
     rawItems.length > MAX_CATEGORIES || totalCount > MAX_CATEGORIES
 
-  const effectiveActiveId = activeId ?? displayedCategories[0]?.id ?? null
-
   const handleCategoryPress = useCallback((item: CategoryResponse) => {
     setActiveId(item.id)
     router.push({
-      pathname: "/category/all-category",
-      params: { id: String(item.id) },
+      pathname: "/category",
+      params: { id: String(item.id), name: item.name },
     })
   }, [])
 
@@ -161,13 +183,13 @@ export default function HomeCategories() {
       data={displayedCategories}
       keyExtractor={(item) => String(item.id)}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
+      contentContainerStyle={{ paddingVertical: 8 }}
       onRefresh={refetch}
       refreshing={isFetching}
       renderItem={({ item }) => (
         <CategoryCard
           item={item}
-          isActive={effectiveActiveId === item.id}
+          isActive={activeId === item.id}
           onPress={() => handleCategoryPress(item)}
         />
       )}
