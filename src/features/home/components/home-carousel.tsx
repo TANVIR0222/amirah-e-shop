@@ -1,7 +1,8 @@
 import tw from "@/lib/tailwind"
 import { _WIDTH } from "@/utils/phone-screen-size"
+import { Image } from "expo-image"
 import * as React from "react"
-import { Image, View } from "react-native"
+import { View } from "react-native"
 import {
   Extrapolation,
   interpolate,
@@ -61,10 +62,13 @@ const HomeCarousel = () => {
           <View style={tw`flex-1 justify-center flex-row p-1`}>
             <Image
               source={{
-                uri: "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000",
+                uri: item?.image1,
               }}
               style={tw`w-full h-full rounded-xl`}
-              resizeMode="cover"
+              contentFit="cover"
+              placeholder={
+                "https://img.magnific.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?t=st=1784568760~exp=1784572360~hmac=6b6585b9dbd3c120d4b802b8150ced1557b3c22d9981974accd0bffa5ba9df8d&w=2000"
+              }
             />
           </View>
         )}
