@@ -1,11 +1,10 @@
-import { cartStorage } from "@/lib/storage/cart-storage"
-import { useFavorites } from "@/lib/storage/favorite-storage"
+import { useProductActions } from "@/hooks/use-product-actions"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { Image } from "expo-image"
 import { router } from "expo-router"
-import { useState } from "react"
+import React, { memo } from "react"
 import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 
 const OUTER_PADDING = 24
@@ -17,57 +16,24 @@ const CARD_WIDTH =
     ? SCREEN_WIDTH - OUTER_PADDING * 2
     : (SCREEN_WIDTH - OUTER_PADDING * 2 - GAP) / 2
 
-export function ProductCard({ item }: any) {
+export const ProductCard = memo(({ item }: { item: any }) => {
   const { colors } = useAppTheme()
-  const { isFavorite, toggleFavorite } = useFavorites()
-  const [qty, setQty] = useState(1)
-  const [added, setAdded] = useState(false)
 
-  const imageUri =
-    (Array.isArray(item?.image) ? item.image[0] : item?.image) ||
-    item?.category?.image ||
-    "https://amiraheshop.com/images/product/202607170221361.jpeg"
+  const {
+    qty,
+    increaseQty,
+    decreaseQty,
+    isLiked,
+    isAdded,
+    imageUri,
+    handleToggleHeart,
+    handleQuickAdd,
+  } = useProductActions(item)
 
   if (!item) return null
 
-  const isLiked = isFavorite(item.id)
-
-  const handleToggleHeart = async (e: any) => {
-    e?.stopPropagation?.()
-    await toggleFavorite({
-      id: item.id,
-      name: item.name,
-      category: item.category?.name || "General",
-      price: Number(item.price) || 0,
-      originalPrice: item.wholesale_price
-        ? Number(item.wholesale_price)
-        : undefined,
-      image: item.images_array?.[0] || item.image,
-      rating: 4.8,
-      unit: item.unit || "1 Unit",
-      inStock: item.in_stock === 1,
-    })
-  }
-
-  const handleQuickAdd = async (e: any) => {
-    e?.stopPropagation?.()
-    await cartStorage.addToCart(
-      {
-        id: item.id,
-        name: item.name,
-        category: item.category?.name || "General",
-        price: Number(item.price) || 0,
-        originalPrice: item.wholesale_price
-          ? Number(item.wholesale_price)
-          : undefined,
-        image: item.images_array?.[0] || item.image,
-        inStock: item.in_stock === 1,
-      },
-      qty
-    )
-    setAdded(true)
-    setTimeout(() => setAdded(false), 1500)
-  }
+  const productName = item?.name || item?.product_name || "Product"
+  const productPrice = item?.price ?? item?.cost ?? 0
 
   return (
     <TouchableOpacity
@@ -75,10 +41,10 @@ export function ProductCard({ item }: any) {
       onPress={() =>
         router.push({
           pathname: "/product/[id]",
-          params: { id: item.id },
+          params: { id: String(item.id) },
         })
       }
-      style={tw.style(`rounded-2xl overflow-hidden border`, {
+      style={tw.style(`rounded-2xl overflow-hidden border mb-3`, {
         width: CARD_WIDTH,
         backgroundColor: colors.surface,
         borderColor: colors.border,
@@ -89,16 +55,16 @@ export function ProductCard({ item }: any) {
         style={tw.style(`relative`, { backgroundColor: colors.background })}
       >
         <Image
-          source={{
-            uri: imageUri,
-          }}
+          source={{ uri: imageUri }}
           contentFit="cover"
           transition={200}
+          cachePolicy="memory-disk"
           style={tw`w-full h-40`}
         />
 
         {/* Heart button — on top of image */}
         <TouchableOpacity
+          activeOpacity={0.7}
           onPress={handleToggleHeart}
           style={tw.style(`absolute top-2 right-2 z-10 rounded-full p-1.5`, {
             backgroundColor: isLiked ? "#FEF2F2" : colors.surface + "CC",
@@ -117,16 +83,16 @@ export function ProductCard({ item }: any) {
         {/* Name */}
         <Text
           numberOfLines={2}
-          style={tw.style(`text-sm font-semibold leading-5`, {
+          style={tw.style(`text-sm font-semibold leading-5 min-h-[40px]`, {
             color: colors.text,
           })}
         >
-          {item.name}
+          {productName}
         </Text>
 
         {/* Price */}
         <Text style={tw`text-base font-extrabold text-[#08A44A] mt-1`}>
-          ৳{item.price}
+          ৳{productPrice}
         </Text>
 
         {/* Qty stepper + Add to cart */}
@@ -137,10 +103,7 @@ export function ProductCard({ item }: any) {
               { borderColor: colors.border }
             )}
           >
-            <TouchableOpacity
-              onPress={() => qty > 1 && setQty(qty - 1)}
-              hitSlop={6}
-            >
+            <TouchableOpacity onPress={decreaseQty} hitSlop={6}>
               <Ionicons name="remove-outline" size={16} color={colors.text} />
             </TouchableOpacity>
 
@@ -148,7 +111,7 @@ export function ProductCard({ item }: any) {
               {qty}
             </Text>
 
-            <TouchableOpacity onPress={() => setQty(qty + 1)} hitSlop={6}>
+            <TouchableOpacity onPress={increaseQty} hitSlop={6}>
               <Ionicons name="add-outline" size={16} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -157,11 +120,11 @@ export function ProductCard({ item }: any) {
             activeOpacity={0.8}
             onPress={handleQuickAdd}
             style={tw.style(`w-9 h-9 rounded-xl items-center justify-center`, {
-              backgroundColor: added ? "#16A34A" : colors.danger,
+              backgroundColor: isAdded ? "#16A34A" : colors.danger,
             })}
           >
             <Ionicons
-              name={added ? "checkmark" : "bag-handle-outline"}
+              name={isAdded ? "checkmark" : "bag-handle-outline"}
               size={18}
               color="#fff"
             />
@@ -170,4 +133,6 @@ export function ProductCard({ item }: any) {
       </View>
     </TouchableOpacity>
   )
-}
+})
+
+ProductCard.displayName = "ProductCard"
