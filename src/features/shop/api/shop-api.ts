@@ -17,14 +17,18 @@ export const categoryApi = api.injectEndpoints({
       ApiResponse<PaginatedResponse<ShopProductResponse>>,
       CategoryPayload
     >({
-      query: ({ page = 1, per_page = 1 }) => ({
-        url: "/products",
-        method: "GET",
-        params: {
-          page,
-          per_page,
-        },
-      }),
+      query: ({ page = 1, per_page = 1, search }) => (
+        console.log("🚀 ~ file::", search),
+        {
+          url: "/products",
+          method: "GET",
+          params: {
+            page,
+            per_page,
+            search,
+          },
+        }
+      ),
 
       providesTags: [tagTypes.shop],
     }),

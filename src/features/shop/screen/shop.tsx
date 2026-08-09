@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native"
+import { useDebounce } from "use-debounce"
 import { useGetProductsQuery, useLazyGetProductsQuery } from "../api/shop-api"
 import { ShopProductResponse } from "../types/shop-type"
 
@@ -21,6 +22,13 @@ const BRAND = "#F0653A"
 export default function Shop() {
   const { colors } = useAppTheme()
   const [search, setSearch] = React.useState("")
+
+  // console.log("🚀 ~ file: shop.tsx:22 ~ Shop ~ search:", search)
+
+  const [value] = useDebounce(search, 1000)
+
+  console.log("🚀 ~ file: shop.tsx:27 ~ Shop ~ value:", value)
+
   // Extra pages fetched beyond page 1
   const [extraItems, setExtraItems] = React.useState<ShopProductResponse[]>([])
   const [nextPage, setNextPage] = React.useState(2)
@@ -33,7 +41,7 @@ export default function Shop() {
     data: page1Data,
     isLoading,
     refetch,
-  } = useGetProductsQuery({ page: 1, per_page: PER_PAGE })
+  } = useGetProductsQuery({ page: 1, per_page: PER_PAGE, search: value })
 
   // ── Lazy query for pages 2+ ───────────────────────────────────────────────
   const [fetchMore] = useLazyGetProductsQuery()
@@ -62,7 +70,7 @@ export default function Shop() {
     if (loadingMore || !effectiveHasMore || isLoading) return
     setLoadingMore(true)
 
-    fetchMore({ page: nextPage, per_page: PER_PAGE })
+    fetchMore({ page: nextPage, per_page: PER_PAGE, search: value })
       .unwrap()
       .then((res) => {
         const pagination = res.data
@@ -76,7 +84,7 @@ export default function Shop() {
       .finally(() => {
         setLoadingMore(false)
       })
-  }, [loadingMore, effectiveHasMore, isLoading, fetchMore, nextPage])
+  }, [loadingMore, effectiveHasMore, isLoading, fetchMore, nextPage, value])
 
   const handleRefresh = React.useCallback(() => {
     setRefreshing(true)
