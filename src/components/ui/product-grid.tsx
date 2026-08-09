@@ -1,7 +1,7 @@
 import ShopCardSkeleton from "@/features/shop/components/skeleton/all-category-skeleton"
 import tw from "@/lib/tailwind"
 import React, { memo, useCallback } from "react"
-import { Dimensions, FlatList } from "react-native"
+import { Dimensions, FlatList, StyleProp, View, ViewStyle } from "react-native"
 import { ProductCard } from "./product-card"
 
 const GAP = 12
@@ -22,7 +22,7 @@ export interface ProductGridProps {
   onRefresh?: () => void
   refreshing?: boolean
   scrollEnabled?: boolean
-  contentContainerStyle?: any
+  contentContainerStyle?: StyleProp<ViewStyle>
   ListHeaderComponent?: React.ReactElement | null
   ListFooterComponent?: React.ReactElement | null
   ListEmptyComponent?: React.ReactElement | null
@@ -45,25 +45,53 @@ export const ProductGrid = memo(
     const safeData = Array.isArray(data) ? data : []
 
     const renderItem = useCallback(
-      ({ item }: { item: any }) => <ProductCard item={item} />,
+      (item: any, index: number) => (
+        <ProductCard
+          key={item?.id != null ? String(item.id) : `idx-${index}`}
+          item={item}
+        />
+      ),
       []
     )
 
-    const keyExtractor = useCallback(
-      (item: any, index: number) =>
-        item?.id != null ? String(item.id) : `idx-${index}`,
-      []
-    )
+    if (isLoading && safeData.length === 0) {
+      return (
+        <ShopCardSkeleton
+          cardWidth={CARD_WIDTH}
+          scrollEnabled={scrollEnabled}
+        />
+      )
+    }
 
-    return isLoading ? (
-      <ShopCardSkeleton cardWidth={CARD_WIDTH} />
-    ) : (
+    // When nested inside a ScrollView (e.g. HomeScreen), render a regular flexbox grid
+    // to avoid "VirtualizedLists should never be nested inside plain ScrollViews" warning
+    if (!scrollEnabled) {
+      return (
+        <View style={[tw`mt-4 pb-8`, contentContainerStyle]}>
+          {ListHeaderComponent}
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              gap: GAP,
+            }}
+          >
+            {safeData.map(renderItem)}
+          </View>
+          {ListFooterComponent}
+        </View>
+      )
+    }
+
+    return (
       <FlatList
         data={safeData}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        renderItem={({ item }) => <ProductCard item={item} />}
+        keyExtractor={(item, index) =>
+          item?.id != null ? String(item.id) : `idx-${index}`
+        }
         numColumns={NUM_COLUMNS}
-        scrollEnabled={scrollEnabled}
         columnWrapperStyle={
           NUM_COLUMNS > 1
             ? { justifyContent: "space-between", gap: GAP }
