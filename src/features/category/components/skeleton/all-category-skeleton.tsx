@@ -1,7 +1,7 @@
 import Skeleton from "@/components/ui/skeleton"
 import React from "react"
 import { FlatList, StyleProp, View, ViewStyle } from "react-native"
-import tw from "twrnc"
+import tw from "@/lib/tailwind"
 
 interface CategoryCardSkeletonProps {
   cardWidth: number
