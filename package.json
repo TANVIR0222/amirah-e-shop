@@ -51,6 +51,7 @@
     "react-redux": "^9.3.0",
     "sonner-native": "^0.26.4",
     "twrnc": "^4.16.0",
+    "use-debounce": "^10.1.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {
