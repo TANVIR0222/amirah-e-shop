@@ -10,25 +10,22 @@ import {
   ShopProductResponse,
 } from "../types/shop-type"
 
-export const categoryApi = api.injectEndpoints({
+export const shopApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getProducts: builder.query<
       ApiResponse<PaginatedResponse<ShopProductResponse>>,
       CategoryPayload
     >({
-      query: ({ page = 1, per_page = 1, search }) => (
-        console.log("🚀 ~ file::", search),
-        {
-          url: "/products",
-          method: "GET",
-          params: {
-            page,
-            per_page,
-            search,
-          },
-        }
-      ),
+      query: ({ page = 1, per_page = 1, search }) => ({
+        url: "/products",
+        method: "GET",
+        params: {
+          page,
+          per_page,
+          search,
+        },
+      }),
 
       providesTags: [tagTypes.shop],
     }),
@@ -75,4 +72,4 @@ export const {
   useGetRelatedProductsQuery,
   useLazyGetRelatedProductsQuery,
   useValidateCouponMutation,
-} = categoryApi
+} = shopApi

@@ -13,7 +13,6 @@ import { Ionicons } from "@expo/vector-icons"
 import tw from "twrnc"
 import { router, useNavigation } from "expo-router"
 import { DrawerActions } from "expo-router/react-navigation"
-import type { DrawerContentComponentProps } from "@react-navigation/drawer"
 import useCategoryAndChildren, {
   CategoryWithChildren,
 } from "../hoock/use-category-and-children"

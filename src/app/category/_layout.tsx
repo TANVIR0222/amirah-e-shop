@@ -1,14 +1,12 @@
 import CategoryCustomDrawer from "@/features/category/components/category-custom-drawer"
 import { useAppTheme } from "@/theme/theme-provider"
 import { Drawer } from "expo-router/drawer"
-import { useState } from "react"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 const BRAND_ORANGE = "#F0653A"
 
 export default function CategoryLayout() {
   const { colors } = useAppTheme()
-  const [getCategoryId, setCategoryId] = useState<string | null>(null)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
