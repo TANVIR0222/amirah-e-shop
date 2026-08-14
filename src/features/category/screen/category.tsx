@@ -5,13 +5,13 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { Image } from "expo-image"
-import { router, useLocalSearchParams } from "expo-router"
+import { router, useLocalSearchParams, useNavigation } from "expo-router"
+import { DrawerActions } from "expo-router/react-navigation"
 import { memo, useCallback, useMemo, useState } from "react"
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -20,8 +20,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useDebounce } from "use-debounce"
 import {
-  useGetProductsQuery,
-  useLazyGetProductsQuery,
+  useGetCategoryProductsQuery,
+  useLazyGetCategoryProductsQuery,
 } from "../api/category-api"
 import CategoryCardSkeleton from "../components/skeleton/all-category-skeleton"
 import { Standard } from "../type/category-type"
@@ -33,8 +33,6 @@ const CARD_WIDTH = Math.floor((GRID_CONTAINER_WIDTH - 10) / 2)
 const BRAND_COLOR = "#F0653A"
 const FALLBACK_IMAGE =
   "https://amiraheshop.com/images/product/202607170221361.jpeg"
-
-const SUBCATEGORIES = ["All", "Popular", "Organic", "New In", "Offers"]
 
 // ─── Sidebar Category Card (Same Design as all-category.tsx) ─────────────────
 
@@ -245,6 +243,7 @@ CategoryProductCard.displayName = "CategoryProductCard"
 // ─── Main Category Screen ───────────────────────────────────────────────────
 
 export default function CategoryScreen() {
+  const navigation = useNavigation()
   const PER_PAGE = 10
   const params = useLocalSearchParams<{ id?: string; name?: string }>()
   const { top } = useSafeAreaInsets()
@@ -263,9 +262,15 @@ export default function CategoryScreen() {
   const [userSelectedCatId, setUserSelectedCatId] = useState<number | null>(
     null
   )
-  const [selectedSubCat, setSelectedSubCat] = useState<string>("All")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [search] = useDebounce(searchQuery, 400)
+
+  // Track param id changes during render (recommended React pattern)
+  const [prevParamId, setPrevParamId] = useState<string | undefined>(params.id)
+  if (prevParamId !== params.id) {
+    setPrevParamId(params.id)
+    setUserSelectedCatId(params.id ? Number(params.id) : null)
+  }
 
   // Derived effective category ID: user click > route param > first category from API
   const selectedCatId = useMemo(() => {
@@ -281,6 +286,9 @@ export default function CategoryScreen() {
       (categories.length > 0 ? categories[0] : null)
     )
   }, [categories, selectedCatId])
+
+  const activeCategoryTitle =
+    params.name || activeCategoryObj?.name || "Category"
 
   // Extra pages fetched beyond page 1
   const [extraItems, setExtraItems] = useState<Standard[]>([])
@@ -303,7 +311,7 @@ export default function CategoryScreen() {
     data: page1Data,
     isLoading: isProductsLoading,
     refetch,
-  } = useGetProductsQuery(
+  } = useGetCategoryProductsQuery(
     {
       page: 1,
       per_page: PER_PAGE,
@@ -313,7 +321,7 @@ export default function CategoryScreen() {
     { skip: selectedCatId === null }
   )
 
-  const [fetchMore] = useLazyGetProductsQuery()
+  const [fetchMore] = useLazyGetCategoryProductsQuery()
 
   const page1Items = useMemo(() => page1Data?.data?.data ?? [], [page1Data])
   const page1Meta = useMemo(() => page1Data?.data, [page1Data])
@@ -334,7 +342,6 @@ export default function CategoryScreen() {
 
   const handleSelectCategory = useCallback((id: number) => {
     setUserSelectedCatId(id)
-    setSelectedSubCat("All")
   }, [])
 
   const handleLoadMore = useCallback(() => {
@@ -430,12 +437,13 @@ export default function CategoryScreen() {
           />
           <TextInput
             style={tw.style(`flex-1 text-sm h-10`, { color: colors.text })}
-            placeholder={`Search in ${activeCategoryObj?.name || "Category"}...`}
+            placeholder={`Search in ${activeCategoryTitle}...`}
             placeholderTextColor={colors.mutedForeground}
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
           />
+
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={6}>
               <Ionicons
@@ -447,9 +455,9 @@ export default function CategoryScreen() {
           )}
         </View>
 
-        {/* Filter button */}
+        {/* Drawer button */}
         <TouchableOpacity
-          onPress={() => router.push("/(modal)/order-filter-modal")}
+          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
           style={tw`w-10 h-10 rounded-xl items-center justify-center bg-[#F0653A]`}
         >
           <Ionicons name="options-outline" size={18} color="#fff" />
@@ -483,7 +491,7 @@ export default function CategoryScreen() {
         {/* Right Content Area */}
         <View style={tw`flex-1 px-3 pt-3`}>
           {/* Subcategory Pills Header */}
-          <View style={tw`mb-3`}>
+          {/* <View style={tw`mb-3`}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -514,10 +522,10 @@ export default function CategoryScreen() {
                 )
               })}
             </ScrollView>
-          </View>
+          </View> */}
 
           {/* Banner inside category */}
-          {activeCategoryObj && (
+          {activeCategoryTitle && (
             <View
               style={tw.style(
                 `rounded-2xl p-3 mb-3 flex-row items-center justify-between overflow-hidden`,
@@ -528,7 +536,7 @@ export default function CategoryScreen() {
             >
               <View style={tw`flex-1 pr-2`}>
                 <Text style={tw`text-white font-bold text-base`}>
-                  {activeCategoryObj.name}
+                  {activeCategoryTitle}
                 </Text>
                 <Text style={tw`text-red-100 text-xs mt-0.5`}>
                   {allItems.length > 0

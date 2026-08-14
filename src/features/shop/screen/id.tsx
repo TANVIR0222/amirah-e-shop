@@ -93,6 +93,30 @@ export default function ProductDetailsScreen() {
     }, 2000)
   }
 
+  const handleBuyNow = () => {
+    if (!data?.data) return
+    const product = data.data
+    const unitPrice = Number(product.price) || 0
+    const subtotal = unitPrice * quantity
+    const deliveryCharge = 60
+    const totalAmount = subtotal + deliveryCharge
+
+    router.push({
+      pathname: "/(modal)/order-summery-modal",
+      params: {
+        productId: String(product.id),
+        productName: product.name,
+        totalProducts: `${quantity} Item(s)`,
+        weight: activeSize || "Standard",
+        subtotal: String(subtotal),
+        deliveryCharge: String(deliveryCharge),
+        totalAmount: String(totalAmount),
+        quantity: String(quantity),
+        variant: activeSize || "",
+      },
+    })
+  }
+
   const handleToggleFavorite = async () => {
     if (!data?.data) return
     const product = data.data
@@ -393,11 +417,10 @@ export default function ProductDetailsScreen() {
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => router.push("/(modal)/order-summery-modal")}
+            onPress={handleBuyNow}
             style={tw`flex-1 h-12 rounded-2xl bg-[#F0653A] flex-row items-center justify-center gap-2 shadow-sm`}
           >
             <Text style={tw`text-sm font-bold text-white`}>Buy Now</Text>
-            <Ionicons name="flash-outline" size={16} color="#FFF" />
           </TouchableOpacity>
         </View>
       </View>

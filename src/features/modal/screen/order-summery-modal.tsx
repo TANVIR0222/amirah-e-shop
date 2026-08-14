@@ -1,20 +1,75 @@
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
-import { router } from "expo-router"
+import Ionicons from "@expo/vector-icons/Ionicons"
+import { router, useLocalSearchParams } from "expo-router"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 
-const ROW_DATA = [
-  { label: "Total Product", value: "3 Item(s)" },
-  { label: "Weight", value: "4 kg" },
-  { label: "Subtotal", value: "৳ 200" },
-  { label: "Delivery Charge", value: "৳ 60" },
-]
+export interface OrderSummaryParams {
+  totalProducts?: string
+  weight?: string
+  subtotal?: string
+  deliveryCharge?: string
+  totalAmount?: string
+  productId?: string
+  productName?: string
+  quantity?: string
+  variant?: string
+}
 
 export default function CheckOutModal() {
   const { colors } = useAppTheme()
+  const params = useLocalSearchParams<{
+    totalProducts?: string
+    weight?: string
+    subtotal?: string
+    deliveryCharge?: string
+    totalAmount?: string
+    productId?: string
+    productName?: string
+    quantity?: string
+    variant?: string
+  }>()
+
+  const totalProducts =
+    params.totalProducts ||
+    (params.quantity ? `${params.quantity} Item(s)` : "1 Item(s)")
+  const weight = params.weight || params.variant || "Standard"
+  const subtotalVal = params.subtotal ? `৳ ${params.subtotal}` : "৳ 0"
+  const deliveryChargeVal = params.deliveryCharge
+    ? `৳ ${params.deliveryCharge}`
+    : "৳ 60"
+
+  const subtotalNum = Number(params.subtotal) || 0
+  const deliveryChargeNum =
+    params.deliveryCharge !== undefined ? Number(params.deliveryCharge) : 60
+  const totalAmountNum =
+    params.totalAmount !== undefined
+      ? Number(params.totalAmount)
+      : subtotalNum + deliveryChargeNum
+
+  const rowData = [
+    { label: "Total Product", value: totalProducts },
+    { label: "Weight", value: weight },
+    { label: "Subtotal", value: subtotalVal },
+    { label: "Delivery Charge", value: deliveryChargeVal },
+  ]
+
+  const handleGoToCheckout = () => {
+    router.push({
+      pathname: "/checkout/order-details",
+      params: {
+        productId: params.productId,
+        quantity: params.quantity,
+        variant: params.variant,
+        subtotal: String(subtotalNum),
+        deliveryCharge: String(deliveryChargeNum),
+        totalAmount: String(totalAmountNum),
+      },
+    })
+  }
 
   return (
-    <View style={tw.style(``, { backgroundColor: colors.background })}>
+    <View style={tw.style(`pb-32`, { backgroundColor: colors.background })}>
       {/* Grabber */}
       <View style={tw`items-center pt-3 pb-1`}>
         <View
@@ -36,6 +91,19 @@ export default function CheckOutModal() {
         <Text style={tw.style(`text-lg font-bold`, { color: colors.text })}>
           Order Summary
         </Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={tw.style(
+            `w-8 h-8 rounded-full items-center justify-center border`,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+            }
+          )}
+        >
+          <Ionicons name="close" size={18} color={colors.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -49,12 +117,12 @@ export default function CheckOutModal() {
             backgroundColor: colors.surface,
           })}
         >
-          {ROW_DATA.map((row, index) => (
+          {rowData.map((row, index) => (
             <View
               key={row.label}
               style={tw.style(
-                `flex-row justify-between items-center px-4 py-3`,
-                index < ROW_DATA.length - 1
+                `flex-row justify-between items-center px-4 py-3.5`,
+                index < rowData.length - 1
                   ? { borderBottomWidth: 1, borderBottomColor: colors.border }
                   : {}
               )}
@@ -74,37 +142,37 @@ export default function CheckOutModal() {
         {/* Total */}
         <View
           style={tw.style(
-            `flex-row justify-between items-center px-4 py-4 rounded-2xl`,
+            `flex-row justify-between items-center px-4 py-4 rounded-2xl border`,
             {
-              backgroundColor: colors.primary + "12",
+              backgroundColor: "#FFF4F0",
+              borderColor: "#F0653A25",
             }
           )}
         >
           <Text style={{ color: colors.text, fontSize: 16, fontWeight: "700" }}>
             Total Amount
           </Text>
-          <Text
-            style={{ color: colors.primary, fontSize: 18, fontWeight: "800" }}
-          >
-            ৳ 260
+          <Text style={{ color: "#F0653A", fontSize: 18, fontWeight: "800" }}>
+            ৳ {totalAmountNum}
           </Text>
         </View>
-      </ScrollView>
-
-      {/* Checkout button */}
-      <View
-        style={tw.style(`px-5 pb-10 pt-3 border-t`, {
-          borderTopColor: colors.border,
-        })}
-      >
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => router.push("/checkout/order-details")}
-          style={tw`h-14 bg-[#F0653A]  rounded-2xl items-center justify-center`}
+        {/* Checkout button */}
+        <View
+          style={tw.style(` pt-3 `, {
+            borderTopColor: colors.border,
+          })}
         >
-          <Text style={tw`text-white text-base font-bold`}>Go to Checkout</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={handleGoToCheckout}
+            style={tw`h-14 bg-[#F0653A] rounded-2xl items-center justify-center shadow-sm`}
+          >
+            <Text style={tw`text-white text-base font-bold`}>
+              Go to Checkout
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   )
 }

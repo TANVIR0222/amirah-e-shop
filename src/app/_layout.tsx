@@ -30,12 +30,13 @@ function RootNavigator() {
           <Stack.Screen name="(all-order-info)" />
           <Stack.Screen name="checkout" />
           <Stack.Screen name="(common)" />
+          <Stack.Screen name="category" />
           <Stack.Screen name="cart" />
           <Stack.Screen
             name="(modal)/order-summery-modal"
             options={{
               presentation: "formSheet",
-              sheetAllowedDetents: [0.5, 1],
+              sheetAllowedDetents: [0.6, 1],
               sheetInitialDetentIndex: 0,
               sheetGrabberVisible: true,
               sheetCornerRadius: 24,
