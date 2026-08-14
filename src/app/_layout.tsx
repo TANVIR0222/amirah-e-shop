@@ -36,7 +36,7 @@ function RootNavigator() {
             name="(modal)/order-summery-modal"
             options={{
               presentation: "formSheet",
-              sheetAllowedDetents: [0.5, 1],
+              sheetAllowedDetents: [0.6, 1],
               sheetInitialDetentIndex: 0,
               sheetGrabberVisible: true,
               sheetCornerRadius: 24,
