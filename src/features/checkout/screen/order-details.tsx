@@ -7,15 +7,11 @@ import Ionicons from "@expo/vector-icons/Ionicons"
 import { Picker } from "@react-native-picker/picker"
 import { router } from "expo-router"
 import { Formik } from "formik"
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+
 import { orderDetailsValidationSchema } from "../schema/order-details-validation-schema"
+import useZoneLocation from "../hook/use-zone-location"
+import { Button } from "@/components/ui/button"
 
 export const districts = [
   "Bagerhat",
@@ -167,6 +163,8 @@ const subtotal = 1250
 
 export default function OrderDetails() {
   const { colors } = useAppTheme()
+  const { data: zoneLocations = [], isLoading: isZoneLoading } =
+    useZoneLocation()
 
   // const handleOrderSubmit = (values: any) => {
   //   setIsSubmitting(true)
@@ -210,7 +208,7 @@ export default function OrderDetails() {
 
   return (
     <KeyboardAvoidingWrapper>
-      <SafeAreaView style={styles.container}>
+      <>
         <Screen scroll={false}>
           {/* Header */}
           <View style={tw`flex-row items-center gap-3 mb-3`}>
@@ -328,85 +326,132 @@ export default function OrderDetails() {
                     </Text>
 
                     {/* District & Area Pickers */}
-                    <View style={tw`flex-row gap-3`}>
-                      {/* District Picker */}
-                      <View style={tw`flex-1`}>
-                        <Text
-                          style={tw.style("mb-2 text-sm font-medium", {
-                            color: colors.text,
-                          })}
-                        >
-                          District *
-                        </Text>
-                        <View
-                          style={tw.style(
-                            "border rounded-2xl bg-white overflow-hidden",
-                            { borderColor: colors.border }
-                          )}
-                        >
-                          <Picker
-                            selectedValue={values.district}
-                            onValueChange={(item) => {
-                              setFieldValue("district", item)
-                              const firstArea = areas[item]?.[0] || ""
-                              setFieldValue("area", firstArea)
-                            }}
-                          >
-                            <Picker.Item label="Select District" value="" />
-                            {districts.map((item) => (
-                              <Picker.Item
-                                key={item}
-                                label={item}
-                                value={item}
-                              />
-                            ))}
-                          </Picker>
-                        </View>
-                        {!!errors.district && touched.district && (
-                          <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
-                            {errors.district}
-                          </Text>
-                        )}
-                      </View>
+                    {(() => {
+                      const activeDistrictObj = zoneLocations?.find(
+                        (d) =>
+                          d.name.toLowerCase() ===
+                          String(values.district || "").toLowerCase()
+                      )
+                      const currentAreas =
+                        activeDistrictObj?.areas ?? areas[values.district] ?? []
 
-                      {/* Area Picker */}
-                      <View style={tw`flex-1`}>
-                        <Text
-                          style={tw.style("mb-2 text-sm font-medium", {
-                            color: colors.text,
-                          })}
-                        >
-                          Area *
-                        </Text>
-                        <View
-                          style={tw.style(
-                            "border rounded-2xl bg-white overflow-hidden",
-                            { borderColor: colors.border }
-                          )}
-                        >
-                          <Picker
-                            selectedValue={values.area}
-                            onValueChange={(item) =>
-                              setFieldValue("area", item)
-                            }
-                          >
-                            <Picker.Item label="Select Area" value="" />
-                            {(areas[values.district] || []).map((item) => (
-                              <Picker.Item
-                                key={item}
-                                label={item}
-                                value={item}
-                              />
-                            ))}
-                          </Picker>
+                      return (
+                        <View style={tw`flex-row gap-3`}>
+                          {/* District Picker */}
+                          <View style={tw`flex-1`}>
+                            <Text
+                              style={tw.style("mb-2 text-sm font-medium", {
+                                color: colors.text,
+                              })}
+                            >
+                              District *
+                            </Text>
+                            <View
+                              style={tw.style(
+                                "border rounded-2xl bg-white overflow-hidden",
+                                { borderColor: colors.border }
+                              )}
+                            >
+                              <Picker
+                                selectedValue={values.district}
+                                onValueChange={(itemValue) => {
+                                  setFieldValue("district", itemValue)
+                                  const matching = zoneLocations?.find(
+                                    (d) =>
+                                      d.name.toLowerCase() ===
+                                      String(itemValue || "").toLowerCase()
+                                  )
+                                  const firstArea =
+                                    matching?.areas?.[0] ||
+                                    areas[itemValue]?.[0] ||
+                                    ""
+                                  setFieldValue("area", firstArea)
+                                }}
+                              >
+                                <Picker.Item
+                                  label={
+                                    isZoneLoading
+                                      ? "Loading districts..."
+                                      : "Select District"
+                                  }
+                                  value=""
+                                />
+                                {zoneLocations && zoneLocations.length > 0
+                                  ? zoneLocations.map((item) => (
+                                      <Picker.Item
+                                        key={item.id || item.name}
+                                        label={item.name}
+                                        value={item.name}
+                                      />
+                                    ))
+                                  : districts.map((item: any) => (
+                                      <Picker.Item
+                                        key={item}
+                                        label={item}
+                                        value={item}
+                                      />
+                                    ))}
+                              </Picker>
+                            </View>
+                            {!!errors.district && touched.district && (
+                              <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
+                                {errors.district}
+                              </Text>
+                            )}
+                          </View>
+
+                          {/* Area Picker */}
+                          <View style={tw`flex-1`}>
+                            <Text
+                              style={tw.style("mb-2 text-sm font-medium", {
+                                color: colors.text,
+                              })}
+                            >
+                              Area *
+                            </Text>
+                            <View
+                              style={tw.style(
+                                "border rounded-2xl bg-white overflow-hidden",
+                                { borderColor: colors.border }
+                              )}
+                            >
+                              <Picker
+                                selectedValue={values.area}
+                                enabled={Boolean(
+                                  values.district && currentAreas.length > 0
+                                )}
+                                onValueChange={(itemValue) =>
+                                  setFieldValue("area", itemValue)
+                                }
+                              >
+                                <Picker.Item
+                                  label={
+                                    !values.district
+                                      ? "Select District first"
+                                      : currentAreas.length === 0
+                                        ? "No areas found"
+                                        : "Select Area"
+                                  }
+                                  value=""
+                                />
+                                {currentAreas.map((item) => (
+                                  <Picker.Item
+                                    key={item}
+                                    label={item}
+                                    value={item}
+                                  />
+                                ))}
+                              </Picker>
+                            </View>
+                            {!!errors.area && touched.area && (
+                              <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
+                                {errors.area}
+                              </Text>
+                            )}
+                          </View>
                         </View>
-                        {!!errors.area && touched.area && (
-                          <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
-                            {errors.area}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
+                      )
+                    })()}
 
                     {/* House No / Street */}
                     <MainInput
@@ -805,12 +850,12 @@ export default function OrderDetails() {
 
                     {/* SUBMIT BUTTON */}
                     <View style={tw`pt-4`}>
-                      {/* <Button
+                      <Button
                         label={`Confirm Order (৳ ${total.toLocaleString()})`}
-                        loading={isSubmitting}
+                        // loading={isSubmitting}
                         onPress={() => handleSubmit()}
-                        icon="checkmark-circle-outline"
-                      /> */}
+                        // icon="checkmark-circle-outline"
+                      />
                     </View>
                   </View>
                 </ScrollView>
@@ -818,14 +863,7 @@ export default function OrderDetails() {
             }}
           </Formik>
         </Screen>
-      </SafeAreaView>
+      </>
     </KeyboardAvoidingWrapper>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-})
