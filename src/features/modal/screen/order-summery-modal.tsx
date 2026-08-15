@@ -12,6 +12,8 @@ export interface OrderSummaryParams {
   totalAmount?: string
   productId?: string
   productName?: string
+  productImage?: string
+  unitPrice?: string
   quantity?: string
   variant?: string
 }
@@ -26,6 +28,8 @@ export default function CheckOutModal() {
     totalAmount?: string
     productId?: string
     productName?: string
+    productImage?: string
+    unitPrice?: string
     quantity?: string
     variant?: string
   }>()
@@ -59,6 +63,9 @@ export default function CheckOutModal() {
       pathname: "/checkout/order-details",
       params: {
         productId: params.productId,
+        productName: params.productName,
+        productImage: params.productImage,
+        unitPrice: params.unitPrice,
         quantity: params.quantity,
         variant: params.variant,
         subtotal: String(subtotalNum),
