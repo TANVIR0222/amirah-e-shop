@@ -11,7 +11,15 @@ export const checkoutApi = api.injectEndpoints({
       }),
       providesTags: [tagTypes.districts],
     }),
+    submitOrder: builder.mutation<void, any>({
+      query: (data) => ({
+        url: "/checkout/calculate",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.orders],
+    }),
   }),
 })
 
-export const { useGetZoneQuery } = checkoutApi
+export const { useGetZoneQuery, useSubmitOrderMutation } = checkoutApi
