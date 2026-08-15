@@ -178,7 +178,12 @@ export default function OrderDetails() {
     totalAmount?: string
   }>()
 
-  const { cart: cartItems, subtotal: cartSubtotal } = useCart()
+  const {
+    cart: cartItems,
+    subtotal: cartSubtotal,
+    clearCart,
+    removeFromCart,
+  } = useCart()
   const { data: zoneLocations = [], isLoading: isZoneLoading } =
     useZoneLocation()
   const [submitOrder, { isLoading }] = useSubmitOrderMutation()
@@ -230,14 +235,20 @@ export default function OrderDetails() {
       const res = await submitOrder(payload).unwrap()
       console.log("Order Submitted:", res)
       appToast.success("Order Submitted Successfully")
+
+      // Clear cart items on successful order
+      if (!isSingleProduct) {
+        await clearCart()
+      } else if (params.productId) {
+        await removeFromCart(params.productId, params.variant)
+      }
+
       resetForm()
       router.push("/(drawer)/(tabs)/shop")
     } catch (err: any) {
       console.log("Order Submission Failed:", err)
       appToast.error(err?.message || "Order Submission Failed")
     }
-
-    // console.log("Submitting Order:", payload)
   }
 
   return (
