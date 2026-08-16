@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native"
 import { useUserProfileQuery } from "../api/profile-api"
+import useOrder from "@/features/checkout/hook/user-order"
 
 const BRAND_ORANGE = "#F0653A"
 
@@ -201,16 +202,10 @@ export default function ProfileScreen() {
   const { favorites } = useFavorites()
   const { totalCount } = useCart()
 
+  const { orderLenght, isLoading } = useOrder()
   const [userLogout, { isLoading: isLoggingOut }] = useUserLogoutMutation()
 
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "U"
+  // console.log(orderData);
 
   function handleSignOut() {
     Alert.alert(
@@ -353,14 +348,14 @@ export default function ProfileScreen() {
           <StatCard
             icon="bag-handle-outline"
             label="Orders"
-            value="4"
+            value={`${isLoading ? "0" : orderLenght}`}
             color="#3B82F6"
             bgColor="#EFF6FF"
             onPress={() => router.push("/(all-order-info)/my-orders")}
           />
           <StatCard
             icon="heart-outline"
-            label="Wishlist"
+            label="Favourite"
             value={favorites.length}
             color="#EF4444"
             bgColor="#FEF2F2"
