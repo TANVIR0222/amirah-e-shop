@@ -12,6 +12,8 @@ export interface OrderSummaryParams {
   totalAmount?: string
   productId?: string
   productName?: string
+  productImage?: string
+  unitPrice?: string
   quantity?: string
   variant?: string
 }
@@ -26,6 +28,8 @@ export default function CheckOutModal() {
     totalAmount?: string
     productId?: string
     productName?: string
+    productImage?: string
+    unitPrice?: string
     quantity?: string
     variant?: string
   }>()
@@ -35,23 +39,18 @@ export default function CheckOutModal() {
     (params.quantity ? `${params.quantity} Item(s)` : "1 Item(s)")
   const weight = params.weight || params.variant || "Standard"
   const subtotalVal = params.subtotal ? `৳ ${params.subtotal}` : "৳ 0"
-  const deliveryChargeVal = params.deliveryCharge
-    ? `৳ ${params.deliveryCharge}`
-    : "৳ 60"
 
   const subtotalNum = Number(params.subtotal) || 0
   const deliveryChargeNum =
     params.deliveryCharge !== undefined ? Number(params.deliveryCharge) : 60
   const totalAmountNum =
-    params.totalAmount !== undefined
-      ? Number(params.totalAmount)
-      : subtotalNum + deliveryChargeNum
+    params.totalAmount !== undefined ? Number(params.totalAmount) : subtotalNum
 
   const rowData = [
     { label: "Total Product", value: totalProducts },
     { label: "Weight", value: weight },
     { label: "Subtotal", value: subtotalVal },
-    { label: "Delivery Charge", value: deliveryChargeVal },
+    // { label: "Delivery Charge", value: deliveryChargeVal },
   ]
 
   const handleGoToCheckout = () => {
@@ -59,6 +58,9 @@ export default function CheckOutModal() {
       pathname: "/checkout/order-details",
       params: {
         productId: params.productId,
+        productName: params.productName,
+        productImage: params.productImage,
+        unitPrice: params.unitPrice,
         quantity: params.quantity,
         variant: params.variant,
         subtotal: String(subtotalNum),

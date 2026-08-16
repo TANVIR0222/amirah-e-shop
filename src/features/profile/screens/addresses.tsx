@@ -1,4 +1,4 @@
-import { areas, districts } from "@/features/checkout/screen/order-details"
+import useZoneLocation from "@/features/checkout/hook/use-zone-location"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -59,6 +59,8 @@ const INITIAL_ADDRESSES: AddressItem[] = [
 export default function AddressBookScreen() {
   const { colors } = useAppTheme()
   const insets = useSafeAreaInsets()
+  const { data: zoneLocations = [], isLoading: isZoneLoading } =
+    useZoneLocation()
 
   const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -377,60 +379,96 @@ export default function AddressBookScreen() {
             </View>
 
             {/* District & Area Pickers */}
-            <View style={tw`flex-row gap-3`}>
-              <View style={tw`flex-1 gap-1`}>
-                <Text
-                  style={tw.style("text-xs font-bold mb-1", {
-                    color: colors.text,
-                  })}
-                >
-                  District *
-                </Text>
-                <View
-                  style={tw.style(
-                    "border rounded-xl bg-white overflow-hidden",
-                    { borderColor: colors.border }
-                  )}
-                >
-                  <Picker
-                    selectedValue={district}
-                    onValueChange={(val) => {
-                      setDistrict(val)
-                      setArea(areas[val]?.[0] || "")
-                    }}
-                  >
-                    {districts.map((d) => (
-                      <Picker.Item key={d} label={d} value={d} />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
+            {(() => {
+              const activeDistrictObj = zoneLocations?.find(
+                (d) =>
+                  d.name.toLowerCase() === String(district || "").toLowerCase()
+              )
+              const currentAreas = activeDistrictObj?.areas ?? []
 
-              <View style={tw`flex-1 gap-1`}>
-                <Text
-                  style={tw.style("text-xs font-bold mb-1", {
-                    color: colors.text,
-                  })}
-                >
-                  Area *
-                </Text>
-                <View
-                  style={tw.style(
-                    "border rounded-xl bg-white overflow-hidden",
-                    { borderColor: colors.border }
-                  )}
-                >
-                  <Picker
-                    selectedValue={area}
-                    onValueChange={(val) => setArea(val)}
-                  >
-                    {(areas[district] || []).map((a) => (
-                      <Picker.Item key={a} label={a} value={a} />
-                    ))}
-                  </Picker>
+              return (
+                <View style={tw`flex-row gap-3`}>
+                  <View style={tw`flex-1 gap-1`}>
+                    <Text
+                      style={tw.style("text-xs font-bold mb-1", {
+                        color: colors.text,
+                      })}
+                    >
+                      District *
+                    </Text>
+                    <View
+                      style={tw.style(
+                        "border rounded-xl bg-white overflow-hidden",
+                        { borderColor: colors.border }
+                      )}
+                    >
+                      <Picker
+                        selectedValue={district}
+                        onValueChange={(val) => {
+                          setDistrict(val)
+                          const matching = zoneLocations?.find(
+                            (d) =>
+                              d.name.toLowerCase() ===
+                              String(val || "").toLowerCase()
+                          )
+                          setArea(matching?.areas?.[0] || "")
+                        }}
+                      >
+                        <Picker.Item
+                          label={
+                            isZoneLoading ? "Loading..." : "Select District"
+                          }
+                          value=""
+                        />
+                        {zoneLocations.map((d) => (
+                          <Picker.Item
+                            key={d.id || d.name}
+                            label={d.name}
+                            value={d.name}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
+
+                  <View style={tw`flex-1 gap-1`}>
+                    <Text
+                      style={tw.style("text-xs font-bold mb-1", {
+                        color: colors.text,
+                      })}
+                    >
+                      Area *
+                    </Text>
+                    <View
+                      style={tw.style(
+                        "border rounded-xl bg-white overflow-hidden",
+                        { borderColor: colors.border }
+                      )}
+                    >
+                      <Picker
+                        selectedValue={area}
+                        enabled={Boolean(district && currentAreas.length > 0)}
+                        onValueChange={(val) => setArea(val)}
+                      >
+                        <Picker.Item
+                          label={
+                            !district
+                              ? "Select District"
+                              : currentAreas.length === 0
+                                ? "No areas"
+                                : "Select Area"
+                          }
+                          value=""
+                        />
+                        {currentAreas.map((a) => (
+                          <Picker.Item key={a} label={a} value={a} />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
                 </View>
-              </View>
-            </View>
+              )
+            })()}
 
             <View style={tw`gap-1`}>
               <Text

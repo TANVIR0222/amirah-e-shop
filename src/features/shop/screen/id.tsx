@@ -99,13 +99,16 @@ export default function ProductDetailsScreen() {
     const unitPrice = Number(product.price) || 0
     const subtotal = unitPrice * quantity
     const deliveryCharge = 60
-    const totalAmount = subtotal + deliveryCharge
+    const totalAmount = subtotal
+    const productImage = product.images_array?.[0] || product.image || ""
 
     router.push({
       pathname: "/(modal)/order-summery-modal",
       params: {
         productId: String(product.id),
         productName: product.name,
+        productImage,
+        unitPrice: String(unitPrice),
         totalProducts: `${quantity} Item(s)`,
         weight: activeSize || "Standard",
         subtotal: String(subtotal),

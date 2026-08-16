@@ -5,212 +5,117 @@ import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { Picker } from "@react-native-picker/picker"
-import { router } from "expo-router"
+import { Image } from "expo-image"
+import { router, useLocalSearchParams } from "expo-router"
 import { Formik } from "formik"
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useState } from "react"
+import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { CartItem, useCart } from "@/lib/storage/cart-storage"
+
 import { orderDetailsValidationSchema } from "../schema/order-details-validation-schema"
-
-export const districts = [
-  "Bagerhat",
-  "Bandarban",
-  "Barguna",
-  "Barishal",
-  "Bhola",
-  "Bogura",
-  "Brahmanbaria",
-  "Chandpur",
-  "Chattogram",
-  "Chuadanga",
-  "Cumilla",
-  "Cox's Bazar",
-  "Dhaka",
-  "Dinajpur",
-  "Faridpur",
-  "Feni",
-  "Gaibandha",
-  "Gazipur",
-  "Gopalganj",
-  "Habiganj",
-  "Jamalpur",
-  "Jashore",
-  "Jhalokathi",
-  "Jhenaidah",
-  "Joypurhat",
-  "Khagrachhari",
-  "Khulna",
-  "Kishoreganj",
-  "Kurigram",
-  "Kushtia",
-  "Lakshmipur",
-  "Lalmonirhat",
-  "Madaripur",
-  "Magura",
-  "Manikganj",
-  "Meherpur",
-  "Moulvibazar",
-  "Munshiganj",
-  "Mymensingh",
-  "Naogaon",
-  "Narail",
-  "Narayanganj",
-  "Narsingdi",
-  "Natore",
-  "Netrokona",
-  "Nilphamari",
-  "Noakhali",
-  "Pabna",
-  "Panchagarh",
-  "Patuakhali",
-  "Pirojpur",
-  "Rajbari",
-  "Rajshahi",
-  "Rangamati",
-  "Rangpur",
-  "Satkhira",
-  "Shariatpur",
-  "Sherpur",
-  "Sirajganj",
-  "Sunamganj",
-  "Sylhet",
-  "Tangail",
-  "Thakurgaon",
-]
-
-export const areas: Record<string, string[]> = {
-  Bagerhat: ["Bagerhat Sadar", "Mongla", "Rampal"],
-  Bandarban: ["Bandarban Sadar", "Lama", "Naikhongchhari"],
-  Barguna: ["Barguna Sadar", "Amtali", "Patharghata"],
-  Barishal: ["Barishal Sadar", "Nathullabad", "Rupatoli"],
-  Bhola: ["Bhola Sadar", "Borhanuddin", "Char Fasson"],
-  Bogura: ["Bogura Sadar", "Sherpur", "Shibganj"],
-  Brahmanbaria: ["Brahmanbaria Sadar", "Ashuganj", "Sarail"],
-  Chandpur: ["Chandpur Sadar", "Hajiganj", "Matlab"],
-  Chattogram: ["Agrabad", "Halishahar", "Kotwali", "Pahartali", "GEC Circle"],
-  Chuadanga: ["Chuadanga Sadar", "Alamdanga", "Damurhuda"],
-  Cumilla: ["Cumilla Sadar", "Daudkandi", "Chandina"],
-  "Cox's Bazar": ["Cox's Bazar Sadar", "Teknaf", "Ukhia"],
-  Dhaka: [
-    "Mohakhali",
-    "Banani",
-    "Gulshan",
-    "Uttara",
-    "Mirpur",
-    "Badda",
-    "Dhanmondi",
-    "Farmgate",
-    "Mohammadpur",
-    "Motijheel",
-    "Wari",
-    "Ramna",
-    "Tejgaon",
-  ],
-  Dinajpur: ["Dinajpur Sadar", "Birampur", "Parbatipur"],
-  Faridpur: ["Faridpur Sadar", "Bhanga", "Boalmari"],
-  Feni: ["Feni Sadar", "Chhagalnaiya", "Sonagazi"],
-  Gaibandha: ["Gaibandha Sadar", "Gobindaganj", "Palashbari"],
-  Gazipur: ["Tongi", "Gazipur Sadar", "Kaliakair", "Sreepur"],
-  Gopalganj: ["Gopalganj Sadar", "Kotalipara", "Tungipara"],
-  Habiganj: ["Habiganj Sadar", "Madhabpur", "Nabiganj"],
-  Jamalpur: ["Jamalpur Sadar", "Melandaha", "Islampur"],
-  Jashore: ["Jashore Sadar", "Benapole", "Jhikargacha"],
-  Jhalokathi: ["Jhalokathi Sadar", "Nalchity", "Kathalia"],
-  Jhenaidah: ["Jhenaidah Sadar", "Kaliganj", "Maheshpur"],
-  Joypurhat: ["Joypurhat Sadar", "Akkelpur", "Kalai"],
-  Khagrachhari: ["Khagrachhari Sadar", "Mahalchhari", "Ramgarh"],
-  Khulna: ["Sonadanga", "Khalishpur", "Daulatpur", "Boyra", "Khulna Sadar"],
-  Kishoreganj: ["Kishoreganj Sadar", "Bhairab", "Katiadi"],
-  Kurigram: ["Kurigram Sadar", "Nageshwari", "Ulipur"],
-  Kushtia: ["Kushtia Sadar", "Bheramara", "Kumarkhali"],
-  Lakshmipur: ["Lakshmipur Sadar", "Raipur", "Ramganj"],
-  Lalmonirhat: ["Lalmonirhat Sadar", "Patgram", "Hatibandha"],
-  Madaripur: ["Madaripur Sadar", "Shibchar", "Kalkini"],
-  Magura: ["Magura Sadar", "Sreepur", "Mohammadpur"],
-  Manikganj: ["Manikganj Sadar", "Singair", "Saturia"],
-  Meherpur: ["Meherpur Sadar", "Gangni", "Mujibnagar"],
-  Moulvibazar: ["Moulvibazar Sadar", "Sreemangal", "Kamalganj"],
-  Munshiganj: ["Munshiganj Sadar", "Sreenagar", "Tongibari"],
-  Mymensingh: ["Mymensingh Sadar", "Muktagacha", "Trishal", "Gauripur"],
-  Naogaon: ["Naogaon Sadar", "Atrai", "Raninagar"],
-  Narail: ["Narail Sadar", "Lohagara", "Kalia"],
-  Narayanganj: ["Narayanganj Sadar", "Fatullah", "Rupganj", "Sonargaon"],
-  Narsingdi: ["Narsingdi Sadar", "Madhabdi", "Belabo"],
-  Natore: ["Natore Sadar", "Singra", "Bagatipara"],
-  Netrokona: ["Netrokona Sadar", "Madan", "Khaliajuri"],
-  Nilphamari: ["Nilphamari Sadar", "Saidpur", "Dimla"],
-  Noakhali: ["Noakhali Sadar", "Maijdee", "Begumganj"],
-  Pabna: ["Pabna Sadar", "Ishwardi", "Bera"],
-  Panchagarh: ["Panchagarh Sadar", "Tetulia", "Debiganj"],
-  Patuakhali: ["Patuakhali Sadar", "Kalapara", "Bauphal"],
-  Pirojpur: ["Pirojpur Sadar", "Mathbaria", "Nazirpur"],
-  Rajbari: ["Rajbari Sadar", "Goalanda", "Pangsha"],
-  Rajshahi: ["Boalia", "Rajpara", "Motihar", "Shiroil", "Shaheb Bazar"],
-  Rangamati: ["Rangamati Sadar", "Kaptai", "Baghaichhari"],
-  Rangpur: ["Rangpur Sadar", "Pairaband", "Mithapukur", "Gangachara"],
-  Satkhira: ["Satkhira Sadar", "Kaliganj", "Shyamnagar"],
-  Shariatpur: ["Shariatpur Sadar", "Damudya", "Naria"],
-  Sherpur: ["Sherpur Sadar", "Nakla", "Nalitabari"],
-  Sirajganj: ["Sirajganj Sadar", "Belkuchi", "Shahjadpur"],
-  Sunamganj: ["Sunamganj Sadar", "Chhatak", "Jagannathpur"],
-  Sylhet: ["Amberkhana", "Zindabazar", "Tilagor", "Chauhatta", "Beanibazar"],
-  Tangail: ["Tangail Sadar", "Mirzapur", "Madhupur"],
-  Thakurgaon: ["Thakurgaon Sadar", "Pirganj", "Baliadangi"],
-}
-
-const subtotal = 1250
+import useZoneLocation from "../hook/use-zone-location"
+import MainButton from "@/components/ui/MainButton"
+import {
+  useDeliveryChargerCalculateMutation,
+  useSubmitOrderMutation,
+} from "../api/checkout-api"
+import { appToast } from "@/lib/toast/app-toast"
 
 export default function OrderDetails() {
   const { colors } = useAppTheme()
+  const params = useLocalSearchParams<{
+    productId?: string
+    productName?: string
+    productImage?: string
+    unitPrice?: string
+    quantity?: string
+    variant?: string
+    weight?: string
+    subtotal?: string
+    deliveryCharge?: string
+    totalAmount?: string
+  }>()
 
-  // const handleOrderSubmit = (values: any) => {
-  //   setIsSubmitting(true)
+  const {
+    cart: cartItems,
+    subtotal: cartSubtotal,
+    clearCart,
+    removeFromCart,
+  } = useCart()
+  const { data: zoneLocations = [], isLoading: isZoneLoading } =
+    useZoneLocation()
+  const [submitOrder, { isLoading }] = useSubmitOrderMutation()
+  const [deliveryChargerCalculate, { isLoading: isDeliveryChargerLoading }] =
+    useDeliveryChargerCalculateMutation()
+  const [calculatedDeliveryCharge, setCalculatedDeliveryCharge] = useState<
+    number | null
+  >(null)
 
-  //   const deliveryCharge = values.district === "Dhaka" ? 60 : 120
-  //   const total = subtotal + deliveryCharge
+  // Determine if direct checkout from single product (Buy Now from id.tsx) or from the Cart
+  const isSingleProduct = Boolean(params.productId || params.productName)
+  const singleQuantity = Number(params.quantity) || 1
+  const singleUnitPrice =
+    Number(params.unitPrice) ||
+    (params.subtotal ? Number(params.subtotal) / singleQuantity : 0)
+  const singleSubtotal = params.subtotal
+    ? Number(params.subtotal)
+    : singleUnitPrice * singleQuantity
 
-  //   const payload = {
-  //     customer: {
-  //       fullName: values.full_name,
-  //       phoneNumber: values.phone_number,
-  //     },
-  //     address: {
-  //       district: values.district,
-  //       area: values.area,
-  //       houseNo: values.house_no,
-  //       locality: values.locality,
-  //       fullAddress: values.full_address,
-  //       note: values.note,
-  //     },
-  //     delivery: {
-  //       type: values.delivery_type, // "Cash on Delivery" | "Online Delivery"
-  //       paymentMethod: values.payment_method, // "COD" | "bKash" | "Card"
-  //       charge: deliveryCharge,
-  //     },
-  //     summary: {
-  //       subtotal,
-  //       deliveryCharge,
-  //       total,
-  //     },
-  //   }
+  const effectiveSubtotal = isSingleProduct
+    ? singleSubtotal
+    : cartSubtotal > 0
+      ? cartSubtotal
+      : 0
 
-  //   console.log("Submitting Order:", payload)
+  const orderedItems = isSingleProduct
+    ? [
+        {
+          product_id: Number(params.productId) || params.productId,
+          quantity: singleQuantity,
+        },
+      ]
+    : cartItems.map((item: CartItem) => ({
+        product_id: Number(item.id) || item.id,
+        quantity: item.quantity,
+      }))
 
-  //   setTimeout(() => {
-  //     setIsSubmitting(false)
-  //     showToast.success("অর্ডারটি সফলভাবে গৃহীত হয়েছে! (Order Placed Successfully)")
-  //     router.replace("/common/payment-successful")
-  //   }, 1200)
-  // }
+  const handleOrderSubmit = async (values: any, { resetForm }: any) => {
+    const payload = {
+      full_name: values.full_name,
+      phone_number: values.phone_number,
+      district: values.district,
+      area: values.area,
+      building_or_street: values.house_no,
+      colony_or_landmark: values.locality,
+      full_address: values.full_address,
+      order_note: values.note,
+      payment_method: "Cash on Delivery",
+      coupon_code: "",
+      items: orderedItems,
+    }
+
+    try {
+      await submitOrder(payload).unwrap()
+      appToast.success("Order Submitted Successfully")
+
+      // Clear cart items on successful order
+      if (!isSingleProduct) {
+        await clearCart()
+      } else if (params.productId) {
+        await removeFromCart(params.productId, params.variant)
+      }
+
+      resetForm()
+      router.push("/(drawer)/(tabs)/shop")
+    } catch (err: any) {
+      console.log("Order Submission Failed:", err)
+      appToast.error(err?.message || "Order Submission Failed")
+    }
+  }
 
   return (
     <KeyboardAvoidingWrapper>
-      <SafeAreaView style={styles.container}>
+      <>
         <Screen scroll={false}>
           {/* Header */}
           <View style={tw`flex-row items-center gap-3 mb-3`}>
@@ -263,11 +168,11 @@ export default function OrderDetails() {
               locality: "",
               full_address: "",
               note: "",
-              delivery_type: "Cash on Delivery", // "Cash on Delivery" or "Online Delivery"
-              payment_method: "COD", // "COD", "bKash", "Card"
+              delivery_type: "Cash on Delivery", // "Cash on Delivery"
+              payment_method: "COD", // "COD"
             }}
             validationSchema={orderDetailsValidationSchema}
-            onSubmit={() => {}}
+            onSubmit={handleOrderSubmit}
           >
             {({
               values,
@@ -278,8 +183,13 @@ export default function OrderDetails() {
               handleSubmit,
               setFieldValue,
             }) => {
-              const deliveryCharge = values.district === "Dhaka" ? 60 : 120
-              const total = subtotal + deliveryCharge
+              const deliveryCharge =
+                calculatedDeliveryCharge !== null
+                  ? calculatedDeliveryCharge
+                  : values.district === "Dhaka"
+                    ? 60
+                    : 120
+              const total = effectiveSubtotal + deliveryCharge
 
               return (
                 <ScrollView
@@ -288,6 +198,126 @@ export default function OrderDetails() {
                   style={tw`flex-1`}
                 >
                   <View style={tw`gap-4`}>
+                    {/* ORDERED ITEM PREVIEW */}
+                    {isSingleProduct ? (
+                      <View
+                        style={tw.style(
+                          "p-3.5 rounded-2xl border flex-row items-center gap-3.5",
+                          {
+                            backgroundColor: colors.surface,
+                            borderColor: colors.border,
+                          }
+                        )}
+                      >
+                        <Image
+                          source={{
+                            uri:
+                              params.productImage &&
+                              params.productImage.trim() !== ""
+                                ? params.productImage
+                                : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                          }}
+                          style={tw`w-16 h-16 rounded-xl bg-gray-100`}
+                          contentFit="cover"
+                        />
+                        <View style={tw`flex-1 gap-1`}>
+                          <Text
+                            style={tw.style("text-sm font-bold", {
+                              color: colors.text,
+                            })}
+                            numberOfLines={1}
+                          >
+                            {params.productName || "Product"}
+                          </Text>
+                          <View style={tw`flex-row items-center gap-2`}>
+                            {params.variant || params.weight ? (
+                              <View
+                                style={tw.style(
+                                  "px-2 py-0.5 rounded-md border",
+                                  {
+                                    backgroundColor: colors.background,
+                                    borderColor: colors.border,
+                                  }
+                                )}
+                              >
+                                <Text
+                                  style={tw.style("text-[11px] font-medium", {
+                                    color: colors.mutedForeground,
+                                  })}
+                                >
+                                  {params.variant || params.weight}
+                                </Text>
+                              </View>
+                            ) : null}
+                            <Text
+                              style={tw.style("text-xs font-semibold", {
+                                color: colors.mutedForeground,
+                              })}
+                            >
+                              Qty: {singleQuantity}
+                            </Text>
+                          </View>
+                          <Text
+                            style={tw`text-sm font-extrabold text-[#F0653A]`}
+                          >
+                            ৳ {singleSubtotal.toLocaleString()}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : cartItems.length > 0 ? (
+                      <View
+                        style={tw.style("p-3.5 rounded-2xl border gap-2.5", {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                        })}
+                      >
+                        <View
+                          style={tw.style(
+                            "flex-row items-center justify-between pb-2 border-b",
+                            { borderBottomColor: colors.border }
+                          )}
+                        >
+                          <Text
+                            style={tw.style("text-xs font-bold", {
+                              color: colors.text,
+                            })}
+                          >
+                            Cart Items ({cartItems.length})
+                          </Text>
+                          <Text style={tw`text-xs font-bold text-[#F0653A]`}>
+                            ৳ {effectiveSubtotal.toLocaleString()}
+                          </Text>
+                        </View>
+                        {cartItems.slice(0, 3).map((item: CartItem) => (
+                          <View
+                            key={item.id}
+                            style={tw`flex-row items-center justify-between`}
+                          >
+                            <Text
+                              style={tw.style("text-xs flex-1 mr-2", {
+                                color: colors.mutedForeground,
+                              })}
+                              numberOfLines={1}
+                            >
+                              {item.name} x {item.quantity}
+                            </Text>
+                            <Text
+                              style={tw.style("text-xs font-semibold", {
+                                color: colors.text,
+                              })}
+                            >
+                              ৳ {(item.price * item.quantity).toLocaleString()}
+                            </Text>
+                          </View>
+                        ))}
+                        {cartItems.length > 3 ? (
+                          <Text style={tw`text-[11px] text-gray-400 italic`}>
+                            + {cartItems.length - 3} more item(s)
+                          </Text>
+                        ) : null}
+                      </View>
+                    ) : null}
+
                     {/* SECTION 1: CUSTOMER DETAILS */}
                     <Text
                       style={tw.style("text-base font-bold", {
@@ -328,85 +358,150 @@ export default function OrderDetails() {
                     </Text>
 
                     {/* District & Area Pickers */}
-                    <View style={tw`flex-row gap-3`}>
-                      {/* District Picker */}
-                      <View style={tw`flex-1`}>
-                        <Text
-                          style={tw.style("mb-2 text-sm font-medium", {
-                            color: colors.text,
-                          })}
-                        >
-                          District *
-                        </Text>
-                        <View
-                          style={tw.style(
-                            "border rounded-2xl bg-white overflow-hidden",
-                            { borderColor: colors.border }
-                          )}
-                        >
-                          <Picker
-                            selectedValue={values.district}
-                            onValueChange={(item) => {
-                              setFieldValue("district", item)
-                              const firstArea = areas[item]?.[0] || ""
-                              setFieldValue("area", firstArea)
-                            }}
-                          >
-                            <Picker.Item label="Select District" value="" />
-                            {districts.map((item) => (
-                              <Picker.Item
-                                key={item}
-                                label={item}
-                                value={item}
-                              />
-                            ))}
-                          </Picker>
-                        </View>
-                        {!!errors.district && touched.district && (
-                          <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
-                            {errors.district}
-                          </Text>
-                        )}
-                      </View>
+                    {(() => {
+                      const activeDistrictObj = zoneLocations?.find(
+                        (d) =>
+                          d.name.toLowerCase() ===
+                          String(values.district || "").toLowerCase()
+                      )
+                      const currentAreas = activeDistrictObj?.areas ?? []
 
-                      {/* Area Picker */}
-                      <View style={tw`flex-1`}>
-                        <Text
-                          style={tw.style("mb-2 text-sm font-medium", {
-                            color: colors.text,
-                          })}
-                        >
-                          Area *
-                        </Text>
-                        <View
-                          style={tw.style(
-                            "border rounded-2xl bg-white overflow-hidden",
-                            { borderColor: colors.border }
-                          )}
-                        >
-                          <Picker
-                            selectedValue={values.area}
-                            onValueChange={(item) =>
-                              setFieldValue("area", item)
-                            }
-                          >
-                            <Picker.Item label="Select Area" value="" />
-                            {(areas[values.district] || []).map((item) => (
-                              <Picker.Item
-                                key={item}
-                                label={item}
-                                value={item}
-                              />
-                            ))}
-                          </Picker>
+                      return (
+                        <View style={tw`flex-col gap-3`}>
+                          {/* District Picker */}
+                          <View style={tw`flex-1`}>
+                            <Text
+                              style={tw.style("mb-2 text-sm font-medium", {
+                                color: colors.text,
+                              })}
+                            >
+                              District *
+                            </Text>
+                            <View
+                              style={tw.style(
+                                "border rounded-2xl bg-white overflow-hidden",
+                                { borderColor: colors.border }
+                              )}
+                            >
+                              <Picker
+                                selectedValue={values.district}
+                                onValueChange={async (itemValue) => {
+                                  setFieldValue("district", itemValue)
+                                  const matching = zoneLocations?.find(
+                                    (d) =>
+                                      d.name.toLowerCase() ===
+                                      String(itemValue || "").toLowerCase()
+                                  )
+                                  const firstArea = matching?.areas?.[0] || ""
+                                  setFieldValue("area", firstArea)
+
+                                  if (itemValue) {
+                                    try {
+                                      const res: any =
+                                        await deliveryChargerCalculate({
+                                          district: itemValue,
+                                        }).unwrap()
+
+                                      const charge =
+                                        res?.delivery_charge ??
+                                        res?.data?.delivery_charge ??
+                                        res?.charge ??
+                                        res?.data?.charge ??
+                                        res?.amount
+
+                                      if (
+                                        charge !== undefined &&
+                                        charge !== null
+                                      ) {
+                                        setCalculatedDeliveryCharge(
+                                          Number(charge)
+                                        )
+                                      }
+                                    } catch (error) {
+                                      console.log(
+                                        "Error calculating delivery charge:",
+                                        error
+                                      )
+                                    }
+                                  }
+                                }}
+                              >
+                                <Picker.Item
+                                  label={
+                                    isZoneLoading
+                                      ? "Loading districts..."
+                                      : "Select District"
+                                  }
+                                  value=""
+                                />
+                                {zoneLocations.map((item) => (
+                                  <Picker.Item
+                                    key={item.id || item.name}
+                                    label={item.name}
+                                    value={item.name}
+                                  />
+                                ))}
+                              </Picker>
+                            </View>
+                            {!!errors.district && touched.district && (
+                              <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
+                                {errors.district}
+                              </Text>
+                            )}
+                          </View>
+
+                          {/* Area Picker */}
+                          <View style={tw`flex-1`}>
+                            <Text
+                              style={tw.style("mb-2 text-sm font-medium", {
+                                color: colors.text,
+                              })}
+                            >
+                              Area *
+                            </Text>
+                            <View
+                              style={tw.style(
+                                "border rounded-2xl bg-white overflow-hidden",
+                                { borderColor: colors.border }
+                              )}
+                            >
+                              <Picker
+                                selectedValue={values.area}
+                                enabled={Boolean(
+                                  values.district && currentAreas.length > 0
+                                )}
+                                onValueChange={(itemValue) =>
+                                  setFieldValue("area", itemValue)
+                                }
+                              >
+                                <Picker.Item
+                                  label={
+                                    !values.district
+                                      ? "Select District first"
+                                      : currentAreas.length === 0
+                                        ? "No areas found"
+                                        : "Select Area"
+                                  }
+                                  value=""
+                                />
+                                {currentAreas.map((item) => (
+                                  <Picker.Item
+                                    key={item}
+                                    label={item}
+                                    value={item}
+                                  />
+                                ))}
+                              </Picker>
+                            </View>
+                            {!!errors.area && touched.area && (
+                              <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
+                                {errors.area}
+                              </Text>
+                            )}
+                          </View>
                         </View>
-                        {!!errors.area && touched.area && (
-                          <Text style={tw`text-red-500 text-xs mt-1 ml-1`}>
-                            {errors.area}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
+                      )
+                    })()}
 
                     {/* House No / Street */}
                     <MainInput
@@ -466,12 +561,13 @@ export default function OrderDetails() {
                     {/* Delivery Type Option */}
                     <View style={tw`flex-row gap-3`}>
                       <TouchableOpacity
+                        activeOpacity={0.8}
                         onPress={() => {
                           setFieldValue("delivery_type", "Cash on Delivery")
                           setFieldValue("payment_method", "COD")
                         }}
                         style={tw.style(
-                          "flex-1 p-3.5 rounded-2xl border flex-row items-center gap-2.5",
+                          "w-full p-3.5 rounded-2xl border flex-row items-center gap-2.5",
                           values.delivery_type === "Cash on Delivery"
                             ? {
                                 backgroundColor: "#FEF2F2",
@@ -512,7 +608,8 @@ export default function OrderDetails() {
                         </View>
                       </TouchableOpacity>
 
-                      <TouchableOpacity
+                      {/* Online Delivery (Commented out for future use) */}
+                      {/* <TouchableOpacity
                         onPress={() => {
                           setFieldValue("delivery_type", "Online Delivery")
                           setFieldValue("payment_method", "bKash")
@@ -557,12 +654,13 @@ export default function OrderDetails() {
                             Pay online instantly
                           </Text>
                         </View>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
 
                     {/* Payment Method Details */}
                     <View style={tw`gap-2.5 mt-1`}>
                       <TouchableOpacity
+                        activeOpacity={0.8}
                         onPress={() => {
                           setFieldValue("payment_method", "COD")
                           setFieldValue("delivery_type", "Cash on Delivery")
@@ -618,7 +716,8 @@ export default function OrderDetails() {
                         />
                       </TouchableOpacity>
 
-                      <TouchableOpacity
+                      {/* bKash / Nagad / Rocket (Commented out for future use) */}
+                      {/* <TouchableOpacity
                         onPress={() => {
                           setFieldValue("payment_method", "bKash")
                           setFieldValue("delivery_type", "Online Delivery")
@@ -672,9 +771,10 @@ export default function OrderDetails() {
                           size={22}
                           color="#D97706"
                         />
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
 
-                      <TouchableOpacity
+                      {/* Debit / Credit Card (Commented out for future use) */}
+                      {/* <TouchableOpacity
                         onPress={() => {
                           setFieldValue("payment_method", "Card")
                           setFieldValue("delivery_type", "Online Delivery")
@@ -728,7 +828,7 @@ export default function OrderDetails() {
                           size={22}
                           color="#2563EB"
                         />
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
 
                     {/* SECTION 4: PAYMENT SUMMARY */}
@@ -763,7 +863,7 @@ export default function OrderDetails() {
                             color: colors.text,
                           })}
                         >
-                          ৳ {subtotal.toLocaleString()}
+                          ৳ {effectiveSubtotal.toLocaleString()}
                         </Text>
                       </View>
 
@@ -780,7 +880,9 @@ export default function OrderDetails() {
                           )
                         </Text>
                         <Text style={tw`text-sm font-semibold text-red-600`}>
-                          + ৳ {deliveryCharge}
+                          {isDeliveryChargerLoading
+                            ? "Calculating..."
+                            : `+ ৳ ${deliveryCharge}`}
                         </Text>
                       </View>
 
@@ -805,12 +907,11 @@ export default function OrderDetails() {
 
                     {/* SUBMIT BUTTON */}
                     <View style={tw`pt-4`}>
-                      {/* <Button
-                        label={`Confirm Order (৳ ${total.toLocaleString()})`}
-                        loading={isSubmitting}
+                      <MainButton
+                        title={`Confirm Order (৳ ${total.toLocaleString()})`}
                         onPress={() => handleSubmit()}
-                        icon="checkmark-circle-outline"
-                      /> */}
+                        isLoading={isLoading}
+                      />
                     </View>
                   </View>
                 </ScrollView>
@@ -818,14 +919,7 @@ export default function OrderDetails() {
             }}
           </Formik>
         </Screen>
-      </SafeAreaView>
+      </>
     </KeyboardAvoidingWrapper>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-})

@@ -119,7 +119,7 @@ export default function CartScreen() {
           {cartItems.length > 0 && (
             <TouchableOpacity
               onPress={handleClearCart}
-              style={tw`px-3 py-1.5 rounded-full bg-red-50 border border-red-100 flex-row items-center gap-1`}
+              style={tw`px-3 py-1.5 rounded-full bg-red-50 border border-red flex-row items-center gap-1`}
             >
               <Ionicons name="trash-outline" size={14} color="#DC2626" />
               <Text style={tw`text-xs font-semibold text-red-600`}>Clear</Text>
@@ -171,34 +171,6 @@ export default function CartScreen() {
             })}
           >
             {/* Free Shipping Progress Indicator */}
-            <View
-              style={tw.style("p-3.5 rounded-2xl border bg-amber-50/60", {
-                borderColor: "#FDE68A",
-              })}
-            >
-              <View style={tw`flex-row items-center justify-between mb-1.5`}>
-                <View style={tw`flex-row items-center gap-2`}>
-                  <Ionicons name="car-outline" size={18} color="#D97706" />
-                  <Text style={tw`text-xs font-bold text-amber-900`}>
-                    {remainingForFreeDelivery === 0
-                      ? "🎉 You qualified for FREE Delivery!"
-                      : `Add ৳${remainingForFreeDelivery} more for FREE Delivery!`}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={tw`h-2 w-full bg-amber-100 rounded-full overflow-hidden`}
-              >
-                <View
-                  style={tw.style("h-full bg-amber-500 rounded-full", {
-                    width: `${Math.min(
-                      100,
-                      (subtotal / freeDeliveryThreshold) * 100
-                    )}%`,
-                  })}
-                />
-              </View>
-            </View>
 
             {/* Cart Items List */}
             <View style={tw`gap-3`}>
@@ -226,7 +198,7 @@ export default function CartScreen() {
                           }
                     }
                     style={tw`w-20 h-20 rounded-xl bg-gray-100`}
-                    resizeMode="cover"
+                    contentFit="cover"
                   />
 
                   <View style={tw`flex-1 gap-1`}>
@@ -315,7 +287,7 @@ export default function CartScreen() {
             </View>
 
             {/* Promo Code Coupon Card */}
-            <View
+            {/* <View
               style={tw.style("p-4 rounded-2xl border gap-3", {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
@@ -388,95 +360,7 @@ export default function CartScreen() {
                   {couponError}
                 </Text>
               ) : null}
-            </View>
-
-            {/* Order Bill Summary */}
-            <View
-              style={tw.style("p-4 rounded-2xl border gap-2.5", {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              })}
-            >
-              <Text
-                style={tw.style("text-sm font-bold pb-2 border-b", {
-                  color: colors.text,
-                  borderBottomColor: colors.border,
-                })}
-              >
-                Order Summary
-              </Text>
-
-              <View style={tw`flex-row justify-between`}>
-                <Text
-                  style={tw.style("text-xs", {
-                    color: colors.mutedForeground,
-                  })}
-                >
-                  Items Subtotal
-                </Text>
-                <Text
-                  style={tw.style("text-xs font-semibold", {
-                    color: colors.text,
-                  })}
-                >
-                  ৳{subtotal}
-                </Text>
-              </View>
-
-              {savings > 0 && (
-                <View style={tw`flex-row justify-between`}>
-                  <Text style={tw`text-xs text-green-700`}>
-                    Discount Savings
-                  </Text>
-                  <Text style={tw`text-xs font-semibold text-green-700`}>
-                    - ৳{savings}
-                  </Text>
-                </View>
-              )}
-
-              {appliedCoupon && (
-                <View style={tw`flex-row justify-between`}>
-                  <Text style={tw`text-xs text-green-700`}>
-                    Promo ({appliedCoupon.code})
-                  </Text>
-                  <Text style={tw`text-xs font-semibold text-green-700`}>
-                    - ৳{discountAmount}
-                  </Text>
-                </View>
-              )}
-
-              <View style={tw`flex-row justify-between`}>
-                <Text
-                  style={tw.style("text-xs", {
-                    color: colors.mutedForeground,
-                  })}
-                >
-                  Delivery Fee
-                </Text>
-                <Text
-                  style={tw.style("text-xs font-semibold", {
-                    color: deliveryFee === 0 ? "#16A34A" : colors.text,
-                  })}
-                >
-                  {deliveryFee === 0 ? "FREE" : `+ ৳${deliveryFee}`}
-                </Text>
-              </View>
-
-              <View
-                style={tw.style("flex-row justify-between pt-2 border-t mt-1", {
-                  borderTopColor: colors.border,
-                })}
-              >
-                <Text
-                  style={tw.style("text-sm font-bold", { color: colors.text })}
-                >
-                  Grand Total
-                </Text>
-                <Text style={tw`text-base font-bold text-[#F0653A]`}>
-                  ৳{grandTotal}
-                </Text>
-              </View>
-            </View>
+            </View> */}
           </ScrollView>
 
           {/* ── STICKY CHECKOUT BOTTOM BAR ── */}
@@ -497,7 +381,7 @@ export default function CartScreen() {
                 Total Payable
               </Text>
               <Text style={tw`text-xl font-bold text-[#F0653A]`}>
-                ৳{grandTotal}
+                ৳{subtotal}
               </Text>
             </View>
 
