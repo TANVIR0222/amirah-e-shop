@@ -92,7 +92,7 @@ export const TopHeaderBar = memo(
           hitSlop={6}
           activeOpacity={0.75}
           style={tw.style(
-            `px-3 py-1.5 rounded-full border flex-row items-center gap-1 shadow-2xs`,
+            `px-3 py-1.5 rounded-full border flex-row items-center gap-1 shadow-xs`,
             bgStyle
           )}
         >
