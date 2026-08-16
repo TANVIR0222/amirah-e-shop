@@ -1,7 +1,10 @@
 import { AppText } from "@/components/ui/app-text"
 import { Screen } from "@/components/ui/screen"
+import { TopHeaderBar } from "@/components/ui/top-header-bar"
 import tw from "@/lib/tailwind"
+import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import { router } from "expo-router"
 import { useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
 
@@ -66,7 +69,7 @@ const STATUS_CONFIG: Record<
   Cancelled: { color: "#EF4444", bg: "#FEF2F2", icon: "close-circle" },
 }
 
-const TABS: OrderStatus[] = ["Processing", "Shipped", "Delivered", "Cancelled"]
+const TABS = ["All", "Processing", "Shipped", "Delivered", "Cancelled"] as const
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const cfg = STATUS_CONFIG[status]
@@ -86,20 +89,41 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 }
 
 function OrderCard({ order }: { order: Order }) {
+  const { colors } = useAppTheme()
+
   return (
-    <View style={tw`bg-white rounded-3xl border border-[#E8E8E8] p-4 mb-3`}>
+    <View
+      style={tw.style(`rounded-3xl border p-4 mb-3`, {
+        backgroundColor: colors.surface,
+        borderColor: colors.border,
+      })}
+    >
       <View style={tw`flex-row items-center gap-3`}>
         {/* Product image */}
         <Image
-          source={{ uri: order.image }}
-          style={tw`w-16 h-16 rounded-2xl bg-gray-100`}
+          source={
+            typeof order?.image === "number"
+              ? order.image
+              : {
+                  uri:
+                    typeof order?.image === "string" &&
+                    order.image.trim() !== ""
+                      ? order.image
+                      : "https://amiraheshop.com/images/product/202607170221361.jpeg",
+                }
+          }
+          style={tw.style(`w-16 h-16 rounded-2xl`, {
+            backgroundColor: colors.background,
+          })}
           resizeMode="cover"
         />
 
         {/* Details */}
         <View style={tw`flex-1`}>
           <View style={tw`flex-row justify-between items-start`}>
-            <Text style={tw`text-xs text-[#757575] font-inter-regular`}>
+            <Text
+              style={tw.style(`text-xs`, { color: colors.mutedForeground })}
+            >
               {order.id}
             </Text>
             <StatusBadge status={order.status} />
@@ -107,16 +131,20 @@ function OrderCard({ order }: { order: Order }) {
 
           <Text
             numberOfLines={1}
-            style={tw`text-sm font-geist-semibold text-heading_black mt-1`}
+            style={tw.style(`text-sm font-semibold mt-1`, {
+              color: colors.text,
+            })}
           >
             {order.product}
           </Text>
 
           <View style={tw`flex-row items-center justify-between mt-2`}>
-            <Text style={tw`text-xs text-[#757575]`}>
+            <Text
+              style={tw.style(`text-xs`, { color: colors.mutedForeground })}
+            >
               {order.items} item{order.items > 1 ? "s" : ""} · {order.date}
             </Text>
-            <Text style={tw`text-sm font-geist-bold text-[#F0653A]`}>
+            <Text style={tw`text-sm font-bold text-[#F0653A]`}>
               ৳ {order.total}
             </Text>
           </View>
@@ -124,13 +152,38 @@ function OrderCard({ order }: { order: Order }) {
       </View>
 
       {/* Action row */}
-      <View style={tw`flex-row gap-2 mt-3 border-t border-gray-100 pt-3`}>
+      <View
+        style={tw.style(`flex-row gap-2 mt-3 border-t pt-3`, {
+          borderTopColor: colors.border,
+        })}
+      >
         {order.status === "Delivered" && (
+          <>
+            <TouchableOpacity
+              onPress={() => router.push("/cart")}
+              style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
+            >
+              <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
+                Buy Again
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/(modal)/add-review-modal")}
+              style={tw`flex-1 h-9 rounded-full bg-amber-50 border border-amber-200 items-center justify-center`}
+            >
+              <Text style={tw`text-xs font-semibold text-amber-800`}>
+                Write Review
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {order.status === "Shipped" && (
           <TouchableOpacity
-            style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
+            onPress={() => router.push("/checkout/order-tracking")}
+            style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] border border-red items-center justify-center`}
           >
             <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
-              Buy Again
+              Track Live
             </Text>
           </TouchableOpacity>
         )}
@@ -144,71 +197,95 @@ function OrderCard({ order }: { order: Order }) {
           </TouchableOpacity>
         )}
         <TouchableOpacity
+          onPress={() => router.push("/checkout/order-tracking")}
           style={tw`flex-1 h-9 rounded-full bg-[#F0653A] items-center justify-center`}
         >
-          <Text style={tw`text-xs font-semibold text-white`}>View Details</Text>
+          <Text style={tw`text-xs font-semibold text-white`}>Track Order</Text>
         </TouchableOpacity>
       </View>
     </View>
   )
 }
 
-export default function OrderScreen() {
-  const [activeTab, setActiveTab] = useState<OrderStatus>("Processing")
+export default function MyOrdersScreen() {
+  const { colors } = useAppTheme()
+  const [activeTab, setActiveTab] = useState<string>("All")
 
-  const filtered = MOCK_ORDERS.filter((o) => o.status === activeTab)
+  const filtered =
+    activeTab === "All"
+      ? MOCK_ORDERS
+      : MOCK_ORDERS.filter((o) => o.status === activeTab)
 
   return (
     <Screen>
-      {/* Header */}
-
+      {/* Top Header Bar */}
       <AppText variant="title"> My Orders</AppText>
 
       {/* Tabs */}
-      <View style={tw`  pb-3`}>
-        <View style={tw`flex-row gap-2 mt-3`}>
-          {TABS.map((tab) => {
-            const isActive = tab === activeTab
-            const cfg = STATUS_CONFIG[tab]
+      <View
+        style={tw.style(` py-3 border-b`, {
+          // backgroundColor: colors.surface,
+          borderBottomColor: colors.border,
+        })}
+      >
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={TABS as unknown as string[]}
+          keyExtractor={(item) => item}
+          contentContainerStyle={tw`gap-2`}
+          renderItem={({ item }) => {
+            const isActive = item === activeTab
             return (
               <TouchableOpacity
-                key={tab}
-                onPress={() => setActiveTab(tab)}
+                onPress={() => setActiveTab(item)}
                 style={[
-                  tw`flex-1 py-2 rounded-full  items-center`,
-                  { backgroundColor: isActive ? cfg.color : "#fff" },
+                  tw`px-4 py-2 rounded-full items-center`,
+                  { backgroundColor: isActive ? "#F0653A" : colors.background },
                 ]}
               >
                 <Text
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: "700",
-                    color: isActive ? "#fff" : "#757575",
+                    color: isActive ? "#fff" : colors.mutedForeground,
                   }}
                 >
-                  {tab}
+                  {item}
                 </Text>
               </TouchableOpacity>
             )
-          })}
-        </View>
+          }}
+        />
       </View>
 
       {/* Order List */}
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={tw``}
+        contentContainerStyle={tw` pb-8`}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <OrderCard order={item} />}
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-20`}>
-            <Ionicons name="bag-handle-outline" size={56} color="#D1D5DB" />
-            <Text style={tw`text-base text-[#9CA3AF] font-semibold mt-4`}>
-              No {activeTab} orders
+            <Ionicons
+              name="bag-handle-outline"
+              size={56}
+              color={colors.mutedForeground}
+            />
+            <Text
+              style={tw.style(`text-base font-semibold mt-4`, {
+                color: colors.text,
+              })}
+            >
+              No {activeTab.toLowerCase()} orders
             </Text>
-            <Text style={tw`text-sm text-[#9CA3AF] mt-1`}>
-              Your {activeTab.toLowerCase()} orders will appear here
+            <Text
+              style={tw.style(`text-sm mt-1`, {
+                color: colors.mutedForeground,
+              })}
+            >
+              Your orders will appear here
             </Text>
           </View>
         }
