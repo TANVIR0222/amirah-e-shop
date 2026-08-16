@@ -8,160 +8,18 @@ import { Picker } from "@react-native-picker/picker"
 import { Image } from "expo-image"
 import { router, useLocalSearchParams } from "expo-router"
 import { Formik } from "formik"
+import { useState } from "react"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { CartItem, useCart } from "@/lib/storage/cart-storage"
 
 import { orderDetailsValidationSchema } from "../schema/order-details-validation-schema"
 import useZoneLocation from "../hook/use-zone-location"
 import MainButton from "@/components/ui/MainButton"
-import { useSubmitOrderMutation } from "../api/checkout-api"
+import {
+  useDeliveryChargerCalculateMutation,
+  useSubmitOrderMutation,
+} from "../api/checkout-api"
 import { appToast } from "@/lib/toast/app-toast"
-
-export const districts = [
-  "Bagerhat",
-  "Bandarban",
-  "Barguna",
-  "Barishal",
-  "Bhola",
-  "Bogura",
-  "Brahmanbaria",
-  "Chandpur",
-  "Chattogram",
-  "Chuadanga",
-  "Cumilla",
-  "Cox's Bazar",
-  "Dhaka",
-  "Dinajpur",
-  "Faridpur",
-  "Feni",
-  "Gaibandha",
-  "Gazipur",
-  "Gopalganj",
-  "Habiganj",
-  "Jamalpur",
-  "Jashore",
-  "Jhalokathi",
-  "Jhenaidah",
-  "Joypurhat",
-  "Khagrachhari",
-  "Khulna",
-  "Kishoreganj",
-  "Kurigram",
-  "Kushtia",
-  "Lakshmipur",
-  "Lalmonirhat",
-  "Madaripur",
-  "Magura",
-  "Manikganj",
-  "Meherpur",
-  "Moulvibazar",
-  "Munshiganj",
-  "Mymensingh",
-  "Naogaon",
-  "Narail",
-  "Narayanganj",
-  "Narsingdi",
-  "Natore",
-  "Netrokona",
-  "Nilphamari",
-  "Noakhali",
-  "Pabna",
-  "Panchagarh",
-  "Patuakhali",
-  "Pirojpur",
-  "Rajbari",
-  "Rajshahi",
-  "Rangamati",
-  "Rangpur",
-  "Satkhira",
-  "Shariatpur",
-  "Sherpur",
-  "Sirajganj",
-  "Sunamganj",
-  "Sylhet",
-  "Tangail",
-  "Thakurgaon",
-]
-
-export const areas: Record<string, string[]> = {
-  Bagerhat: ["Bagerhat Sadar", "Mongla", "Rampal"],
-  Bandarban: ["Bandarban Sadar", "Lama", "Naikhongchhari"],
-  Barguna: ["Barguna Sadar", "Amtali", "Patharghata"],
-  Barishal: ["Barishal Sadar", "Nathullabad", "Rupatoli"],
-  Bhola: ["Bhola Sadar", "Borhanuddin", "Char Fasson"],
-  Bogura: ["Bogura Sadar", "Sherpur", "Shibganj"],
-  Brahmanbaria: ["Brahmanbaria Sadar", "Ashuganj", "Sarail"],
-  Chandpur: ["Chandpur Sadar", "Hajiganj", "Matlab"],
-  Chattogram: ["Agrabad", "Halishahar", "Kotwali", "Pahartali", "GEC Circle"],
-  Chuadanga: ["Chuadanga Sadar", "Alamdanga", "Damurhuda"],
-  Cumilla: ["Cumilla Sadar", "Daudkandi", "Chandina"],
-  "Cox's Bazar": ["Cox's Bazar Sadar", "Teknaf", "Ukhia"],
-  Dhaka: [
-    "Mohakhali",
-    "Banani",
-    "Gulshan",
-    "Uttara",
-    "Mirpur",
-    "Badda",
-    "Dhanmondi",
-    "Farmgate",
-    "Mohammadpur",
-    "Motijheel",
-    "Wari",
-    "Ramna",
-    "Tejgaon",
-  ],
-  Dinajpur: ["Dinajpur Sadar", "Birampur", "Parbatipur"],
-  Faridpur: ["Faridpur Sadar", "Bhanga", "Boalmari"],
-  Feni: ["Feni Sadar", "Chhagalnaiya", "Sonagazi"],
-  Gaibandha: ["Gaibandha Sadar", "Gobindaganj", "Palashbari"],
-  Gazipur: ["Tongi", "Gazipur Sadar", "Kaliakair", "Sreepur"],
-  Gopalganj: ["Gopalganj Sadar", "Kotalipara", "Tungipara"],
-  Habiganj: ["Habiganj Sadar", "Madhabpur", "Nabiganj"],
-  Jamalpur: ["Jamalpur Sadar", "Melandaha", "Islampur"],
-  Jashore: ["Jashore Sadar", "Benapole", "Jhikargacha"],
-  Jhalokathi: ["Jhalokathi Sadar", "Nalchity", "Kathalia"],
-  Jhenaidah: ["Jhenaidah Sadar", "Kaliganj", "Maheshpur"],
-  Joypurhat: ["Joypurhat Sadar", "Akkelpur", "Kalai"],
-  Khagrachhari: ["Khagrachhari Sadar", "Mahalchhari", "Ramgarh"],
-  Khulna: ["Sonadanga", "Khalishpur", "Daulatpur", "Boyra", "Khulna Sadar"],
-  Kishoreganj: ["Kishoreganj Sadar", "Bhairab", "Katiadi"],
-  Kurigram: ["Kurigram Sadar", "Nageshwari", "Ulipur"],
-  Kushtia: ["Kushtia Sadar", "Bheramara", "Kumarkhali"],
-  Lakshmipur: ["Lakshmipur Sadar", "Raipur", "Ramganj"],
-  Lalmonirhat: ["Lalmonirhat Sadar", "Patgram", "Hatibandha"],
-  Madaripur: ["Madaripur Sadar", "Shibchar", "Kalkini"],
-  Magura: ["Magura Sadar", "Sreepur", "Mohammadpur"],
-  Manikganj: ["Manikganj Sadar", "Singair", "Saturia"],
-  Meherpur: ["Meherpur Sadar", "Gangni", "Mujibnagar"],
-  Moulvibazar: ["Moulvibazar Sadar", "Sreemangal", "Kamalganj"],
-  Munshiganj: ["Munshiganj Sadar", "Sreenagar", "Tongibari"],
-  Mymensingh: ["Mymensingh Sadar", "Muktagacha", "Trishal", "Gauripur"],
-  Naogaon: ["Naogaon Sadar", "Atrai", "Raninagar"],
-  Narail: ["Narail Sadar", "Lohagara", "Kalia"],
-  Narayanganj: ["Narayanganj Sadar", "Fatullah", "Rupganj", "Sonargaon"],
-  Narsingdi: ["Narsingdi Sadar", "Madhabdi", "Belabo"],
-  Natore: ["Natore Sadar", "Singra", "Bagatipara"],
-  Netrokona: ["Netrokona Sadar", "Madan", "Khaliajuri"],
-  Nilphamari: ["Nilphamari Sadar", "Saidpur", "Dimla"],
-  Noakhali: ["Noakhali Sadar", "Maijdee", "Begumganj"],
-  Pabna: ["Pabna Sadar", "Ishwardi", "Bera"],
-  Panchagarh: ["Panchagarh Sadar", "Tetulia", "Debiganj"],
-  Patuakhali: ["Patuakhali Sadar", "Kalapara", "Bauphal"],
-  Pirojpur: ["Pirojpur Sadar", "Mathbaria", "Nazirpur"],
-  Rajbari: ["Rajbari Sadar", "Goalanda", "Pangsha"],
-  Rajshahi: ["Boalia", "Rajpara", "Motihar", "Shiroil", "Shaheb Bazar"],
-  Rangamati: ["Rangamati Sadar", "Kaptai", "Baghaichhari"],
-  Rangpur: ["Rangpur Sadar", "Pairaband", "Mithapukur", "Gangachara"],
-  Satkhira: ["Satkhira Sadar", "Kaliganj", "Shyamnagar"],
-  Shariatpur: ["Shariatpur Sadar", "Damudya", "Naria"],
-  Sherpur: ["Sherpur Sadar", "Nakla", "Nalitabari"],
-  Sirajganj: ["Sirajganj Sadar", "Belkuchi", "Shahjadpur"],
-  Sunamganj: ["Sunamganj Sadar", "Chhatak", "Jagannathpur"],
-  Sylhet: ["Amberkhana", "Zindabazar", "Tilagor", "Chauhatta", "Beanibazar"],
-  Tangail: ["Tangail Sadar", "Mirzapur", "Madhupur"],
-  Thakurgaon: ["Thakurgaon Sadar", "Pirganj", "Baliadangi"],
-}
 
 export default function OrderDetails() {
   const { colors } = useAppTheme()
@@ -187,6 +45,11 @@ export default function OrderDetails() {
   const { data: zoneLocations = [], isLoading: isZoneLoading } =
     useZoneLocation()
   const [submitOrder, { isLoading }] = useSubmitOrderMutation()
+  const [deliveryChargerCalculate, { isLoading: isDeliveryChargerLoading }] =
+    useDeliveryChargerCalculateMutation()
+  const [calculatedDeliveryCharge, setCalculatedDeliveryCharge] = useState<
+    number | null
+  >(null)
 
   // Determine if direct checkout from single product (Buy Now from id.tsx) or from the Cart
   const isSingleProduct = Boolean(params.productId || params.productName)
@@ -204,19 +67,19 @@ export default function OrderDetails() {
       ? cartSubtotal
       : 0
 
-  const handleOrderSubmit = async (values: any, { resetForm }: any) => {
-    const orderedItems = isSingleProduct
-      ? [
-          {
-            product_id: Number(params.productId) || params.productId,
-            quantity: singleQuantity,
-          },
-        ]
-      : cartItems.map((item: CartItem) => ({
-          product_id: Number(item.id) || item.id,
-          quantity: item.quantity,
-        }))
+  const orderedItems = isSingleProduct
+    ? [
+        {
+          product_id: Number(params.productId) || params.productId,
+          quantity: singleQuantity,
+        },
+      ]
+    : cartItems.map((item: CartItem) => ({
+        product_id: Number(item.id) || item.id,
+        quantity: item.quantity,
+      }))
 
+  const handleOrderSubmit = async (values: any, { resetForm }: any) => {
     const payload = {
       full_name: values.full_name,
       phone_number: values.phone_number,
@@ -232,8 +95,7 @@ export default function OrderDetails() {
     }
 
     try {
-      const res = await submitOrder(payload).unwrap()
-      console.log("Order Submitted:", res)
+      await submitOrder(payload).unwrap()
       appToast.success("Order Submitted Successfully")
 
       // Clear cart items on successful order
@@ -321,7 +183,12 @@ export default function OrderDetails() {
               handleSubmit,
               setFieldValue,
             }) => {
-              const deliveryCharge = values.district === "Dhaka" ? 60 : 120
+              const deliveryCharge =
+                calculatedDeliveryCharge !== null
+                  ? calculatedDeliveryCharge
+                  : values.district === "Dhaka"
+                    ? 60
+                    : 120
               const total = effectiveSubtotal + deliveryCharge
 
               return (
@@ -497,11 +364,10 @@ export default function OrderDetails() {
                           d.name.toLowerCase() ===
                           String(values.district || "").toLowerCase()
                       )
-                      const currentAreas =
-                        activeDistrictObj?.areas ?? areas[values.district] ?? []
+                      const currentAreas = activeDistrictObj?.areas ?? []
 
                       return (
-                        <View style={tw`flex-row gap-3`}>
+                        <View style={tw`flex-col gap-3`}>
                           {/* District Picker */}
                           <View style={tw`flex-1`}>
                             <Text
@@ -519,18 +385,45 @@ export default function OrderDetails() {
                             >
                               <Picker
                                 selectedValue={values.district}
-                                onValueChange={(itemValue) => {
+                                onValueChange={async (itemValue) => {
                                   setFieldValue("district", itemValue)
                                   const matching = zoneLocations?.find(
                                     (d) =>
                                       d.name.toLowerCase() ===
                                       String(itemValue || "").toLowerCase()
                                   )
-                                  const firstArea =
-                                    matching?.areas?.[0] ||
-                                    areas[itemValue]?.[0] ||
-                                    ""
+                                  const firstArea = matching?.areas?.[0] || ""
                                   setFieldValue("area", firstArea)
+
+                                  if (itemValue) {
+                                    try {
+                                      const res: any =
+                                        await deliveryChargerCalculate({
+                                          district: itemValue,
+                                        }).unwrap()
+
+                                      const charge =
+                                        res?.delivery_charge ??
+                                        res?.data?.delivery_charge ??
+                                        res?.charge ??
+                                        res?.data?.charge ??
+                                        res?.amount
+
+                                      if (
+                                        charge !== undefined &&
+                                        charge !== null
+                                      ) {
+                                        setCalculatedDeliveryCharge(
+                                          Number(charge)
+                                        )
+                                      }
+                                    } catch (error) {
+                                      console.log(
+                                        "Error calculating delivery charge:",
+                                        error
+                                      )
+                                    }
+                                  }
                                 }}
                               >
                                 <Picker.Item
@@ -541,21 +434,13 @@ export default function OrderDetails() {
                                   }
                                   value=""
                                 />
-                                {zoneLocations && zoneLocations.length > 0
-                                  ? zoneLocations.map((item) => (
-                                      <Picker.Item
-                                        key={item.id || item.name}
-                                        label={item.name}
-                                        value={item.name}
-                                      />
-                                    ))
-                                  : districts.map((item: any) => (
-                                      <Picker.Item
-                                        key={item}
-                                        label={item}
-                                        value={item}
-                                      />
-                                    ))}
+                                {zoneLocations.map((item) => (
+                                  <Picker.Item
+                                    key={item.id || item.name}
+                                    label={item.name}
+                                    value={item.name}
+                                  />
+                                ))}
                               </Picker>
                             </View>
                             {!!errors.district && touched.district && (
@@ -995,7 +880,9 @@ export default function OrderDetails() {
                           )
                         </Text>
                         <Text style={tw`text-sm font-semibold text-red-600`}>
-                          + ৳ {deliveryCharge}
+                          {isDeliveryChargerLoading
+                            ? "Calculating..."
+                            : `+ ৳ ${deliveryCharge}`}
                         </Text>
                       </View>
 

@@ -13,6 +13,14 @@ export const checkoutApi = api.injectEndpoints({
     }),
     submitOrder: builder.mutation<void, any>({
       query: (data) => ({
+        url: "/orders",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.orders],
+    }),
+    deliveryChargerCalculate: builder.mutation<void, any>({
+      query: (data) => ({
         url: "/checkout/calculate",
         method: "POST",
         body: data,
@@ -22,4 +30,8 @@ export const checkoutApi = api.injectEndpoints({
   }),
 })
 
-export const { useGetZoneQuery, useSubmitOrderMutation } = checkoutApi
+export const {
+  useGetZoneQuery,
+  useSubmitOrderMutation,
+  useDeliveryChargerCalculateMutation,
+} = checkoutApi
