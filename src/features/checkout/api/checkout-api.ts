@@ -1,6 +1,11 @@
 import { api } from "@/api/base-api/api"
 import { tagTypes } from "@/types/rtk-tag-type"
-import { CheckoutResponse } from "../type/checkout-type"
+import {
+  ApiResponse,
+  CheckoutResponse,
+  Order,
+  PaginatedResponse,
+} from "../type/checkout-type"
 
 export const checkoutApi = api.injectEndpoints({
   overrideExisting: true,
@@ -10,6 +15,12 @@ export const checkoutApi = api.injectEndpoints({
         url: "/locations/districts",
       }),
       providesTags: [tagTypes.districts],
+    }),
+    myOrder: builder.query<ApiResponse<PaginatedResponse<Order>>, void>({
+      query: () => ({
+        url: "/orders",
+      }),
+      providesTags: [tagTypes.orders],
     }),
     submitOrder: builder.mutation<void, any>({
       query: (data) => ({
@@ -34,4 +45,5 @@ export const {
   useGetZoneQuery,
   useSubmitOrderMutation,
   useDeliveryChargerCalculateMutation,
+  useMyOrderQuery,
 } = checkoutApi
