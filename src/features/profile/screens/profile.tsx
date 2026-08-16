@@ -259,12 +259,6 @@ export default function ProfileScreen() {
       title: "Orders",
       rows: [
         {
-          icon: "bag-handle-outline",
-          label: "My Orders",
-          sublabel: "View all orders",
-          onPress: () => router.push("/(all-order-info)/my-orders"),
-        },
-        {
           icon: "refresh-outline",
           label: "Returns & Refunds",
           onPress: () => router.push("/(all-order-info)/returns-and-refunds"),
