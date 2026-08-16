@@ -39,23 +39,18 @@ export default function CheckOutModal() {
     (params.quantity ? `${params.quantity} Item(s)` : "1 Item(s)")
   const weight = params.weight || params.variant || "Standard"
   const subtotalVal = params.subtotal ? `৳ ${params.subtotal}` : "৳ 0"
-  const deliveryChargeVal = params.deliveryCharge
-    ? `৳ ${params.deliveryCharge}`
-    : "৳ 60"
 
   const subtotalNum = Number(params.subtotal) || 0
   const deliveryChargeNum =
     params.deliveryCharge !== undefined ? Number(params.deliveryCharge) : 60
   const totalAmountNum =
-    params.totalAmount !== undefined
-      ? Number(params.totalAmount)
-      : subtotalNum + deliveryChargeNum
+    params.totalAmount !== undefined ? Number(params.totalAmount) : subtotalNum
 
   const rowData = [
     { label: "Total Product", value: totalProducts },
     { label: "Weight", value: weight },
     { label: "Subtotal", value: subtotalVal },
-    { label: "Delivery Charge", value: deliveryChargeVal },
+    // { label: "Delivery Charge", value: deliveryChargeVal },
   ]
 
   const handleGoToCheckout = () => {
