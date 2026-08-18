@@ -69,11 +69,17 @@ export default function SignupScreen() {
                   appToast.error(response?.message || "Registration failed")
                 }
               } catch (error: any) {
-                console.error("Registration failed:", error)
+                // Extract field-level validation errors (e.g. { phone: ["already taken"] })
+                const fieldErrors: Record<string, string[]> | undefined =
+                  error?.errors
 
-                const errorMessage =
-                  error?.data?.message ||
-                  "Registration failed. Please check your credentials."
+                console.log(fieldErrors)
+
+                const errorMessage = fieldErrors
+                  ? Object.values(fieldErrors).flat().join("\n")
+                  : error?.data?.message ||
+                    "Registration failed. Please check your credentials."
+
                 appToast.error(errorMessage)
               }
             }}
