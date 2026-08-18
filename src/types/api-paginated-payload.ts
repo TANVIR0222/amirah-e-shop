@@ -3,4 +3,5 @@ export interface CategoryPayload {
   per_page: number
   id?: string | number
   search?: string
+  status?: string
 }
