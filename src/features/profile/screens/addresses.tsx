@@ -5,114 +5,70 @@ import Ionicons from "@expo/vector-icons/Ionicons"
 import { Picker } from "@react-native-picker/picker"
 import { router } from "expo-router"
 import { useState } from "react"
+import { appToast } from "@/lib/toast/app-toast"
 import {
+  Alert,
   Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-
-type AddressItem = {
-  id: string
-  fullName: string
-  phoneNumber: string
-  district: string
-  area: string
-  houseNo: string
-  locality: string
-  fullAddress: string
-  label: "Home" | "Work" | "Other"
-  isDefault: boolean
-}
-
-const INITIAL_ADDRESSES: AddressItem[] = [
-  {
-    id: "ADDR-101",
-    fullName: "Tanvir Islam",
-    phoneNumber: "01712345678",
-    district: "Dhaka",
-    area: "Banani",
-    houseNo: "House #45, Flat #4B, Road #11",
-    locality: "Near Banani Super Market",
-    fullAddress: "House #45, Flat #4B, Road #11, Block-D, Banani, Dhaka",
-    label: "Home",
-    isDefault: true,
-  },
-  {
-    id: "ADDR-102",
-    fullName: "Tanvir Islam (Office)",
-    phoneNumber: "01887654321",
-    district: "Dhaka",
-    area: "Gulshan",
-    houseNo: "Level 4, Plot 12",
-    locality: "Gulshan Avenue",
-    fullAddress: "Level 4, Plot 12, Gulshan Avenue, Dhaka",
-    label: "Work",
-    isDefault: false,
-  },
-]
+import {
+  useDeleteUserAddressMutation,
+  useUserAddressQuery,
+} from "../api/profile-api"
 
 export default function AddressBookScreen() {
   const { colors } = useAppTheme()
   const insets = useSafeAreaInsets()
-  const { data: zoneLocations = [], isLoading: isZoneLoading } =
-    useZoneLocation()
+  const [deleteAddress, { isLoading: isDeletingAddress }] =
+    useDeleteUserAddressMutation()
 
-  const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { data, isLoading } = useUserAddressQuery()
 
-  // Form State
-  const [fullName, setFullName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [district, setDistrict] = useState("Dhaka")
-  const [area, setArea] = useState("Mirpur")
-  const [houseNo, setHouseNo] = useState("")
-  const [locality, setLocality] = useState("")
-  const [fullAddressText, setFullAddressText] = useState("")
-  const [label, setLabel] = useState<"Home" | "Work" | "Other">("Home")
-
+  const addresses = (data?.data || []).map((addr: any) => ({
+    id: addr.id.toString(),
+    isDefault: addr.is_default,
+    label: addr.type || "Other",
+    fullName: addr.full_name,
+    phoneNumber: addr.phone_number,
+    fullAddress: addr.full_address,
+  }))
   const handleSetDefault = (id: string) => {
-    setAddresses((prev) =>
-      prev.map((item) => ({
-        ...item,
-        isDefault: item.id === id,
-      }))
+    // NOTE: Call API to set default address here
+    console.log("Set default:", id)
+  }
+
+  const handleDeleteAddress = async (id: string) => {
+    console.log("id", id)
+
+    Alert.alert(
+      "Delete Address",
+      "Are you sure you want to delete this address?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await deleteAddress({ id: id }).unwrap()
+              appToast.success(res?.message || "Address deleted successfully")
+            } catch (error: any) {
+              console.log(error)
+
+              appToast.error(error?.message || "Failed to delete address")
+            }
+          },
+        },
+      ]
     )
-  }
-
-  const handleDeleteAddress = (id: string) => {
-    setAddresses((prev) => prev.filter((item) => item.id !== id))
-  }
-
-  const handleSaveAddress = () => {
-    if (!fullName.trim() || !phone.trim() || !fullAddressText.trim()) return
-
-    const newAddr: AddressItem = {
-      id: `ADDR-${Date.now()}`,
-      fullName,
-      phoneNumber: phone,
-      district,
-      area,
-      houseNo: houseNo || fullAddressText,
-      locality: locality || area,
-      fullAddress: fullAddressText,
-      label,
-      isDefault: addresses.length === 0,
-    }
-
-    setAddresses((prev) => [...prev, newAddr])
-    setIsModalOpen(false)
-
-    // Reset Form
-    setFullName("")
-    setPhone("")
-    setHouseNo("")
-    setLocality("")
-    setFullAddressText("")
   }
 
   return (
@@ -155,7 +111,7 @@ export default function AddressBookScreen() {
           </View>
 
           <TouchableOpacity
-            onPress={() => setIsModalOpen(true)}
+            onPress={() => router.push("/profile/add-address")}
             style={tw`px-3 py-1.5 rounded-full bg-[#F0653A] flex-row items-center gap-1.5 shadow-sm`}
           >
             <Ionicons name="add-circle" size={16} color="#FFF" />
@@ -223,12 +179,26 @@ export default function AddressBookScreen() {
                 )}
               </View>
 
-              <TouchableOpacity
-                onPress={() => handleDeleteAddress(item.id)}
-                hitSlop={6}
-              >
-                <Ionicons name="trash-outline" size={18} color="#EF4444" />
-              </TouchableOpacity>
+              <View style={tw`flex-row items-center gap-3`}>
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push(`/profile/edit-address?id=${item.id}`)
+                  }
+                  hitSlop={6}
+                >
+                  <Ionicons
+                    name="pencil-outline"
+                    size={18}
+                    color={colors.text}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDeleteAddress(item.id)}
+                  hitSlop={6}
+                >
+                  <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Address Content */}
@@ -266,263 +236,6 @@ export default function AddressBookScreen() {
           </View>
         ))}
       </ScrollView>
-
-      {/* ── ADD NEW ADDRESS MODAL ── */}
-      <Modal
-        visible={isModalOpen}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={() => setIsModalOpen(false)}
-      >
-        <View style={styles.container}>
-          {/* Modal Header */}
-          <View
-            style={tw.style(
-              "px-4 pb-3 border-b border-gray-100 flex-row items-center justify-between",
-              {
-                paddingTop: Math.max(insets.top + 8, 16),
-                backgroundColor: colors.background,
-              }
-            )}
-          >
-            <Text style={tw.style("text-lg font-bold", { color: colors.text })}>
-              Add New Address
-            </Text>
-            <TouchableOpacity onPress={() => setIsModalOpen(false)} hitSlop={8}>
-              <Ionicons name="close" size={24} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Form Scroll View */}
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw.style("p-4 gap-4", {
-              paddingBottom: Math.max(insets.bottom + 24, 32),
-            })}
-          >
-            {/* Label Chips */}
-            <View style={tw`gap-2`}>
-              <Text
-                style={tw.style("text-xs font-bold", { color: colors.text })}
-              >
-                Save Address As
-              </Text>
-              <View style={tw`flex-row gap-2`}>
-                {(["Home", "Work", "Other"] as const).map((tag) => (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() => setLabel(tag)}
-                    style={tw.style(
-                      "px-4 py-2 rounded-xl border flex-row items-center gap-1.5",
-                      label === tag
-                        ? { backgroundColor: "#FEF2F2", borderColor: "#F0653A" }
-                        : {
-                            backgroundColor: colors.surface,
-                            borderColor: colors.border,
-                          }
-                    )}
-                  >
-                    <Text
-                      style={tw.style("text-xs font-bold", {
-                        color: label === tag ? "#F0653A" : colors.text,
-                      })}
-                    >
-                      {tag}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Inputs */}
-            <View style={tw`gap-1`}>
-              <Text
-                style={tw.style("text-xs font-bold mb-1", {
-                  color: colors.text,
-                })}
-              >
-                Full Name *
-              </Text>
-              <TextInput
-                style={tw.style("border rounded-xl px-3.5 h-11 text-xs", {
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  color: colors.text,
-                })}
-                placeholder="Enter full name"
-                placeholderTextColor={colors.mutedForeground}
-                value={fullName}
-                onChangeText={setFullName}
-              />
-            </View>
-
-            <View style={tw`gap-1`}>
-              <Text
-                style={tw.style("text-xs font-bold mb-1", {
-                  color: colors.text,
-                })}
-              >
-                Phone Number *
-              </Text>
-              <TextInput
-                style={tw.style("border rounded-xl px-3.5 h-11 text-xs", {
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  color: colors.text,
-                })}
-                placeholder="01XXXXXXXXX"
-                placeholderTextColor={colors.mutedForeground}
-                keyboardType="phone-pad"
-                value={phone}
-                onChangeText={setPhone}
-              />
-            </View>
-
-            {/* District & Area Pickers */}
-            {(() => {
-              const activeDistrictObj = zoneLocations?.find(
-                (d) =>
-                  d.name.toLowerCase() === String(district || "").toLowerCase()
-              )
-              const currentAreas = activeDistrictObj?.areas ?? []
-
-              return (
-                <View style={tw`flex-row gap-3`}>
-                  <View style={tw`flex-1 gap-1`}>
-                    <Text
-                      style={tw.style("text-xs font-bold mb-1", {
-                        color: colors.text,
-                      })}
-                    >
-                      District *
-                    </Text>
-                    <View
-                      style={tw.style(
-                        "border rounded-xl bg-white overflow-hidden",
-                        { borderColor: colors.border }
-                      )}
-                    >
-                      <Picker
-                        selectedValue={district}
-                        onValueChange={(val) => {
-                          setDistrict(val)
-                          const matching = zoneLocations?.find(
-                            (d) =>
-                              d.name.toLowerCase() ===
-                              String(val || "").toLowerCase()
-                          )
-                          setArea(matching?.areas?.[0] || "")
-                        }}
-                      >
-                        <Picker.Item
-                          label={
-                            isZoneLoading ? "Loading..." : "Select District"
-                          }
-                          value=""
-                        />
-                        {zoneLocations.map((d) => (
-                          <Picker.Item
-                            key={d.id || d.name}
-                            label={d.name}
-                            value={d.name}
-                          />
-                        ))}
-                      </Picker>
-                    </View>
-                  </View>
-
-                  <View style={tw`flex-1 gap-1`}>
-                    <Text
-                      style={tw.style("text-xs font-bold mb-1", {
-                        color: colors.text,
-                      })}
-                    >
-                      Area *
-                    </Text>
-                    <View
-                      style={tw.style(
-                        "border rounded-xl bg-white overflow-hidden",
-                        { borderColor: colors.border }
-                      )}
-                    >
-                      <Picker
-                        selectedValue={area}
-                        enabled={Boolean(district && currentAreas.length > 0)}
-                        onValueChange={(val) => setArea(val)}
-                      >
-                        <Picker.Item
-                          label={
-                            !district
-                              ? "Select District"
-                              : currentAreas.length === 0
-                                ? "No areas"
-                                : "Select Area"
-                          }
-                          value=""
-                        />
-                        {currentAreas.map((a) => (
-                          <Picker.Item key={a} label={a} value={a} />
-                        ))}
-                      </Picker>
-                    </View>
-                  </View>
-                </View>
-              )
-            })()}
-
-            <View style={tw`gap-1`}>
-              <Text
-                style={tw.style("text-xs font-bold mb-1", {
-                  color: colors.text,
-                })}
-              >
-                Building / House No / Street *
-              </Text>
-              <TextInput
-                style={tw.style("border rounded-xl px-3.5 h-11 text-xs", {
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  color: colors.text,
-                })}
-                placeholder="e.g. House #45, Flat #4B, Road #11"
-                placeholderTextColor={colors.mutedForeground}
-                value={houseNo}
-                onChangeText={setHouseNo}
-              />
-            </View>
-
-            <View style={tw`gap-1`}>
-              <Text
-                style={tw.style("text-xs font-bold mb-1", {
-                  color: colors.text,
-                })}
-              >
-                Full Address Details *
-              </Text>
-              <TextInput
-                style={tw.style("border rounded-xl p-3.5 h-20 text-xs", {
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  color: colors.text,
-                })}
-                placeholder="e.g. House #45, Flat #4B, Road #11, Block-D, Banani, Dhaka"
-                placeholderTextColor={colors.mutedForeground}
-                multiline
-                numberOfLines={3}
-                value={fullAddressText}
-                onChangeText={setFullAddressText}
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={handleSaveAddress}
-              style={tw`mt-4 h-12 rounded-2xl bg-[#F0653A] items-center justify-center shadow-sm`}
-            >
-              <Text style={tw`text-sm font-bold text-white`}>Save Address</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-      </Modal>
     </View>
   )
 }
