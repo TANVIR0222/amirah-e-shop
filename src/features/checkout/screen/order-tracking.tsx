@@ -1,9 +1,11 @@
+import { useTrackOrderinfoAndLiveLocationQuery } from "@/features/order/api/order-api"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import { useState } from "react"
 import {
+  ActivityIndicator,
   Image,
   Linking,
   ScrollView,
@@ -23,49 +25,26 @@ type TrackingStep = {
   icon: keyof typeof Ionicons.glyphMap
 }
 
-const TRACKING_STEPS: TrackingStep[] = [
-  {
-    id: 1,
-    title: "Order Placed",
-    subtitle: "Your order #ORD-2026-88421 was received",
-    time: "02:15 PM",
-    status: "completed",
-    icon: "document-text",
-  },
-  {
-    id: 2,
-    title: "Order Packed & Verified",
-    subtitle: "Items packed at Gulshan Warehouse",
-    time: "03:00 PM",
-    status: "completed",
-    icon: "cube",
-  },
-  {
-    id: 3,
-    title: "Out for Delivery",
-    subtitle: "Rider is on the way to your address",
-    time: "03:45 PM",
-    status: "current",
-    icon: "bicycle",
-  },
-  {
-    id: 4,
-    title: "Delivered",
-    subtitle: "Package handed over to recipient",
-    time: "Expected ~04:30 PM",
-    status: "pending",
-    icon: "checkmark-circle",
-  },
-]
-
 export default function OrderTrackingScreen() {
   const { colors } = useAppTheme()
   const insets = useSafeAreaInsets()
 
-  const [steps] = useState<TrackingStep[]>(TRACKING_STEPS)
+  const { id } = useLocalSearchParams<{ id: string }>()
+
+  const { data, isLoading, isError } = useTrackOrderinfoAndLiveLocationQuery(id)
+
+  // console.log(data);
 
   const handleCallRider = () => {
-    Linking.openURL("tel:+8801700000001").catch(() => {})
+    Linking.openURL(`tel:${data?.data?.assigned_rider?.phone}`).catch(() => {})
+  }
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, tw`items-center justify-center`]}>
+        <ActivityIndicator size="large" color="#F0653A" />
+      </View>
+    )
   }
 
   return (
@@ -97,15 +76,8 @@ export default function OrderTrackingScreen() {
               Track Live Order
             </Text>
             <Text style={tw.style("text-xs font-semibold text-[#F0653A]")}>
-              Order #ORD-2026-88421
+              Order #{data?.data?.reference_no}
             </Text>
-          </View>
-
-          <View
-            style={tw`px-3 py-1 rounded-full bg-red-50 border border-red-100 flex-row items-center gap-1.5`}
-          >
-            <View style={tw`w-2 h-2 rounded-full bg-red-500`} />
-            <Text style={tw`text-[11px] font-bold text-red-600`}>LIVE</Text>
           </View>
         </View>
       </View>
@@ -127,11 +99,11 @@ export default function OrderTrackingScreen() {
               Estimated Delivery Time
             </Text>
             <Text style={tw`text-lg font-bold text-[#F0653A]`}>
-              Today, 04:30 PM (25-35 mins)
+              {data?.data?.estimated_delivery_time || "Pending"}
             </Text>
           </View>
           <View
-            style={tw`w-12 h-12 rounded-2xl bg-white items-center justify-center border border-red-100`}
+            style={tw`w-12 h-12 rounded-2xl bg-white items-center justify-center border border-[#F0653A]`}
           >
             <Ionicons name="time-outline" size={24} color="#F0653A" />
           </View>
@@ -155,7 +127,9 @@ export default function OrderTrackingScreen() {
           <View style={tw`flex-row items-center gap-3`}>
             <Image
               source={{
-                uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+                uri:
+                  data?.data?.assigned_rider?.avatar ||
+                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
               }}
               style={tw`w-12 h-12 rounded-full bg-gray-100 border border-gray-200`}
             />
@@ -164,15 +138,16 @@ export default function OrderTrackingScreen() {
               <Text
                 style={tw.style("text-sm font-bold", { color: colors.text })}
               >
-                Md. Tanvir Alam
+                {data?.data?.assigned_rider?.name}
               </Text>
               <Text style={tw.style("text-xs text-gray-500 mt-0.5")}>
-                Honda Livo • Dhaka Metro HA-1234
+                {data?.data?.assigned_rider?.vehicle_info}
               </Text>
               <View style={tw`flex-row items-center gap-1 mt-1`}>
                 <Ionicons name="star" size={12} color="#D97706" />
                 <Text style={tw`text-[11px] font-bold text-amber-700`}>
-                  4.9 (182 deliveries)
+                  {data?.data?.assigned_rider?.rating} (
+                  {data?.data?.assigned_rider?.total_deliveries} deliveries)
                 </Text>
               </View>
             </View>
@@ -199,13 +174,19 @@ export default function OrderTrackingScreen() {
           </Text>
 
           <View style={tw`gap-0`}>
-            {steps.map((step, index) => {
-              const isLast = index === steps.length - 1
-              const isDone = step.status === "completed"
-              const isCurrent = step.status === "current"
+            {data?.data?.order_progress?.map((step, index, arr) => {
+              const isLast = index === arr.length - 1
+              const isDone = step?.is_completed
+              const isCurrent = step?.is_current
+
+              let iconName: keyof typeof Ionicons.glyphMap = "document-text"
+              if (step?.step === 1) iconName = "document-text"
+              else if (step?.step === 2) iconName = "cube"
+              else if (step?.step === 3) iconName = "bicycle"
+              else if (step?.step === 4) iconName = "checkmark-circle"
 
               return (
-                <View key={step.id} style={tw`flex-row gap-3.5 relative`}>
+                <View key={step.step} style={tw`flex-row gap-3.5 relative`}>
                   {/* Step Line Indicator */}
                   <View style={tw`items-center`}>
                     <View
@@ -228,7 +209,7 @@ export default function OrderTrackingScreen() {
                       )}
                     >
                       <Ionicons
-                        name={step.icon}
+                        name={iconName}
                         size={15}
                         color={
                           isDone || isCurrent
@@ -263,7 +244,7 @@ export default function OrderTrackingScreen() {
                               : { color: colors.mutedForeground }
                         )}
                       >
-                        {step.title}
+                        {step?.title}
                       </Text>
 
                       <Text
@@ -271,7 +252,7 @@ export default function OrderTrackingScreen() {
                           color: colors.mutedForeground,
                         })}
                       >
-                        {step.time}
+                        {step?.time}
                       </Text>
                     </View>
 
@@ -280,7 +261,7 @@ export default function OrderTrackingScreen() {
                         color: colors.mutedForeground,
                       })}
                     >
-                      {step.subtitle}
+                      {step?.subtitle}
                     </Text>
                   </View>
                 </View>
@@ -299,23 +280,101 @@ export default function OrderTrackingScreen() {
           <View style={tw`flex-row items-center gap-2`}>
             <Ionicons name="location-outline" size={18} color="#F0653A" />
             <Text style={tw.style("text-xs font-bold", { color: colors.text })}>
-              Delivery Address (Home)
+              {data?.data?.delivery_address?.label}
             </Text>
           </View>
           <Text style={tw.style("text-xs leading-5 text-gray-600 pl-6")}>
-            House #45, Flat #4B, Road #11, Block-D, Mirpur 10, Dhaka
+            {data?.data?.delivery_address?.address}
           </Text>
+        </View>
+
+        {/* Order Summary Card */}
+        <View
+          style={tw.style("p-4 rounded-2xl border gap-3", {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          })}
+        >
+          <View style={tw`flex-row items-center gap-2 mb-1`}>
+            <Ionicons name="receipt-outline" size={18} color="#F0653A" />
+            <Text style={tw.style("text-sm font-bold", { color: colors.text })}>
+              Order Summary
+            </Text>
+          </View>
+
+          <View style={tw`gap-2.5`}>
+            <View style={tw`flex-row justify-between items-center`}>
+              <Text style={tw.style("text-xs text-gray-500")}>Subtotal</Text>
+              <Text
+                style={tw.style("text-xs font-semibold", {
+                  color: colors.text,
+                })}
+              >
+                ৳{data?.data?.summary?.subtotal || 0}
+              </Text>
+            </View>
+            <View style={tw`flex-row justify-between items-center`}>
+              <Text style={tw.style("text-xs text-gray-500")}>
+                Delivery Charge
+              </Text>
+              <Text
+                style={tw.style("text-xs font-semibold", {
+                  color: colors.text,
+                })}
+              >
+                ৳{data?.data?.summary?.delivery_charge || 0}
+              </Text>
+            </View>
+            {Number(data?.data?.summary?.discount) > 0 && (
+              <View style={tw`flex-row justify-between items-center`}>
+                <Text style={tw.style("text-xs text-gray-500")}>Discount</Text>
+                <Text style={tw.style("text-xs font-semibold text-green-600")}>
+                  -৳{data?.data?.summary?.discount}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={tw.style("h-px bg-gray-100 my-1")} />
+
+          <View style={tw`gap-2`}>
+            <View style={tw`flex-row justify-between items-center`}>
+              <Text
+                style={tw.style("text-sm font-bold", { color: colors.text })}
+              >
+                Grand Total
+              </Text>
+              <Text style={tw.style("text-sm font-bold text-[#F0653A]")}>
+                ৳{data?.data?.summary?.grand_total || 0}
+              </Text>
+            </View>
+            <View style={tw`flex-row justify-between items-center`}>
+              <Text style={tw.style("text-xs font-medium text-gray-500")}>
+                Paid Amount
+              </Text>
+              <Text
+                style={tw.style("text-xs font-medium", { color: colors.text })}
+              >
+                ৳{data?.data?.summary?.paid_amount || 0}
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Support CTA */}
         <TouchableOpacity
-          onPress={() => router.push("/(all-order-info)/help-and-support")}
+          onPress={() =>
+            Linking.openURL(`tel:${data?.data?.support?.help_phone}`).catch(
+              () => {}
+            )
+          }
           style={tw`p-3.5 rounded-2xl border border-gray-200 bg-gray-50 flex-row items-center justify-between`}
         >
           <View style={tw`flex-row items-center gap-2.5`}>
             <Ionicons name="headset-outline" size={20} color="#2563EB" />
             <Text style={tw`text-xs font-bold text-gray-800`}>
-              Having an issue with this delivery?
+              {data?.data?.support?.message ||
+                "Having an issue with this delivery?"}
             </Text>
           </View>
           <Text style={tw`text-xs font-bold text-blue-600`}>Get Help →</Text>
