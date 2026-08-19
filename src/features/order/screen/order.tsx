@@ -6,25 +6,25 @@ import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { router } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
+import {
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  TextInput,
+} from "react-native"
 import {
   useGetAllInfoOrderQuery,
   useLazyGetAllInfoOrderQuery,
 } from "../api/order-api"
 import { Order } from "../type/order-type"
+import { TABS } from "@/constants/constants"
+import { useUserOderCancle } from "../hook/use-user-order-cancle"
+import { useUserOderReturn } from "../hook/use-user-order-refund"
 
 type OrderStatus =
   "Processing" | "Shipped" | "Delivered" | "Cancelled" | "Pending"
-
-type Orders = {
-  id: string
-  date: string
-  items: number
-  total: number
-  status: OrderStatus
-  image: string
-  product: string
-}
 
 const STATUS_CONFIG: Record<
   OrderStatus,
@@ -36,15 +36,6 @@ const STATUS_CONFIG: Record<
   Cancelled: { color: "#EF4444", bg: "#FEF2F2", icon: "close-circle" },
   Pending: { color: "#6366F1", bg: "#EEF2FF", icon: "hourglass" },
 }
-
-const TABS = [
-  "All",
-  "Pending",
-  "Processing",
-  "Shipped",
-  "Delivered",
-  "Cancelled",
-] as const
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const cfg = STATUS_CONFIG[status]
@@ -65,6 +56,16 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 
 function OrderCard({ order }: { order: Order }) {
   const { colors } = useAppTheme()
+  const [showRefundInput, setShowRefundInput] = useState(false)
+  const [refundReason, setRefundReason] = useState("")
+  const { handleUserOrderCanche, isLoading } = useUserOderCancle(
+    String(order?.id)
+  )
+  const {
+    handleUserOrderReturn,
+    isLoading: isReturnLoading,
+    data,
+  } = useUserOderReturn(String(order?.id), refundReason)
 
   return (
     <View
@@ -127,89 +128,189 @@ function OrderCard({ order }: { order: Order }) {
       {(() => {
         const s = order?.sale_status?.toLowerCase() ?? ""
         return (
-          <View
-            style={tw.style(`flex-row gap-2 mt-3 border-t pt-3`, {
-              borderTopColor: colors.border,
-            })}
-          >
-            {/* ── Delivered: Buy Again + Write Review ── */}
-            {s === "delivered" && (
-              <>
+          <View>
+            <View
+              style={tw.style(`flex-row gap-2 mt-3 border-t pt-3`, {
+                borderTopColor: colors.border,
+              })}
+            >
+              {/* ── Delivered: Buy Again + Write Review ── */}
+              {s === "delivered" && (
+                <>
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "/product/[id]",
+                        params: {
+                          id: order?.items?.[0]?.product_id,
+                        },
+                      })
+                    }
+                    style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
+                  >
+                    <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
+                      Buy Again
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => router.push("/(modal)/add-review-modal")}
+                    style={tw`flex-1 h-9 rounded-full bg-amber-50 border border-amber-200 items-center justify-center`}
+                  >
+                    <Text style={tw`text-xs font-semibold text-amber-800`}>
+                      Write Review
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setShowRefundInput(!showRefundInput)}
+                    activeOpacity={0.8}
+                    style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
+                  >
+                    <Text style={tw`text-xs font-semibold text-[#EF4444]`}>
+                      Refund
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
+              {/* ── Shipped: Track Live ── */}
+              {s === "shipped" && (
                 <TouchableOpacity
-                  onPress={() => router.push("/cart")}
+                  onPress={() => router.push("/(modal)/add-review-modal")}
+
+                  // onPress={() => router.push("/checkout/order-tracking")}
+                  style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] border border-[#F0653A] items-center justify-center`}
+                >
+                  <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
+                    Track Live
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {/* ── Processing: Cancel Order ── */}
+              {s === "processsing" && (
+                <TouchableOpacity
+                  disabled={isLoading}
+                  activeOpacity={0.8}
+                  style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
+                >
+                  <Text style={tw`text-xs font-semibold text-[#EF4444]`}>
+                    {isLoading ? "Cancelling..." : "Cancel Order"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {/* ── Pending: Cancel Order ── */}
+              {s === "pending" && (
+                <TouchableOpacity
+                  onPress={() => handleUserOrderCanche()}
+                  disabled={isLoading}
+                  activeOpacity={0.8}
+                  style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
+                >
+                  <Text style={tw`text-xs font-semibold text-[#EF4444]`}>
+                    Cancel Order
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {/* ── Cancelled: Reorder ── */}
+              {s === "cancelled" && (
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push({
+                      pathname: "/product/[id]",
+                      params: {
+                        id: order?.items?.[0]?.product_id,
+                      },
+                    })
+                  }
                   style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
                 >
                   <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
-                    Buy Again
+                    Reorder
                   </Text>
                 </TouchableOpacity>
+              )}
+
+              {/* ── Track Order: only for active orders ── */}
+              {(s === "shipped" || s === "processsing" || s === "pending") && (
                 <TouchableOpacity
-                  onPress={() => router.push("/(modal)/add-review-modal")}
-                  style={tw`flex-1 h-9 rounded-full bg-amber-50 border border-amber-200 items-center justify-center`}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/checkout/order-tracking",
+                      params: {
+                        id: order?.id,
+                      },
+                    })
+                  }
+                  style={tw`flex-1 h-9 rounded-full bg-[#F0653A] items-center justify-center`}
                 >
-                  <Text style={tw`text-xs font-semibold text-amber-800`}>
-                    Write Review
+                  <Text style={tw`text-xs font-semibold text-white`}>
+                    Track Order
                   </Text>
                 </TouchableOpacity>
-              </>
-            )}
+              )}
+            </View>
 
-            {/* ── Shipped: Track Live ── */}
-            {s === "shipped" && (
-              <TouchableOpacity
-                onPress={() => router.push("/checkout/order-tracking")}
-                style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] border border-[#F0653A] items-center justify-center`}
-              >
-                <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
-                  Track Live
-                </Text>
-              </TouchableOpacity>
-            )}
+            {/* Refund Input Field */}
+            {showRefundInput && (
+              <View style={tw`mt-3`}>
+                <TextInput
+                  placeholder="Reason for refund"
+                  placeholderTextColor={colors.mutedForeground}
+                  value={refundReason}
+                  onChangeText={setRefundReason}
+                  style={tw.style(`h-10 rounded-xl px-3 text-sm border`, {
+                    borderColor: colors.border,
+                    color: colors.text,
+                    backgroundColor: colors.background,
+                  })}
+                />
+                <View style={tw`flex-row gap-2 mt-2`}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowRefundInput(false)
+                      setRefundReason("")
+                    }}
+                    style={tw.style(
+                      `flex-1 h-10 rounded-xl items-center justify-center border`,
+                      {
+                        borderColor: colors.border,
+                      }
+                    )}
+                  >
+                    <Text
+                      style={tw.style(`text-sm font-semibold`, {
+                        color: colors.text,
+                      })}
+                    >
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
 
-            {/* ── Processing: Cancel Order ── */}
-            {s === "processing" && (
-              <TouchableOpacity
-                style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
-              >
-                <Text style={tw`text-xs font-semibold text-[#EF4444]`}>
-                  Cancel Order
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {/* ── Pending: Cancel Order ── */}
-            {s === "pending" && (
-              <TouchableOpacity
-                style={tw`flex-1 h-9 rounded-full bg-[#FEF2F2] items-center justify-center`}
-              >
-                <Text style={tw`text-xs font-semibold text-[#EF4444]`}>
-                  Cancel Order
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {/* ── Cancelled: Reorder ── */}
-            {s === "cancelled" && (
-              <TouchableOpacity
-                onPress={() => router.push("/cart")}
-                style={tw`flex-1 h-9 rounded-full bg-[#FDECEA] items-center justify-center`}
-              >
-                <Text style={tw`text-xs font-semibold text-[#F0653A]`}>
-                  Reorder
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {/* ── Track Order: only for active orders ── */}
-            {(s === "shipped" || s === "processing" || s === "pending") && (
-              <TouchableOpacity
-                onPress={() => router.push("/checkout/order-tracking")}
-                style={tw`flex-1 h-9 rounded-full bg-[#F0653A] items-center justify-center`}
-              >
-                <Text style={tw`text-xs font-semibold text-white`}>
-                  Track Order
-                </Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      handleUserOrderReturn()
+                      setRefundReason("")
+                      setShowRefundInput(false)
+                    }}
+                    disabled={isReturnLoading || !refundReason.trim()}
+                    style={tw.style(
+                      `flex-1 h-10 rounded-xl items-center justify-center`,
+                      {
+                        backgroundColor:
+                          isReturnLoading || !refundReason.trim()
+                            ? colors.mutedForeground
+                            : "#EF4444",
+                      }
+                    )}
+                  >
+                    <Text style={tw`text-sm font-semibold text-white`}>
+                      {isReturnLoading ? "Submitting..." : "Submit"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             )}
           </View>
         )
@@ -355,6 +456,10 @@ export default function MyOrdersScreen() {
         keyExtractor={(item) => item.id?.toString()}
         contentContainerStyle={tw` pb-8`}
         showsVerticalScrollIndicator={false}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
         renderItem={({ item }) => <OrderCard order={item} />}
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-20`}>
