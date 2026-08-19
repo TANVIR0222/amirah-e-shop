@@ -260,7 +260,7 @@ export default function ProfileScreen() {
       rows: [
         {
           icon: "refresh-outline",
-          label: "Returns & Refunds",
+          label: "Returns",
           onPress: () => router.push("/(all-order-info)/returns-and-refunds"),
         },
         {
