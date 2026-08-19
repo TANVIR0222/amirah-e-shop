@@ -33,3 +33,18 @@ export interface ProfileUpdateResponse {
   created_at: string
   updated_at: string
 }
+
+export interface AddAddressResponse {
+  area: string
+  building_street: unknown | null
+  created_at: string
+  district: string
+  full_address: string
+  full_name: string
+  id: number
+  is_default: boolean
+  phone_number: string
+  type: string
+  updated_at: string
+  user_id: number
+}

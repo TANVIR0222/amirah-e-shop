@@ -4,19 +4,36 @@ import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainButton from "@/components/ui/MainButton"
 import { Screen } from "@/components/ui/screen"
 import tw from "@/lib/tailwind"
-import { router } from "expo-router"
 import React from "react"
-import { Text, TouchableOpacity, View } from "react-native"
+import { Alert, Text, TouchableOpacity, View } from "react-native"
 import { OtpInput } from "react-native-otp-entry"
+import {
+  useOtpVerifyAndResetMutation,
+  useResendOtpMutation,
+} from "../api/auth-api"
+import { router, useLocalSearchParams } from "expo-router"
+import { appToast } from "@/lib/toast/app-toast"
+import { string } from "yup"
+import { useSession } from "../auth-session"
+import { appStorage } from "@/lib/storage/app-storage"
 
 export default function OtpVerificationScreen() {
   const [otpVerify, setOtpVerify] = React.useState<string>("")
   const [seconds, setSeconds] = React.useState(30)
 
-  // const { email, from } = useLocalSearchParams<{
-  //   email: string
-  //   from?: string
-  // }>()
+  const { signIn } = useSession()
+
+  const [otpVerifyAndReset, { isLoading, error }] =
+    useOtpVerifyAndResetMutation()
+  const [resendOtp, { isLoading: isResendLoading, error: isResendError }] =
+    useResendOtpMutation()
+
+  const { email, from } = useLocalSearchParams<{
+    email: string
+    from: string
+  }>()
+
+  console.log(from)
 
   React.useEffect(() => {
     if (seconds <= 0) return
@@ -29,27 +46,61 @@ export default function OtpVerificationScreen() {
   }, [seconds])
 
   const handleRestOTP = async () => {
-    // try {
-    //   const res = await resend_otp_email({
-    //     email: email,
-    //   }).unwrap()
-    //   if (res?.status) {
-    //     Alert.alert(
-    //       "Success",
-    //       "OTP has been sent successfully, check your email"
-    //     )
-    //     setOtpVerify("")
-    //   }
-    // } catch (error: any) {
-    //   console.log(error?.message)
-    // }
+    try {
+      await resendOtp({ email }).unwrap()
+      appToast.success("OTP has been sent successfully, check your email")
+      setOtpVerify("")
+      setSeconds(30) // Reset the timer
+    } catch (error: any) {
+      const fieldErrors: Record<string, string[]> | undefined =
+        error?.errors || error?.data?.errors
+      const errorMessage = fieldErrors
+        ? Object.values(fieldErrors).flat().join("\n")
+        : error?.data?.message || error?.message || "Failed to resend OTP."
+
+      appToast.error(errorMessage)
+    }
   }
 
   const handleOtpVerify = async () => {
-    if (otpVerify.length === 6) {
-      router.push("/(auth)/change-password")
-    } else {
-      router.push("/(auth)/change-password")
+    if (!otpVerify || otpVerify.length < 6) {
+      appToast.error("Please enter a valid 6-digit OTP.")
+      return
+    }
+
+    try {
+      const res = await otpVerifyAndReset({
+        otp: otpVerify,
+      }).unwrap()
+
+      if (res) {
+        // Save the temporary token to storage so the `change-password` API can use it.
+        // We CANNOT call `signIn(res.data)` here because setting `isSignedIn=true`
+        // tells Expo Router to immediately unmount the `(auth)` stack, breaking the navigation!
+        const token = res.data?.access_token || res.data?.token
+        if (token) {
+          await appStorage.set("auth-token", token)
+        }
+
+        appToast.success(res?.message || "OTP verified successfully")
+        if (from === "forgot-password") {
+          router.push("/(auth)/change-password")
+        } else {
+          router.push("/(auth)/login")
+        }
+      } else {
+        appToast.error(res?.message || "Verification failed")
+      }
+    } catch (error: any) {
+      const fieldErrors: Record<string, string[]> | undefined =
+        error?.errors || error?.data?.errors
+      const errorMessage = fieldErrors
+        ? Object.values(fieldErrors).flat().join("\n")
+        : error?.data?.message ||
+          error?.message ||
+          "Verification failed. Please check your OTP."
+
+      appToast.error(errorMessage)
     }
   }
   return (
@@ -98,6 +149,7 @@ export default function OtpVerificationScreen() {
               </Text>
             </View>
 
+            {/* <TouchableOpacity onPress={() => {}}> */}
             <TouchableOpacity onPress={() => handleRestOTP()}>
               <Text style={tw`text-text_gray text-xs underline`}>
                 Send code again
@@ -106,8 +158,8 @@ export default function OtpVerificationScreen() {
           </View>
           <MainButton
             title={"Continue"}
-            onPress={handleOtpVerify}
-            isLoading={false}
+            onPress={() => handleOtpVerify()}
+            isLoading={isLoading}
             textStyle={tw`text-white`}
             showSignUpLink={false}
           />

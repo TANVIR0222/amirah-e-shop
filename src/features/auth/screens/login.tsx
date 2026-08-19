@@ -12,7 +12,7 @@ import { Checkbox } from "expo-checkbox"
 import { appToast } from "@/lib/toast/app-toast"
 import { Formik } from "formik"
 import React from "react"
-import { Text, View } from "react-native"
+import { Text, TouchableOpacity, View } from "react-native"
 import { useUserLoginMutation } from "../api/auth-api"
 import { useSession } from "../auth-session"
 
@@ -121,13 +121,13 @@ export default function LoginScreen() {
                       </Text>
                     </View>
 
-                    {/* <TouchableOpacity
+                    <TouchableOpacity
                       onPress={() => router.push("/(auth)/forgot-password")}
                     >
                       <Text style={tw`text-text_gray text-xs underline`}>
                         Forgot password
                       </Text>
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                   </View>
 
                   {/* Log In Button */}

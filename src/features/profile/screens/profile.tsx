@@ -248,6 +248,11 @@ export default function ProfileScreen() {
           label: "Saved Addresses",
           onPress: () => router.push("/profile/addresses"),
         },
+        {
+          icon: "key-outline",
+          label: "Change Password",
+          onPress: () => router.push("/profile/change-password"),
+        },
       ],
     },
     {
@@ -255,7 +260,7 @@ export default function ProfileScreen() {
       rows: [
         {
           icon: "refresh-outline",
-          label: "Returns & Refunds",
+          label: "Returns",
           onPress: () => router.push("/(all-order-info)/returns-and-refunds"),
         },
         {
@@ -325,22 +330,6 @@ export default function ProfileScreen() {
           >
             {data?.data?.email ?? user?.email ?? ""}
           </Text>
-
-          <TouchableOpacity
-            onPress={() => router.push("/profile/edit-profile")}
-            style={{
-              marginTop: 14,
-              paddingHorizontal: 20,
-              paddingVertical: 8,
-              borderRadius: 20,
-              backgroundColor: BRAND_ORANGE,
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={{ fontSize: 13, fontWeight: "700", color: "#FFFFFF" }}>
-              Edit Profile
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* ── Dynamic Stats Cards ── */}

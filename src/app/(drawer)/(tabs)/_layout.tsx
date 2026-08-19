@@ -12,6 +12,7 @@ export default function TabsLayout() {
       labelStyle={{ color: colors.text }}
       rippleColor={colors.primarySoft}
       tintColor={colors.danger}
+      labelVisibilityMode="labeled"
     >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Icon

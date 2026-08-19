@@ -10,9 +10,16 @@ import tw from "@/lib/tailwind"
 
 import { Formik } from "formik"
 import { View } from "react-native"
-import { loginValidationSchema } from "../validations/auth-validation-schema"
+import {
+  loginValidationSchema,
+  resetPasswordValidationSchema,
+} from "../validations/auth-validation-schema"
+import { useUserForgotPasswordMutation } from "../api/auth-api"
+import { appToast } from "@/lib/toast/app-toast"
 
 export default function ForgotPasswordScreen() {
+  const [userForgotPassword, { isLoading }] = useUserForgotPasswordMutation()
+
   return (
     <KeyboardAvoidingWrapper>
       <Screen scroll={false} contentStyle={{ justifyContent: "center" }}>
@@ -23,9 +30,40 @@ export default function ForgotPasswordScreen() {
         />
         <Card>
           <Formik
-            initialValues={{ email: "", password: "" }}
-            validationSchema={loginValidationSchema}
-            onSubmit={() => router.push("/(auth)/otp-verification")}
+            initialValues={{ email: "" }}
+            validationSchema={resetPasswordValidationSchema}
+            onSubmit={async (data) => {
+              try {
+                const response = await userForgotPassword(data).unwrap()
+                if (response?.success && response?.data) {
+                  appToast.success(
+                    response?.message || "Registration successful!"
+                  )
+                  router.push({
+                    pathname: "/(auth)/otp-verification",
+                    params: {
+                      email: data.email,
+                      from: "forgot-password",
+                    },
+                  })
+                } else {
+                  appToast.error(response?.message || "Registration failed")
+                }
+              } catch (error: any) {
+                // Extract field-level validation errors (e.g. { phone: ["already taken"] })
+                const fieldErrors: Record<string, string[]> | undefined =
+                  error?.errors
+
+                console.log(fieldErrors)
+
+                const errorMessage = fieldErrors
+                  ? Object.values(fieldErrors).flat().join("\n")
+                  : error?.data?.message ||
+                    "Registration failed. Please check your credentials."
+
+                appToast.error(errorMessage)
+              }
+            }}
           >
             {({
               handleChange,
@@ -52,8 +90,9 @@ export default function ForgotPasswordScreen() {
                   {/* Log In Button */}
                   <MainButton
                     title={"Continue"}
-                    onPress={() => router.push("/(auth)/otp-verification")}
-                    isLoading={false}
+                    // onPress={() => router.push("/(auth)/otp-verification")}
+                    onPress={() => handleSubmit()}
+                    isLoading={isLoading}
                     textStyle={tw`text-white`}
                     showSignUpLink={false}
                   />

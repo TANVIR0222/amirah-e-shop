@@ -75,7 +75,7 @@ export const TopHeaderBar = memo(
     const renderActionBtn = () => {
       if (!actionText && !actionIcon) return null
 
-      let bgStyle = "bg-[#FEF2F2] border-red-200"
+      let bgStyle = " border-red-200"
       let textCol = "#EF4444"
 
       if (actionVariant === "primary") {

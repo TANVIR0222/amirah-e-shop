@@ -36,7 +36,31 @@ export const authenticationApi = api.injectEndpoints({
     }),
     resendOtp: builder.mutation({
       query: (data) => ({
-        url: "/resend-verification",
+        url: "/resend-otp",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
+    otpVerifyAndReset: builder.mutation({
+      query: (data) => ({
+        url: "/reset-password",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
+    userForgotPassword: builder.mutation({
+      query: (data) => ({
+        url: "/forgot-password",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
+    userChangePassword: builder.mutation({
+      query: (data) => ({
+        url: "/user/change-password",
         method: "POST",
         body: data,
       }),
@@ -57,4 +81,7 @@ export const {
   useUserVerifyMutation,
   useResendOtpMutation,
   useUserLogoutMutation,
+  useUserForgotPasswordMutation,
+  useOtpVerifyAndResetMutation,
+  useUserChangePasswordMutation,
 } = authenticationApi

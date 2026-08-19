@@ -10,8 +10,33 @@ import tw from "@/lib/tailwind"
 import { Formik } from "formik"
 import { View } from "react-native"
 import { createNewPasswordValidationSchema } from "../validations/auth-validation-schema"
+import { useUserChangePasswordMutation } from "../api/auth-api"
+import { appToast } from "@/lib/toast/app-toast"
 
 export default function ChangePasswordScreen() {
+  const [userChangePassword, { isLoading }] = useUserChangePasswordMutation()
+
+  const handleChangePassword = async (data: any) => {
+    try {
+      const res = await userChangePassword(data).unwrap()
+      if (res?.success) {
+        router.push("/(auth)/login")
+      }
+    } catch (error: any) {
+      console.log(error)
+
+      const fieldErrors: Record<string, string[]> | undefined =
+        error?.errors || error?.errors
+      const errorMessage = fieldErrors
+        ? Object.values(fieldErrors).flat().join("\n")
+        : error?.message ||
+          error?.message ||
+          "Verification failed. Please check your OTP."
+
+      appToast.error(errorMessage)
+    }
+  }
+
   return (
     <KeyboardAvoidingWrapper>
       <Screen scroll={false} contentStyle={{ justifyContent: "center" }}>
@@ -24,7 +49,7 @@ export default function ChangePasswordScreen() {
           <Formik
             initialValues={{ password: "", password_confirmation: "" }}
             validationSchema={createNewPasswordValidationSchema}
-            onSubmit={() => router.push("/(drawer)/(tabs)")}
+            onSubmit={handleChangePassword}
           >
             {({
               handleChange,
@@ -64,9 +89,8 @@ export default function ChangePasswordScreen() {
                   {/* Log In Button */}
                   <MainButton
                     title={"Continue"}
-                    onPress={() => router.push("/(drawer)/(tabs)")}
-                    isLoading={false}
-                    disabled={false}
+                    onPress={() => handleSubmit()}
+                    isLoading={isLoading}
                     textStyle={tw`text-white`}
                     showSignUpLink={false}
                   />
