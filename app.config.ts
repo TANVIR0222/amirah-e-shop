@@ -154,6 +154,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
+    [
+      "expo-image",
+      {
+        disableLibdav1d: true,
+      },
+    ],
   ],
 
   // ── Experiments ───────────────────────────────────────────────────────────
