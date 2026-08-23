@@ -18,7 +18,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useGetSingleProductQuery } from "../api/shop-api"
 import ProductImageSlider from "../components/product-image-slider"
 
-import ProductCoupons from "../components/product-coupons"
 import RelatedProduct from "../components/releted-product"
 import ProductDetailsSkeleton from "../components/skeleton/product-details-skeleton"
 
@@ -55,7 +54,7 @@ export default function ProductDetailsScreen() {
   const isFav = isFavorite(id)
 
   // States
-  const [activeSize, setActiveSize] = useState(staticProduct.sizes[0])
+  const [activeSize, setActiveSize] = useState()
   const [quantity, setQuantity] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
 
@@ -241,12 +240,10 @@ export default function ProductDetailsScreen() {
           </View>
 
           {/* Price & Quantity Controls */}
-          <View
-            style={tw`flex-row justify-between items-center rounded px-3 py-3`}
-          >
+          <View style={tw`flex-row justify-between items-center rounded  py-3`}>
             <View style={tw`gap-0.5`}>
               <View style={tw`flex-row items-baseline gap-2`}>
-                <Text style={tw`text-2xl font-bold text-[#F0653A]`}>
+                <Text style={tw`text-xl font-bold text-[#F0653A]`}>
                   ৳{data?.data?.price}
                 </Text>
                 {staticProduct?.originalPrice && (
@@ -296,9 +293,6 @@ export default function ProductDetailsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* add a Button Coupons and when click show a modal to select coupon */}
-          <ProductCoupons />
 
           {/* Variations / Weight */}
           {data?.data?.sizes_weights && (
