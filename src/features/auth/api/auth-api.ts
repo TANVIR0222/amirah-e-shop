@@ -26,6 +26,14 @@ export const authenticationApi = api.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.auth],
     }),
+    userGuestLogin: builder.mutation<UserLoginResponse, { device_id: string }>({
+      query: (data) => ({
+        url: "/guest-login",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
     userVerify: builder.mutation({
       query: (data) => ({
         url: "/verify",
@@ -84,4 +92,5 @@ export const {
   useUserForgotPasswordMutation,
   useOtpVerifyAndResetMutation,
   useUserChangePasswordMutation,
+  useUserGuestLoginMutation,
 } = authenticationApi
