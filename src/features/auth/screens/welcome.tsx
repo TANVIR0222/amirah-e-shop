@@ -4,8 +4,28 @@ import { Screen } from "@/components/ui/screen"
 import { router } from "expo-router"
 import { Image, View } from "react-native"
 import tw from "../../../lib/tailwind"
+import { useUserGuestLoginMutation } from "../api/auth-api"
+import { useSession } from "../auth-session"
 
 export default function WelcomeScreen() {
+  const [userGuestLogin, { isLoading }] = useUserGuestLoginMutation()
+  const { signIn } = useSession()
+
+  const handleGuestLogin = async () => {
+    try {
+      const response = await userGuestLogin({
+        device_id: `881D3405-65AC-11E7-${Date.now()}-A01CE40260D1`,
+      }).unwrap()
+
+      if (response?.data) {
+        signIn(response.data)
+        router.replace("/(drawer)/(tabs)")
+      }
+    } catch (error) {
+      console.error("Error during guest login:", error)
+    }
+  }
+
   return (
     <Screen
       scroll={false}
@@ -40,7 +60,9 @@ export default function WelcomeScreen() {
           <Button
             label="Continue"
             variant="outline"
-            onPress={() => router.push("/(drawer)/(tabs)")}
+            onPress={handleGuestLogin}
+            disabled={isLoading}
+            loading={isLoading}
           />
         </View>
       </View>
