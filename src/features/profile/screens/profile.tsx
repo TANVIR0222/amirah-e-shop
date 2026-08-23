@@ -1,6 +1,8 @@
 import { Screen } from "@/components/ui/screen"
 import { useUserLogoutMutation } from "@/features/auth/api/auth-api"
 import { useSession } from "@/features/auth/auth-session"
+import useOrder from "@/features/checkout/hook/user-order"
+import useAuthUserInfo from "@/hooks/use-auth-user-info"
 import { useCart } from "@/lib/storage/cart-storage"
 import { useFavorites } from "@/lib/storage/favorite-storage"
 import tw from "@/lib/tailwind"
@@ -17,7 +19,6 @@ import {
   View,
 } from "react-native"
 import { useUserProfileQuery } from "../api/profile-api"
-import useOrder from "@/features/checkout/hook/user-order"
 
 const BRAND_ORANGE = "#F0653A"
 
@@ -101,8 +102,17 @@ function StatCard({
   )
 }
 
-function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
+function MenuSection({
+  title,
+  rows,
+  isGuest,
+}: {
+  title: string
+  rows: MenuRow[]
+  isGuest: boolean
+}) {
   const { colors } = useAppTheme()
+
   return (
     <View style={tw`mb-4`}>
       <Text
@@ -131,7 +141,12 @@ function MenuSection({ title, rows }: { title: string; rows: MenuRow[] }) {
         {rows.map((row, i) => (
           <TouchableOpacity
             key={row.label}
-            onPress={row.onPress}
+            onPress={
+              isGuest &&
+              (title === "My Account" || row.label === "Edit Profile")
+                ? () => router.push("/(auth)/login")
+                : row.onPress
+            }
             activeOpacity={0.65}
             style={[
               tw`flex-row items-center px-4 py-3.5`,
@@ -204,6 +219,7 @@ export default function ProfileScreen() {
 
   const { orderLenght, isLoading } = useOrder()
   const [userLogout, { isLoading: isLoggingOut }] = useUserLogoutMutation()
+  const { name } = useAuthUserInfo()
 
   // console.log(orderData);
 
@@ -302,6 +318,13 @@ export default function ProfileScreen() {
     },
   ]
 
+  const isGuest =
+    !user?.email ||
+    user?.name === "Guest" ||
+    data?.data?.name === "Guest" ||
+    name === "Guest" ||
+    !name
+
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -364,7 +387,7 @@ export default function ProfileScreen() {
 
         {/* ── Menu Sections ── */}
         {sections.map((section) => (
-          <MenuSection key={section.title} {...section} />
+          <MenuSection key={section.title} {...section} isGuest={isGuest} />
         ))}
 
         {/* ── Sign Out ── */}
