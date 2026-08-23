@@ -1,6 +1,7 @@
 import KeyboardAvoidingWrapper from "@/components/ui/KeyboardAvoidingWrapper"
 import MainInput from "@/components/ui/MainInput"
 import { Screen } from "@/components/ui/screen"
+import { CartItem, useCart } from "@/lib/storage/cart-storage"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -10,19 +11,22 @@ import { router, useLocalSearchParams } from "expo-router"
 import { Formik } from "formik"
 import { useState } from "react"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
-import { CartItem, useCart } from "@/lib/storage/cart-storage"
 
-import { orderDetailsValidationSchema } from "../schema/order-details-validation-schema"
-import useZoneLocation from "../hook/use-zone-location"
 import MainButton from "@/components/ui/MainButton"
+import { useSession } from "@/features/auth/auth-session"
+import ProductCoupons from "@/features/shop/components/product-coupons"
+import useAuthUserInfo from "@/hooks/use-auth-user-info"
+import { appToast } from "@/lib/toast/app-toast"
 import {
   useDeliveryChargerCalculateMutation,
   useSubmitOrderMutation,
 } from "../api/checkout-api"
-import { appToast } from "@/lib/toast/app-toast"
+import useZoneLocation from "../hook/use-zone-location"
+import { orderDetailsValidationSchema } from "../schema/order-details-validation-schema"
 
 export default function OrderDetails() {
   const { colors } = useAppTheme()
+  const { user } = useSession()
   const params = useLocalSearchParams<{
     productId?: string
     productName?: string
@@ -35,6 +39,11 @@ export default function OrderDetails() {
     deliveryCharge?: string
     totalAmount?: string
   }>()
+
+  const { name } = useAuthUserInfo()
+  console.log("OrderDetails params:", name)
+  const isGuest =
+    !user?.email || user?.name === "Guest" || name === "Guest" || !name
 
   const {
     cart: cartItems,
@@ -80,6 +89,12 @@ export default function OrderDetails() {
       }))
 
   const handleOrderSubmit = async (values: any, { resetForm }: any) => {
+    if (isGuest) {
+      appToast.error("Please log in to place an order.")
+      router.push("/(auth)/login")
+      return
+    }
+
     const payload = {
       full_name: values.full_name,
       phone_number: values.phone_number,
@@ -317,6 +332,8 @@ export default function OrderDetails() {
                         ) : null}
                       </View>
                     ) : null}
+
+                    <ProductCoupons />
 
                     {/* SECTION 1: CUSTOMER DETAILS */}
                     <Text
@@ -607,54 +624,6 @@ export default function OrderDetails() {
                           </Text>
                         </View>
                       </TouchableOpacity>
-
-                      {/* Online Delivery (Commented out for future use) */}
-                      {/* <TouchableOpacity
-                        onPress={() => {
-                          setFieldValue("delivery_type", "Online Delivery")
-                          setFieldValue("payment_method", "bKash")
-                        }}
-                        style={tw.style(
-                          "flex-1 p-3.5 rounded-2xl border flex-row items-center gap-2.5",
-                          values.delivery_type === "Online Delivery"
-                            ? {
-                                backgroundColor: "#FEF2F2",
-                                borderColor: "#F0653A",
-                              }
-                            : {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
-                              }
-                        )}
-                      >
-                        <Ionicons
-                          name={
-                            values.delivery_type === "Online Delivery"
-                              ? "radio-button-on"
-                              : "radio-button-off"
-                          }
-                          size={18}
-                          color={
-                            values.delivery_type === "Online Delivery"
-                              ? "#F0653A"
-                              : colors.mutedForeground
-                          }
-                        />
-                        <View style={tw`flex-1`}>
-                          <Text
-                            style={tw.style("text-xs font-bold", {
-                              color: colors.text,
-                            })}
-                          >
-                            Online Delivery
-                          </Text>
-                          <Text
-                            style={tw`text-[11px] font-semibold text-red-600`}
-                          >
-                            Pay online instantly
-                          </Text>
-                        </View>
-                      </TouchableOpacity> */}
                     </View>
 
                     {/* Payment Method Details */}
@@ -715,120 +684,6 @@ export default function OrderDetails() {
                           color="#16A34A"
                         />
                       </TouchableOpacity>
-
-                      {/* bKash / Nagad / Rocket (Commented out for future use) */}
-                      {/* <TouchableOpacity
-                        onPress={() => {
-                          setFieldValue("payment_method", "bKash")
-                          setFieldValue("delivery_type", "Online Delivery")
-                        }}
-                        style={tw.style(
-                          "p-3.5 rounded-2xl border flex-row items-center justify-between",
-                          values.payment_method === "bKash"
-                            ? {
-                                backgroundColor: "#FEF2F2",
-                                borderColor: "#F0653A",
-                              }
-                            : {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
-                              }
-                        )}
-                      >
-                        <View style={tw`flex-row items-center gap-3`}>
-                          <Ionicons
-                            name={
-                              values.payment_method === "bKash"
-                                ? "radio-button-on"
-                                : "radio-button-off"
-                            }
-                            size={18}
-                            color={
-                              values.payment_method === "bKash"
-                                ? "#F0653A"
-                                : colors.mutedForeground
-                            }
-                          />
-                          <View>
-                            <Text
-                              style={tw.style("text-xs font-bold", {
-                                color: colors.text,
-                              })}
-                            >
-                              bKash / Nagad / Rocket (Mobile Banking)
-                            </Text>
-                            <Text
-                              style={tw.style("text-[11px]", {
-                                color: colors.mutedForeground,
-                              })}
-                            >
-                              Instant online payment
-                            </Text>
-                          </View>
-                        </View>
-                        <Ionicons
-                          name="phone-portrait-outline"
-                          size={22}
-                          color="#D97706"
-                        />
-                      </TouchableOpacity> */}
-
-                      {/* Debit / Credit Card (Commented out for future use) */}
-                      {/* <TouchableOpacity
-                        onPress={() => {
-                          setFieldValue("payment_method", "Card")
-                          setFieldValue("delivery_type", "Online Delivery")
-                        }}
-                        style={tw.style(
-                          "p-3.5 rounded-2xl border flex-row items-center justify-between",
-                          values.payment_method === "Card"
-                            ? {
-                                backgroundColor: "#FEF2F2",
-                                borderColor: "#F0653A",
-                              }
-                            : {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
-                              }
-                        )}
-                      >
-                        <View style={tw`flex-row items-center gap-3`}>
-                          <Ionicons
-                            name={
-                              values.payment_method === "Card"
-                                ? "radio-button-on"
-                                : "radio-button-off"
-                            }
-                            size={18}
-                            color={
-                              values.payment_method === "Card"
-                                ? "#F0653A"
-                                : colors.mutedForeground
-                            }
-                          />
-                          <View>
-                            <Text
-                              style={tw.style("text-xs font-bold", {
-                                color: colors.text,
-                              })}
-                            >
-                              Debit / Credit Card
-                            </Text>
-                            <Text
-                              style={tw.style("text-[11px]", {
-                                color: colors.mutedForeground,
-                              })}
-                            >
-                              Visa, Mastercard, AMEX
-                            </Text>
-                          </View>
-                        </View>
-                        <Ionicons
-                          name="card-outline"
-                          size={22}
-                          color="#2563EB"
-                        />
-                      </TouchableOpacity> */}
                     </View>
 
                     {/* SECTION 4: PAYMENT SUMMARY */}
