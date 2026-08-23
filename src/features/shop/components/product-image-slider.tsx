@@ -1,13 +1,21 @@
+import Skeleton from "@/components/ui/skeleton"
 import tw from "@/lib/tailwind"
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "@/utils/phone-screen-size"
 import { MaterialIcons } from "@expo/vector-icons"
+import { Image } from "expo-image"
 import { useRef, useState } from "react"
-import { Image, TouchableOpacity, View } from "react-native"
+import { TouchableOpacity, View } from "react-native"
 import PagerView from "react-native-pager-view"
 
 const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
   const pagerRef = useRef<PagerView>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
+
+  const [loadedImages, setLoadedImages] = useState<number[]>([])
+
+  const handleImageLoad = (index: number) => {
+    setLoadedImages((prev) => [...prev, index])
+  }
 
   const imageUrls = (images ?? [])
     .filter((img) => typeof img === "string" && img.trim() !== "")
@@ -42,14 +50,29 @@ const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
               height: IMAGE_HEIGHT,
             }}
           >
+            {!loadedImages.includes(index) && (
+              <Skeleton
+                width={IMAGE_WIDTH}
+                height={IMAGE_HEIGHT}
+                style={{
+                  borderRadius: 8,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                }}
+              />
+            )}
+
             <Image
               source={{ uri: img.uri }}
               style={{
                 width: IMAGE_WIDTH,
                 height: IMAGE_HEIGHT,
                 borderRadius: 8,
+                opacity: loadedImages.includes(index) ? 1 : 0,
               }}
-              resizeMode="cover"
+              contentFit="cover"
+              onLoad={() => handleImageLoad(index)}
             />
           </View>
         ))}
