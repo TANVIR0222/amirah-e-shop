@@ -25,6 +25,16 @@ export default function EditProfileScreen() {
   const { colors } = useAppTheme()
   const { name, phone, image: userImage } = useAuthUserInfo()
 
+  const isGuest =
+    !user?.email || user?.name === "Guest" || name === "Guest" || !name
+
+  React.useEffect(() => {
+    if (isGuest) {
+      appToast.error("Please login to edit your profile")
+      router.replace("/(auth)/login")
+    }
+  }, [isGuest])
+
   const [updateProfile] = useUpdateProfileMutation()
 
   const [image, setImage] = React.useState<string | null>(null)
