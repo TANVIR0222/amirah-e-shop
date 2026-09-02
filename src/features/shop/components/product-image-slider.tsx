@@ -31,7 +31,7 @@ const ProductImageSlider = ({ images }: { images: string[] | undefined }) => {
   }
 
   return (
-    <View style={tw`relative mt-3`}>
+    <View style={tw`relative mt-6`}>
       <PagerView
         ref={pagerRef}
         initialPage={0}
