@@ -17,7 +17,7 @@ export const shopApi = api.injectEndpoints({
       ApiResponse<PaginatedResponse<ShopProductResponse>>,
       CategoryPayload
     >({
-      query: ({ page = 1, per_page = 1, search }) => ({
+      query: ({ page = 1, per_page, search }) => ({
         url: "/products",
         method: "GET",
         params: {
