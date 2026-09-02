@@ -16,7 +16,7 @@ const CARD_WIDTH =
     ? SCREEN_WIDTH - OUTER_PADDING * 2
     : (SCREEN_WIDTH - OUTER_PADDING * 2 - GAP) / 2
 
-export const ProductCard = memo(({ item }: { item: any }) => {
+const ProductCardComponent = ({ item }: { item: any }) => {
   const { colors } = useAppTheme()
 
   const {
@@ -133,6 +133,11 @@ export const ProductCard = memo(({ item }: { item: any }) => {
       </View>
     </TouchableOpacity>
   )
-})
+}
+
+export const ProductCard = memo(
+  ProductCardComponent,
+  (prevProps, nextProps) => prevProps.item?.id === nextProps.item?.id
+)
 
 ProductCard.displayName = "ProductCard"
