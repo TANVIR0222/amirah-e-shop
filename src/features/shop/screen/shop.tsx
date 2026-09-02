@@ -4,7 +4,7 @@ import { Screen } from "@/components/ui/screen"
 import tw from "@/lib/tailwind"
 import { useAppTheme } from "@/theme/theme-provider"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { router } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo, useState } from "react"
 import {
   ActivityIndicator,
@@ -21,7 +21,17 @@ const BRAND = "#F0653A"
 
 export default function Shop() {
   const { colors } = useAppTheme()
-  const [search, setSearch] = useState("")
+  const params = useLocalSearchParams<{ search?: string }>()
+  const [search, setSearch] = useState(params.search || "")
+  const [prevParamSearch, setPrevParamSearch] = useState(params.search)
+
+  if (params.search !== prevParamSearch) {
+    setPrevParamSearch(params.search)
+    if (params.search !== undefined) {
+      setSearch(params.search)
+    }
+  }
+
   const [value] = useDebounce(search, 500)
 
   // Extra pages fetched beyond page 1
@@ -143,7 +153,7 @@ export default function Shop() {
           </View>
 
           {/* Filter button → opens modal */}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => router.push("/(modal)/order-filter-modal")}
             style={tw.style(
               `w-11 h-11 rounded-xl items-center justify-center`,
@@ -153,7 +163,7 @@ export default function Shop() {
             )}
           >
             <Ionicons name="options-outline" size={20} color="#fff" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     ),
@@ -161,15 +171,15 @@ export default function Shop() {
   )
 
   return (
-    <Screen>
+    <Screen scroll={false} contentStyle={{ paddingBottom: 0 }}>
       <ProductGrid
         data={allItems}
-        // scrollEnabled={f}
         onLoadMore={handleLoadMore}
         onRefresh={handleRefresh}
         refreshing={refreshing}
         isLoading={isLoading && allItems.length === 0}
         ListHeaderComponent={ListHeader}
+        contentContainerStyle={tw`pb-2`}
         ListFooterComponent={
           loadingMore ? (
             <View style={tw`py-4 justify-center items-center`}>
