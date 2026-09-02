@@ -23,6 +23,7 @@ export interface ProductGridProps {
   refreshing?: boolean
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
+  style?: StyleProp<ViewStyle>
   ListHeaderComponent?: React.ReactElement | null
   ListFooterComponent?: React.ReactElement | null
   ListEmptyComponent?: React.ReactElement | null
@@ -37,6 +38,7 @@ export const ProductGrid = memo(
     refreshing = false,
     scrollEnabled = true,
     contentContainerStyle,
+    style,
     ListHeaderComponent,
     ListFooterComponent,
     ListEmptyComponent,
@@ -51,6 +53,17 @@ export const ProductGrid = memo(
           item={item}
         />
       ),
+      []
+    )
+
+    const renderFlatListItem = useCallback(
+      ({ item }: { item: any }) => <ProductCard item={item} />,
+      []
+    )
+
+    const keyExtractor = useCallback(
+      (item: any, index: number) =>
+        item?.id != null ? String(item.id) : `idx-${index}`,
       []
     )
 
@@ -87,10 +100,9 @@ export const ProductGrid = memo(
     return (
       <FlatList
         data={safeData}
-        renderItem={({ item }) => <ProductCard item={item} />}
-        keyExtractor={(item, index) =>
-          item?.id != null ? String(item.id) : `idx-${index}`
-        }
+        style={[{ flex: 1 }, style]}
+        renderItem={renderFlatListItem}
+        keyExtractor={keyExtractor}
         numColumns={NUM_COLUMNS}
         columnWrapperStyle={
           NUM_COLUMNS > 1
@@ -104,11 +116,11 @@ export const ProductGrid = memo(
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         ListEmptyComponent={ListEmptyComponent}
-        onEndReachedThreshold={0.4}
+        onEndReachedThreshold={0.5}
         removeClippedSubviews
-        initialNumToRender={8}
-        maxToRenderPerBatch={8}
-        windowSize={7}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
+        windowSize={5}
         updateCellsBatchingPeriod={50}
         showsVerticalScrollIndicator={false}
       />
