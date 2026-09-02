@@ -110,7 +110,7 @@ export function DraggableFloatingCart() {
     pathname === "/cart" ||
     pathname === "/(common)/cart" ||
     pathname.includes("checkout") ||
-    pathname.includes("auth")
+    pathname.includes("(auth)")
 
   if (isCartScreen) {
     return null
