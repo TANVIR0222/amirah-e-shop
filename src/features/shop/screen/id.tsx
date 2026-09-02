@@ -313,7 +313,7 @@ export default function ProductDetailsScreen() {
                     <TouchableOpacity
                       activeOpacity={0.8}
                       key={item}
-                      onPress={() => setActiveSize(item)}
+                      onPress={() => setActiveSize(item as any)}
                       style={tw.style(
                         "px-4 py-2 rounded-2xl border flex-row items-center gap-1.5",
                         isActive
