@@ -160,7 +160,7 @@ export default function RelatedProductsScreen() {
   }
 
   return (
-    <Screen scroll={false}>
+    <Screen>
       {/* ── Top Bar with Back Button & Title ── */}
       <View style={tw`flex-row items-center justify-between mt-1 mb-3`}>
         <View style={tw`flex-row items-center gap-3`}>
@@ -284,6 +284,7 @@ export default function RelatedProductsScreen() {
               </View>
             ) : null
           }
+          scrollEnabled={false}
         />
       </View>
     </Screen>
